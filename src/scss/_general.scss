@@ -1,0 +1,79 @@
+.v-application {
+  .table {
+    a {
+      color: #000 !important;
+      transition: all .5s;
+      padding: 4px 10px;
+
+      &:hover {
+        background: #1976d2;
+        color: #fff !important;
+      }
+    }
+  }
+}
+
+.app {
+  &.loading {
+    background: url(../assets/img/loading.gif) transparent no-repeat center center;
+  }
+}
+
+
+.text {
+  &--white {
+    color: #fff !important;
+  }
+}
+
+.theme--light.v-chip-group .v-chip.text--white {
+  color: #fff !important;
+}
+
+.label {
+  font-size: 150%;
+}
+
+fieldset {
+  border: none;
+  padding: 10px;
+
+  &.no-padding-bottom {
+    padding-bottom: 0;
+
+    &+fieldset {
+      padding-top: 0;
+    }
+  }
+}
+
+.v-overlay__content {
+  height: 100%;
+  width: 100%;
+}
+
+.wrap-title {
+  white-space: normal !important;
+}
+
+.flex-wrap {
+  flex-wrap: wrap !important;
+}
+
+.max-height {
+  height: auto !important;
+}
+
+.spinner {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  padding: 40px 0;
+}
+
+.tbl {
+  width: 100%;
+  th {
+    width: 33%;
+  }
+}
