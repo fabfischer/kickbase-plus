@@ -1,0 +1,68 @@
+.bid-row {
+  
+  margin: 0 0 30px 0;
+  
+  .head {
+    background: #212121;
+    padding: 2px 10px;
+    transition: all .5s;
+  }
+  
+  &.own-bid {
+    .head {
+      animation: colorchangeOwnBid 2s infinite;
+    }
+    
+  }
+  
+  &.no-bid {
+    .head {
+      animation: colorchangeNoBid 2s infinite;
+    }
+  }
+  
+  &.own-bid.only {
+    .head {
+      animation: colorchangeOwnBidOnly 4s infinite;
+    }
+  }
+  
+  .higher-than-comp-value {
+    color: red;
+  }
+  
+  .lower-than-comp-value {
+    color: green;
+  }
+  
+  
+}
+
+.players-name {
+  @media (max-width: 640px){
+    order: 5
+  }
+}
+
+@keyframes colorchangeOwnBidOnly
+{
+  0%   {background: #212121;}
+  33%  {background: #FFEE58;}
+  50% {background: #66BB6A;}
+  88% {background: #2E7D32;}
+  100%   {background: #212121;}
+}
+
+@keyframes colorchangeOwnBid
+{
+  0%   {background: #212121;}
+  50%  {background: #66BB6A;}
+  100% {background: #212121;}
+}
+
+@keyframes colorchangeNoBid
+{
+  0%   {background: #212121;}
+  50%  {background: #42A5F5;}
+  100% {background: #212121;}
+}

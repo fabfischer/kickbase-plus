@@ -1,0 +1,43 @@
+.sell-row {
+    
+    .details {
+        th {
+        }
+    }
+
+    .player-name {
+        small {
+            display: block;
+            font-size: 14px;
+            font-weight: normal;
+
+            span {
+                &.green, &.red {
+                    padding: 2px;
+                    display: inline-block;
+                    color: #fff;
+                }
+            }
+        }
+    }
+    
+}
+
+.subtable {
+    width: 100%;
+    th, td {
+        text-align: left;
+        padding: 5px;
+        border-bottom: 1px solid #ccc;
+
+        
+    }
+
+    tr {
+        &:last-of-type {
+            th, td {
+                border: none;
+            }
+        }
+    }
+}

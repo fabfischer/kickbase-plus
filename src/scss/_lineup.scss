@@ -1,0 +1,144 @@
+.field {
+    background: green;
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.position {
+    &__container {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        padding: 40px 0;
+        flex-wrap: wrap;
+        border-bottom: 3px dashed rgba(255,255,255,.5);
+        
+        &:first-of-type {
+            padding-top: 0;
+        }
+        
+        &:last-of-type {
+            border: none;
+            padding-bottom: 0;
+        }
+    }
+    
+    &--lined-up {
+        border-radius: 50%;
+        background: #fff;
+        padding: 10px;
+        margin: 0 40px 20px 40px;
+        position: relative;
+        text-align: center;
+        cursor: pointer;
+        
+        font-size: 13px;
+        
+        @include breakpoint(xs) {
+            font-size: 12px;
+        }
+        
+        .v-chip {
+            position: absolute;
+            top: 0;
+            right: -20px;
+        }
+        
+        .club {
+            position: absolute;
+            top: 30px;
+            right: -20px;
+            max-width: 50px;
+        }
+        
+        
+        .avatar {
+            width: 100%;
+            img {
+                max-width: 160px;
+                
+                @include breakpoint(xs) {
+                    max-width: 120px;
+                }
+            }
+        }
+    }
+}
+
+.no-position {
+    width: 200px;
+}
+
+.vsInfo {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+
+    &--left {
+        justify-content: left;
+    }
+
+    &--dark {
+        background: #333;
+        margin-left: 16px;
+    }
+}
+
+.vsTeam {
+    width: 30px
+}
+
+
+.change-line-up {
+    &__img {
+        img {
+            max-width: 180px;
+        }
+
+        &--logo {
+            img {
+                max-width: 60px;
+                position: absolute;
+                right: -25px;
+                top: 30px;
+            }
+        }
+    }
+    &__container {
+        display: flex;
+        
+        &__column {
+            padding: 10px;
+            width: 50%;
+            box-sizing: border-box;
+        }
+    }
+    &__other-player {
+        padding: 0 0 20px 0;
+        &:last-of-type {
+            padding-bottom: 0;
+        }
+        .v-chip {
+            margin-left: 16px;
+        }
+
+        img {
+            max-width: 36px;
+        }
+
+        &:last-of-type {
+            margin-bottom: 20px;
+        }
+    }
+    &__player {
+        position: relative;
+        width: 180px;
+        .v-chip {
+            top: 0;
+            right: -20px;
+            position: absolute;
+        }
+    }
+}
