@@ -368,7 +368,7 @@ const api = {
         store.commit('setErrorMessage', 'could not fetch users')
       });
   },
-  loadUsersPlayer(usersId) {
+  loadUsersPlayer(usersId, loadPlayerStates = true, callback) {
     const user = usersId
     axios({
       'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/users/' + user + '/players',
@@ -379,10 +379,13 @@ const api = {
           user,
           players: response.data.players
         })
-        if (response.data.players && response.data.players.length && (usersId * 1) === store.getters.getSelf) {
+        if (response.data.players && response.data.players.length && (usersId * 1) === store.getters.getSelf && loadPlayerStates === true) {
           response.data.players.forEach((player) => {
             api.loadPlayersStats(player.id)
           })
+        }
+        if (typeof callback === 'function') {
+          callback()
         }
       }
     })
@@ -502,7 +505,7 @@ const api = {
   acceptBids(offer, callback) {
 
     axios({
-      'url': 'https://api.kickbase.com/leagues/' + this.getLeague + '/market/' + offer.playerId + '/offers/' + offer.offerId + '/accept',
+      'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/market/' + offer.playerId + '/offers/' + offer.offerId + '/accept',
       "method": "POST",
     }).then((first) => {
       if (first.status === 200) {
