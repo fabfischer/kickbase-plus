@@ -359,7 +359,11 @@ export default {
         })
 
         offers.forEach((offer) => {
-          api.acceptBids(offer, () => {api.loadUsersPlayerOffers(this.setPlayers)})
+          api.acceptBids(offer, () => {
+            api.loadUsersPlayer(this.getSelf, false, () => {
+              api.loadUsersPlayerOffers(this.setPlayers)
+            })
+          })
         })
 
         
