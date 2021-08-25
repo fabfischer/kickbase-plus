@@ -1,6 +1,7 @@
 {
   "name": "kickbase-plus",
-  "version": "1.0.0",
+  "version": "1.1.0",
+  "description": "alternative web client for kickbase",
   "scripts": {
     "serve": "vue-cli-service serve --port 3200",
     "build": "vue-cli-service build",
@@ -34,7 +35,12 @@
     "sass-loader": "^10.0.0",
     "vue-cli-plugin-vuetify": "~2.4.0",
     "vue-template-compiler": "^2.6.11",
-    "vuetify-loader": "^1.7.0"
+    "vuetify-loader": "^1.7.0",
+    "dns-packet": ">=1.3.2",
+    "ws": ">=6.2.2",
+    "postcss": ">=7.0.36",
+    "url-parse": ">=1.5.2",
+    "path-parse": ">=1.0.7"
   },
   "eslintConfig": {
     "root": true,
@@ -58,5 +64,26 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/fabfischer/kickbase-plus#readme",
+  "bugs": {
+    "url": "https://github.com/fabfischer/kickbase-plus/issues"
+  },
+  "keywords": [
+    "kickbase",
+    "api"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/fabfischer/kickbase-plus.git"
+  },
+  "author": "Fabian Fischer",
+  "contributors": [
+    {
+      "name": "Fabian Fischer",
+      "email": "code@fabian-fischer.com",
+      "url": "https://wundershit.dev/"
+    }
   ]
 }

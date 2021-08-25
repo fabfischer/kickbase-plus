@@ -257,7 +257,7 @@ export default {
         if (this.lineup.length) {
           this.lineup.forEach((id) => {
             this.defenders.forEach(player => {
-              if (id === player.id) {
+              if (id === player.id && players.length < this.positions.defenders) {
                 players.push(player)
               }
             });
@@ -278,7 +278,7 @@ export default {
         if (this.lineup.length) {
           this.lineup.forEach((id) => {
             this.midfielders.forEach(player => {
-              if (id === player.id) {
+              if (id === player.id && players.length < this.positions.midfielders) {
                 players.push(player)
               }
             });
@@ -299,7 +299,7 @@ export default {
         if (this.lineup.length) {
           this.lineup.forEach((id) => {
             this.forwards.forEach(player => {
-              if (id === player.id) {
+              if (id === player.id && players.length < this.positions.forwards) {
                 players.push(player)
               }
             });
@@ -419,6 +419,7 @@ export default {
       const forwards = (newPlayer.position === 4) ? this.changeBlockLineup(forwardsBlock, oldPlayer, newPlayer) : forwardsBlock
 
       const newLineup = [...goalie, ...defenders, ...midfielders, ...forwards]
+      console.log(goalie, defenders, midfielders, forwards)
 
       api.saveLineup(
         {
