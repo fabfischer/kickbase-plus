@@ -17,7 +17,7 @@
               <td class="pa-2 blue-grey darken-1 white--text text-left">{{ getSelectedLeague.au }}</td>
             </tr>
             <tr>
-              <th class="pa-2 blue-grey lighten-3 text-left">max players per players team:</th>
+              <th class="pa-2 blue-grey lighten-3 text-left">max players per user team:</th>
               <td class="pa-2 blue-grey darken-1 white--text text-left">{{ getSelectedLeague.pl }}</td>
             </tr>
             <tr>

@@ -208,16 +208,8 @@ const api = {
                     players.forEach((player) => {
                         let shouldAdd = true
 
-                        if (player.userId) {
+                        if (player.userId * 1 === store.getters.getSelf) {
                             shouldAdd = false
-                        }
-
-                        if (shouldAdd && player.offers && player.offers.length) {
-                            player.offers.forEach((offer) => {
-                                if (!offer.userId) {
-                                    shouldAdd = false
-                                }
-                            })
                         }
                         if (shouldAdd) {
                             cleanedPlayers.push(player)
@@ -226,7 +218,9 @@ const api = {
 
                     if (fetchStats) {
                         cleanedPlayers.forEach(async (player) => {
-                            await this.loadPlayersStats(player.id)
+                            if (!player.userId) {
+                                await this.loadPlayersStats(player.id)
+                            }
                         })
                     }
                     store.commit('setBids', cleanedPlayers)
@@ -241,7 +235,7 @@ const api = {
             .finally(function () {
             })
     },
-    loadPlayersStats(playerId, callback) {
+    loadPlayersStats(playerId, callback, force) {
         const todayAsString = getTodaysDateAsString()
         const currentStatsFetchedData = store.getters.getPlayersStatsFetched
 
@@ -258,7 +252,7 @@ const api = {
             }
         }
 
-        if (currentStatsFetchedData[playerId] !== todayAsString) {
+        if (currentStatsFetchedData[playerId] !== todayAsString || force === true) {
             axios({
                 'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/players/' + playerId + '/stats',
                 "method": "GET",
@@ -398,7 +392,7 @@ const api = {
                 })
                 if (response.data.players && response.data.players.length && (userId * 1) === store.getters.getSelf && loadPlayerStates === true) {
                     response.data.players.forEach(async (player) => {
-                            await api.loadPlayersStats(player.id)
+                        await api.loadPlayersStats(player.id)
                     })
                 }
                 if (typeof callback === 'function') {
