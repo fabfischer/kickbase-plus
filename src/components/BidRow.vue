@@ -29,7 +29,8 @@
               </span>
 
         </strong>
-        &nbsp;<span class="hidden-xs-only">(#{{ player.id }})</span> &nbsp;⌀ {{ player.averagePoints }} / {{ player.totalPoints }}
+        &nbsp;<span class="hidden-xs-only">(#{{ player.id }})</span> &nbsp;⌀ {{ player.averagePoints }} /
+        {{ player.totalPoints }}
 
       </v-chip>
       <status-pill :player="player"></status-pill>
@@ -58,10 +59,14 @@
           v-if="player.offers && player.offers.length"
       >
         <v-chip v-for="(offer, okey) in player.offers" :key="okey">
-          {{ offer.userName }}: {{ offer.price | numeral('0,0 $') }}
+          {{ offer.userName }}:&nbsp;
           <span v-if="offer.userId != getSelf">
-              <small>/ {{ getUsersPlayers(offer.userId) }} players</small>
+              {{ getDate(offer.date) }}
+              <small> / {{ offer.price | numeral('0,0 $') }} / {{ getUsersPlayers(offer.userId) }} players</small>
             </span>
+          <span v-else>
+            {{ offer.price | numeral('0,0 $') }}
+          </span>
         </v-chip>
       </v-chip-group>
     </fieldset>
@@ -96,6 +101,14 @@
                     </td>
                     <td class="text-start">
                       {{ getComputedBid }}
+                    </td>
+                  </tr>
+                  <tr class="" v-if="hasOwnBid">
+                    <td colspan="2">
+                      <v-btn color="red" class="darken-3 white--text" @click="revokeBid" block>revoke own bid
+                        ({{ getComputedBid }})
+                      </v-btn>
+                      <br>
                     </td>
                   </tr>
                   <tr>
@@ -209,7 +222,8 @@ export default {
     ...mapGetters([
       'getSelf',
       'getPlayers',
-      'getUsers'
+      'getUsers',
+      'getBids',
     ]),
     hasPlayerStats() {
       return (Object.keys(this.getPlayers).length >= 1
@@ -445,6 +459,30 @@ export default {
     },
     calc1PercentDecrease(value) {
       return value - (value * this.calcPercentSafe)
+    },
+    getDate(date) {
+      const m = moment(date)
+      return m.fromNow()
+    },
+    revokeBid() {
+
+      let offer = null
+      this.getBids.forEach((bid) => {
+        if (bid.id === this.player.id && bid.offers && bid.offers.length) {
+          bid.offers.forEach((offerObject) => {
+            if (offerObject.userId * 1 === this.getSelf) {
+              offer = offerObject
+            }
+          })
+        }
+      })
+
+      if (offer) {
+        api.revokeBid(this.player.id, offer.id, async () => {
+          this.playerBid = null
+          await api.loadBids(false)
+        })
+      }
     },
     sendMVBid() {
       this.playerBid = numeral(this.player.marketValue).format('0')
