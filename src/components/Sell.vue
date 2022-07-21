@@ -194,20 +194,11 @@ export default {
   },
   methods: {
     ...mapMutations(['addLoadingMessage', 'setLoading', 'resetLoading']),
-    init: function () {
+    init: async function () {
       if (this.getSelf) {
-        const r = async () => {
-          await api.loadUsersPlayer(this.getSelf, true)
-          await api.loadUsersPlayerOffers(this.setPlayers)
-        }
-
-        if (this.getPlayers && this.getPlayers.length) {
-          window.setTimeout(r, 2000)
-        } else {
-          api.loadBids(false, () => {
-            window.setTimeout(r, 2000)
-          })
-        }
+        await api.loadBids(false)
+        await api.loadUsersPlayer(this.getSelf)
+        await api.loadUsersPlayerOffers(this.setPlayers)
       } else {
         window.setTimeout(this.init, 1000)
       }
