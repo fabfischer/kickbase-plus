@@ -392,19 +392,15 @@ const api = {
             "method": "GET",
         }).then(async (response) => {
             if (response.status === 200) {
-                const todayString = getTodaysDateAsString()
                 store.commit('addUsersPlayer', {
                     user,
                     players: response.data.players
                 })
                 if (response.data.players && response.data.players.length && (userId * 1) === store.getters.getSelf && loadPlayerStates === true) {
                     response.data.players.forEach(async (player) => {
-                        if (store.getters.getSelfPlayersStatsFetched !== todayString) {
                             await api.loadPlayersStats(player.id)
-                        }
                     })
                 }
-                store.commit('setSelfPlayersStatsFetched', todayString)
                 if (typeof callback === 'function') {
                     callback()
                 }
