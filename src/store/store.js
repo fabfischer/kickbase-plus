@@ -25,10 +25,10 @@ const store = new Vuex.Store({
     league: null,
     self: null,
     selfData: null,
+    selfPlayersStatsFetched: null,
+    playersStatsFetched: {},
     bearerToken: '',
     ranking: null,
-    // todo: deprecated?
-    startDate: '2019-08-02T12:00:00Z',
   },
   getters,
   mutations,

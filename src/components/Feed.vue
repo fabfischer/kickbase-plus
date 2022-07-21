@@ -15,10 +15,13 @@
           <div class="overline">
             {{ item.age | age }}
           </div>
-          <v-list-item-title class="headline mb-1 wrap-title" v-html="getCardsText(item)">
+          <v-list-item-title class="headline mb-1 wrap-title">
+            <span v-html="getCardsText(item)"></span>
           </v-list-item-title>
 
-          <v-chip pill class="flex-wrap max-height" v-html="getPurchaseInfo(item)" v-if="getPurchaseInfo(item)"></v-chip>
+          <v-chip pill class="flex-wrap max-height" v-if="getPurchaseInfo(item)">
+            <span v-html="getPurchaseInfo(item)" ></span>
+          </v-chip>
           </v-list-item-content>
         </v-list-item>
         </div>
@@ -40,6 +43,7 @@ import moment from 'moment'
 import Spinner from './Spinner'
 
 export default {
+  name: 'feed-view',
   components: {
     Spinner
   },

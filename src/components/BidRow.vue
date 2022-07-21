@@ -1,208 +1,171 @@
 <template>
-    <v-card
+  <v-card
       elevation="10"
       class="bid-row"
       :class="{'own-bid':hasOwnBid, 'no-bid':hasNoBid, 'only':hasOnlySelfBid}"
+  >
+    <v-chip-group
+        column
+        color="deep-purple darken-4"
+        class="head bid-head"
+        :style="[{'background-image':'url('+teamImage+')'}]"
     >
-        <v-chip-group
-          column
-          color="deep-purple darken-4"
-          class="head"
-        >
-          <v-chip pill
-          :color="(this.$vuetify.theme.dark) ? 'amber darken-2': 'amber accent-2'"
-          >
-            <v-icon left>fa-clock</v-icon>{{ expiryDate }}
-          </v-chip>
-          <v-chip class="players-name"
-            :color="(this.$vuetify.theme.dark) ? 'cyan darken-3': 'cyan lighten-3'"
-          >
-              <v-icon left>fa-running</v-icon>
-            <strong class="label">
+      <v-chip pill
+              :color="(this.$vuetify.theme.dark) ? 'amber darken-2': 'amber accent-2'"
+      >
+        <v-icon left>fa-clock</v-icon>
+        {{ expiryDate }}
+      </v-chip>
+      <v-chip class="players-name"
+              :color="(this.$vuetify.theme.dark) ? 'cyan darken-3': 'cyan lighten-3'"
+      >
+        <v-icon left>fa-running</v-icon>
+        <strong class="label">
               <span v-if="player.knownName">
                 {{ player.knownName }}
               </span>
-              <span v-else>
-                {{ player.firstName }} {{player.lastName}}
+          <span v-else>
+                {{ player.firstName }} {{ player.lastName }}
               </span>
-              
-            </strong>
-            &nbsp;(#{{ player.id }}) &nbsp;⌀ {{ player.averagePoints }} / {{ player.totalPoints }}
-            <v-avatar
-                right
-              >
-                <v-img :src="teamImage" max-width="30"></v-img>
-            </v-avatar>
-          </v-chip>
-          <status-pill :player="player"></status-pill>
-          <v-chip pill>
-            <v-icon left>fa-futbol</v-icon> {{ getPosition }}
-          </v-chip>
 
-          <v-chip v-if="hasNoBid"
-          :color="(this.$vuetify.theme.dark) ? 'lime darken-3': 'lime accent-1'"
-          >
-            <v-icon left>fa-exclamation-circle</v-icon>
-            NO BID
-          </v-chip>
+        </strong>
+        &nbsp;<span class="hidden-xs-only">(#{{ player.id }})</span> &nbsp;⌀ {{ player.averagePoints }} / {{ player.totalPoints }}
 
-          <v-chip v-if="hasOnlySelfBid" dark class="text--white" color="pink accent-4">
-            <v-icon dark left>fa-bomb</v-icon>
-            YOUR BID ONLY
-          </v-chip>
+      </v-chip>
+      <status-pill :player="player"></status-pill>
+      <v-chip pill>
+        <v-icon left class="hidden-xs-only">fa-futbol</v-icon>
+        {{ getPosition }}
+      </v-chip>
 
-        </v-chip-group>
+      <v-chip v-if="hasNoBid"
+              :color="(this.$vuetify.theme.dark) ? 'lime darken-3': 'lime accent-1'"
+              class="hidden-xs-only"
+      >
+        <v-icon left>fa-exclamation-circle</v-icon>
+        NO BID
+      </v-chip>
 
-        <fieldset class="no-padding-bottom">
-            <v-chip-group
+      <v-chip v-if="hasOnlySelfBid" dark class="text--white hidden-xs-only" color="pink accent-4">
+        <v-icon dark left>fa-bomb</v-icon>
+        YOUR BID ONLY
+      </v-chip>
+    </v-chip-group>
+
+    <fieldset class="no-padding-bottom">
+      <v-chip-group
           column
           v-if="player.offers && player.offers.length"
-        >
-          <v-chip v-for="(offer, okey) in player.offers" :key="okey">
-            {{ offer.userName }}: {{ offer.price | numeral('0,0 $') }}
-            <span v-if="offer.userId != getSelf">
+      >
+        <v-chip v-for="(offer, okey) in player.offers" :key="okey">
+          {{ offer.userName }}: {{ offer.price | numeral('0,0 $') }}
+          <span v-if="offer.userId != getSelf">
               <small>/ {{ getUsersPlayers(offer.userId) }} players</small>
             </span>
-          </v-chip>
-        </v-chip-group>
-          </fieldset>
+        </v-chip>
+      </v-chip-group>
+    </fieldset>
 
-        <fieldset>
+    <fieldset>
 
-          <v-row >
-            <v-col xs="12" sm="6" cols="12" order="2" order-sm="1">
-              <v-card
-                class="pa-2"
-                outlined
-                tile
-              >
-                <v-form @submit.prevent="sendForm" class="playerBidForm">
-                  <v-text-field
-                      v-model="playerBid"
-                      label="Bid"
-                      type="number"
-                      filled
-                      @focus="setPlayerBid"
-                      @blur="resetPlayerBid"
-                    ></v-text-field>
-                </v-form>
+      <v-row>
+        <v-col xs="12" sm="6" cols="12" order="2" order-sm="1">
+          <v-card
+              class="pa-2"
+              outlined
+              tile
+          >
+            <v-form @submit.prevent="sendForm" class="playerBidForm">
+              <v-text-field
+                  v-model="playerBid"
+                  label="Bid"
+                  type="number"
+                  filled
+                  @focus="setPlayerBid"
+                  @blur="resetPlayerBid"
+              ></v-text-field>
+            </v-form>
 
-                <div class="v-data-table elevation-1 theme--lightX">
-                  <div class="v-data-table__wrapper">
-                    <table>
-                      <tbody>
-                        <tr>
-                          <td class="text-start">
-                            your bid
-                          </td>
-                          <td class="text-start" >
-                            {{ getComputedBid }}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="text-start">
-                            MV - 0.9%
-                          </td>
-                          <td class="text-start">
-                            <v-btn @click="sendMinus09Bid">{{ getMinus09PercentMV }}</v-btn>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="text-start">
-                            MV + 0.5%
-                          </td>
-                          <td class="text-start">
-                            <v-btn @click="sendPlus05Bid">{{ get05PercentPrice }}</v-btn>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="text-start">
-                            MV + 0.3%
-                          </td>
-                          <td class="text-start">
-                            <v-btn @click="sendPlus03Bid">{{ get03PercentPrice }}</v-btn>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="text-start">
-                            MV + 1%
-                          </td>
-                          <td class="text-start" :class="getBidVsMVClass">
-                            {{ get1PercentMV }}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="text-start">
-                            Est. MV @ Fri.
-                          </td>
-                          <td class="text-start" :class="getBidVsEstFriClass">
-                            {{ getComputedEsitmatedFridayPrice }}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="text-start">
-                            Est. MV @ Fri + 1%
-                          </td>
-                          <td class="text-start" :class="getBidVsEstFri1PClass">
-                            {{ getComputedEsitmatedFriday1PercentPrice }}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </v-card>
-            </v-col>
-            <v-col xs="12" sm="6" cols="12" order="1" order-sm="2">
-              <v-card
-                class="pa-2"
-                outlined
-                tile
-              >
-                    <v-chip-group column>
-                      <v-chip pill @click="openLastDayChanges" >
-                        <v-avatar
-                          left
-                          color="blue-grey darken-1"
-                          class="text--white"
-                        >
-                          P
-                        </v-avatar>
-                        
-                        {{ getComputedPrice }}
+            <div class="v-data-table elevation-1 theme--lightX">
+              <div class="v-data-table__wrapper">
+                <table>
+                  <tbody>
+                  <tr>
+                    <td class="text-start">
+                      your bid
+                    </td>
+                    <td class="text-start">
+                      {{ getComputedBid }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-start" colspan="2">
+                      <h3>Bids-Buttons:</h3>
+                      <div class="bids-button-row">
+                        <v-btn @click="sendMVBid">MV: {{ getComputedPrice }}</v-btn>
+                        <v-btn @click="sendMinus09Bid">MV - 0.9%: {{ getMinus09PercentMV }}</v-btn>
+                        <v-btn @click="sendPlus05Bid">MV + 0.5%: {{ get05PercentPrice }}</v-btn>
+                        <v-btn @click="sendPlus03Bid">MV + 0.3%: {{ get03PercentPrice }}</v-btn>
+                      </div>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </v-card>
+        </v-col>
+        <v-col xs="12" sm="6" cols="12" order="1" order-sm="2">
+          <v-card
+              class="pa-2"
+              outlined
+              tile
+          >
+            <v-chip-group column>
+              <v-chip pill @click="openLastDayChanges">
+                <v-avatar
+                    left
+                    color="blue-grey darken-1"
+                    class="text--white"
+                >
+                  P
+                </v-avatar>
 
-                        <v-avatar
-                          right
-                          color="darkgrey"
-                        >
-                          <v-icon  v-if="player.marketValueTrend == 0">fa-arrow-right</v-icon>
-                          <v-icon v-if="player.marketValueTrend == 1">fa-arrow-up</v-icon>
-                          <v-icon v-if="player.marketValueTrend == 2">fa-arrow-down</v-icon>
-                        </v-avatar>
-                      </v-chip>
-                    </v-chip-group>
-                    <v-data-table
-                      :headers="getLastDayChanges.headers"
-                      :items="getLastDayChanges.values"
-                      :hide-default-footer="true"
-                      class="elevation-1" :class=lastDayChangesClass
-                      v-if="getLastDayChanges"
-                    ></v-data-table>
-                    <div v-else class="stats-loading">
-                    </div>
-              </v-card>
-            </v-col>
-          </v-row>
-        </fieldset>
-    </v-card>
+                {{ getComputedPrice }}
+
+                <v-avatar
+                    right
+                    color="darkgrey"
+                >
+                  <v-icon v-if="player.marketValueTrend == 0">fa-arrow-right</v-icon>
+                  <v-icon v-if="player.marketValueTrend == 1">fa-arrow-up</v-icon>
+                  <v-icon v-if="player.marketValueTrend == 2">fa-arrow-down</v-icon>
+                </v-avatar>
+              </v-chip>
+            </v-chip-group>
+            <v-data-table
+                :headers="getLastDayChanges.headers"
+                :items="getLastDayChanges.values"
+                :hide-default-footer="true"
+                class="elevation-1" :class=lastDayChangesClass
+                v-if="getLastDayChanges"
+            ></v-data-table>
+            <div v-else class="stats-loading">
+            </div>
+          </v-card>
+        </v-col>
+      </v-row>
+    </fieldset>
+  </v-card>
 </template>
 
 <script>
 import api from '../api/api'
-import { mapGetters } from 'vuex'
+import {mapGetters} from 'vuex'
 
 import moment from 'moment'
 import numeral from 'numeral'
+
 numeral.locale('deff')
 
 import StatusPill from './StatusPill'
@@ -232,15 +195,15 @@ export default {
     this.lastDayChangesClass = lastDayChangesClassConst
     const offers = this.player.offers
     if (offers && offers.length) {
-        offers.forEach((offer) => {
-          if (offer.userId == this.$store.getters.getSelf) {
-            this.playerBid = offer.price
-          }
-        })
-      }
-      if(!this.playerBid ) {
-        // this.playerBid = this.player.price
-      }
+      offers.forEach((offer) => {
+        if (offer.userId == this.$store.getters.getSelf) {
+          this.playerBid = offer.price
+        }
+      })
+    }
+    if (!this.playerBid) {
+      // this.playerBid = this.player.price
+    }
   },
   computed: {
     ...mapGetters([
@@ -250,9 +213,9 @@ export default {
     ]),
     hasPlayerStats() {
       return (Object.keys(this.getPlayers).length >= 1
-        &&
-        this.getPlayers[this.player.id]
-      ) 
+          &&
+          this.getPlayers[this.player.id]
+      )
     },
     expiryDate() {
       const m = moment().subtract(this.player.expiry, 'seconds')
@@ -333,7 +296,7 @@ export default {
       if (mvs) {
         const values = mvs.datasets[0].data.slice(0).reverse()
         if (values[0]) {
-          const days = moment().day("Friday").diff(moment(new Date()),'day')
+          const days = moment().day("Friday").diff(moment(new Date()), 'day')
           const diff = (values[0] - values[1])
           return {price: this.player.marketValue + (diff * days), days, diff}
         } else {
@@ -346,11 +309,11 @@ export default {
     getComputedEsitmatedFridayPrice() {
       const price = this.getEsitmatedFridayPrice
       if (price) {
-          return numeral(price.price).format('0,0') 
+        return numeral(price.price).format('0,0')
       } else {
         return 'n/a'
       }
-      
+
     },
     getComputedEsitmatedFriday1PercentPrice() {
       const price = this.getEsitmatedFridayPrice
@@ -363,13 +326,13 @@ export default {
           labels: [],
           datasets: [
             {
-              label: 'market value', 
+              label: 'market value',
               // backgroundColor: '#f87979',
               data: []
             }
           ]
         }
-        for(let y = mv.length; y >= (mv.length - 21); y--) {
+        for (let y = mv.length; y >= (mv.length - 21); y--) {
           if (mv[y]) {
             const date = moment(mv[y].d)
             values.labels.push(date.format('DD MM'))
@@ -385,17 +348,17 @@ export default {
     },
     getLastDayChanges() {
       const headers = [
-            {
-              'text':'day',
-              'value':'day',
-              'sortable': false,
-            },
-            {
-              'text':'change',
-              'value':'change',
-              'sortable': false,
-            }
-          ];
+        {
+          'text': 'day',
+          'value': 'day',
+          'sortable': false,
+        },
+        {
+          'text': 'change',
+          'value': 'change',
+          'sortable': false,
+        }
+      ];
       const mv = this.getLastChanges
 
       if (mv && mv.datasets && mv.datasets.length) {
@@ -405,21 +368,21 @@ export default {
 
         if (day7Value === 0 || day14Value === 0) {
           return null
-        } 
+        }
 
         return {
           headers,
           values: [
             {
-              'day':'yesterday',
+              'day': 'yesterday',
               'change': numeral(values[0] - values[1]).format('0,0')
             },
             {
-              'day':'7 days change',
+              'day': '7 days change',
               'change': day7Value
             },
             {
-              'day':'14 days change',
+              'day': '14 days change',
               'change': day14Value
             }
           ]
@@ -431,7 +394,7 @@ export default {
     },
     getPosition() {
       let position = ''
-      switch(this.player.position) {
+      switch (this.player.position) {
         case 1:
           position = 'goalkeeper'
           break;
@@ -463,25 +426,29 @@ export default {
       return hasOwnBid
     },
     hasOnlySelfBid() {
-      return (this.player.offers && this.player.offers.length === 1 && this.hasOwnBid) 
+      return (this.player.offers && this.player.offers.length === 1 && this.hasOwnBid)
     },
     hasNoBid() {
       const offers = this.player.offers
-      return (offers && offers.length === 0 || !offers) 
+      return (offers && offers.length === 0 || !offers)
     },
   },
   methods: {
     calc1PercentIncrease(value) {
-      return value + (value*this.calcPercent)
+      return value + (value * this.calcPercent)
     },
     calc05PercentIncrease(value) {
-      return value + (value*this.calc05Percent)
+      return value + (value * this.calc05Percent)
     },
     calc03PercentIncrease(value) {
-      return value + (value*this.calc03Percent)
+      return value + (value * this.calc03Percent)
     },
     calc1PercentDecrease(value) {
-      return value - (value*this.calcPercentSafe)
+      return value - (value * this.calcPercentSafe)
+    },
+    sendMVBid() {
+      this.playerBid = numeral(this.player.marketValue).format('0')
+      this.sendForm()
     },
     sendMinus09Bid() {
       this.playerBid = numeral(this.calc1PercentDecrease(this.player.marketValue)).format('0')
@@ -496,29 +463,9 @@ export default {
       this.sendForm()
     },
     sendForm() {
-      api.sendBid(this.player.id, this.playerBid, (data) => {
-        if(data.offerId) {
-          const offers = this.player.offers
-          let foundPrice = false
-          if (offers && offers.length) {
-            offers.forEach((offer) => {
-              if (offer.userId == this.$store.getters.getSelf) {
-                offer.price = this.playerBid
-                foundPrice = true
-              }
-            })
-          }
-          if(!foundPrice) {
-            if (!this.player.offers) {
-              this.player.offers = []
-            }
-            this.player.offers.push({
-              price: this.playerBid,
-              userId: this.$store.getters.getSelf,
-              userName: 'self',
-              id: data.offerId
-            })
-          }
+      api.sendBid(this.player.id, this.playerBid, async (data) => {
+        if (data.offerId) {
+          await api.loadBids(false)
         }
       })
     },
@@ -535,11 +482,11 @@ export default {
     getUsersPlayers(userId) {
       const users = this.getUsers
       return (
-        users[userId] && users[userId].players && users[userId].players.length
+          users[userId] && users[userId].players && users[userId].players.length
       ) ? users[userId].players.length : 0
     },
     openLastDayChanges() {
-      if(this.lastDayChangesClass == '') {
+      if (this.lastDayChangesClass === '') {
         this.lastDayChangesClass = lastDayChangesClassConst
       } else {
         this.lastDayChangesClass = ''

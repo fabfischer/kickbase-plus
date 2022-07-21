@@ -13,8 +13,8 @@
             <div>
                 <status-pill :player="item"></status-pill>
                 <img :src="teamImage" class="club" />
-                <span v-if="item.knownName">{{ item.knownName }}</span>
-                <span v-else>{{ item.firstName }} {{ item.lastName }}</span>
+                <span class="player-name" v-if="item.knownName">{{ item.knownName }}</span>
+                <span class="player-name" v-else>{{ item.firstName }} {{ item.lastName }}</span>
                 <br>
                 <span v-if="nextMatchComputed" class="vsInfo">
                     vs: <img :src="nextMatchComputed.img" class="vsTeam" /> {{ nextMatchComputed.abbr }}

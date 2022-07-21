@@ -17,8 +17,12 @@
               <td class="pa-2 blue-grey darken-1 white--text text-left">{{ getSelectedLeague.au }}</td>
             </tr>
             <tr>
-              <th class="pa-2 blue-grey lighten-3 text-left">max players per team:</th>
+              <th class="pa-2 blue-grey lighten-3 text-left">max players per players team:</th>
               <td class="pa-2 blue-grey darken-1 white--text text-left">{{ getSelectedLeague.pl }}</td>
+            </tr>
+            <tr>
+              <th class="pa-2 blue-grey lighten-3 text-left">max players of a league team:</th>
+              <td class="pa-2 blue-grey darken-1 white--text text-left">{{ getSelectedLeague.mpst }}</td>
             </tr>
           </table>
         </div>
@@ -36,9 +40,6 @@
           :key="i"
           @click="setLeague(item)"
         >
-          <v-list-item-icon>
-            <v-icon v-text="i+1"></v-icon>
-          </v-list-item-icon>
           <v-list-item-icon v-if="item.ci" class="mr-5">
             <v-avatar>
               <img
@@ -47,7 +48,9 @@
             </v-avatar>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title v-text="item.name"></v-list-item-title>
+            <v-list-item-title>
+              <span v-text="item.name"></span>
+            </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list-item-group>
@@ -73,6 +76,7 @@ import { mapGetters, mapMutations } from 'vuex'
 import api from '../api/api'
 
 export default {
+  name: 'home-view',
   data: () => ({
   }),
   computed: {
