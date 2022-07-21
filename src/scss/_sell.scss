@@ -1,43 +1,63 @@
 .sell-row {
-    
-    .details {
-        th {
-        }
-    }
 
-    .player-name {
-        small {
-            display: block;
-            font-size: 14px;
-            font-weight: normal;
-
-            span {
-                &.green, &.red {
-                    padding: 2px;
-                    display: inline-block;
-                    color: #fff;
-                }
-            }
-        }
+  .details {
+    th {
     }
-    
+  }
+
+  .player-name {
+    small {
+      display: block;
+      font-size: 14px;
+      font-weight: normal;
+
+      span {
+        &.green, &.red {
+          padding: 2px;
+          display: inline-block;
+          color: #fff;
+        }
+      }
+    }
+  }
+
 }
 
 .subtable {
+  width: 100%;
+
+  th, td {
+    text-align: left;
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+
+
+  }
+
+  tr {
+    &:last-of-type {
+      th, td {
+        border: none;
+      }
+    }
+  }
+}
+
+.tm-search {
+  width: 50%;
+
+  @include breakpoint(xs) {
     width: 100%;
-    th, td {
-        text-align: left;
-        padding: 5px;
-        border-bottom: 1px solid #ccc;
+  }
+}
 
-        
-    }
+.tm-tools {
+  position: sticky;
+  top: 65px;
+  z-index: 999;
+  background: #fff;
 
-    tr {
-        &:last-of-type {
-            th, td {
-                border: none;
-            }
-        }
-    }
+  @include breakpoint(xs) {
+    top: 56px;
+  }
 }

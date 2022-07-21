@@ -27,7 +27,6 @@
           <span v-else>
                 {{ player.firstName }} {{ player.lastName }}
               </span>
-
         </strong>
         &nbsp;<span class="hidden-xs-only">(#{{ player.id }})</span> &nbsp;⌀ {{ player.averagePoints }} /
         {{ player.totalPoints }}
@@ -51,6 +50,11 @@
         <v-icon dark left>fa-bomb</v-icon>
         YOUR BID ONLY
       </v-chip>
+
+      <v-chip v-if="player.userId" dark class="text--white" color="brown accent-4">
+        <v-icon dark left>fa-user</v-icon>
+        Player: {{ player.username }}
+      </v-chip>
     </v-chip-group>
 
     <fieldset class="no-padding-bottom">
@@ -59,7 +63,9 @@
           v-if="player.offers && player.offers.length"
       >
         <v-chip v-for="(offer, okey) in player.offers" :key="okey">
-          {{ offer.userName }}:&nbsp;
+          <span v-if="offer.userName">{{ offer.userName }}</span>
+          <span v-else>KICKBASE</span>
+          :&nbsp;
           <span v-if="offer.userId != getSelf">
               {{ getDate(offer.date) }}
               <small> / {{ offer.price | numeral('0,0 $') }} / {{ getUsersPlayers(offer.userId) }} players</small>
@@ -165,6 +171,7 @@
             ></v-data-table>
             <div v-else class="stats-loading">
             </div>
+            <v-btn block v-on:click="fetchData">fetch data</v-btn>
           </v-card>
         </v-col>
       </v-row>
@@ -448,6 +455,9 @@ export default {
     },
   },
   methods: {
+    fetchData() {
+      api.loadPlayersStats(this.player.id, null, true)
+    },
     calc1PercentIncrease(value) {
       return value + (value * this.calcPercent)
     },

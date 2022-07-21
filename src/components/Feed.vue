@@ -116,7 +116,13 @@ export default {
 
       // purchase from computer
       if (item.type === 15 && item.meta && item.meta.b && item.meta.b.n && item.meta.p && item.meta.p.n) {
-        text = `<strong>${item.meta.b.n}</strong> bought <strong>${item.meta.p.n}</strong> from KICKBASE for:`
+        let buyer = 'KICKBASE'
+
+        if (item.meta.s && item.meta.s.n) {
+          buyer = item.meta.s.n
+        }
+
+        text = `<strong>${item.meta.b.n}</strong> bought <strong>${item.meta.p.n}</strong> from ${buyer} for:`
       }
 
       // transfer market
