@@ -35,7 +35,6 @@
               :key="inx"
           >
 
-
             <div class="v-data-table elevation-1 theme--lightX">
               <div class="v-data-table__wrapper">
                 <table class="details">
@@ -85,7 +84,7 @@
                     <td colspan="2">
                       <v-btn block large dark @click="acceptOffers(player)" color="green">
                         <v-icon color="white" left>fa-times</v-icon>
-                        ACCEPT
+                        ACCEPT OFFER FROM KICKBASE (COMPUTER)
                       </v-btn>
                     </td>
                   </tr>
@@ -210,7 +209,7 @@ export default {
           })
         }
       } else {
-        // window.setTimeout(this.init, 1000)
+        window.setTimeout(this.init, 1000)
       }
     },
     setPlayers: function (data) {
@@ -341,19 +340,11 @@ export default {
         this.setLoading(true)
         const offers = []
         player.offers.forEach((offer) => {
-
-          const p = this.getPercent(offer, player.marketValue) * 1
-
-          if (p > this.minPercent) {
-            offers.push({
-              offerId: offer.id,
-              price: offer.price,
-              percent: p,
-              playerId: player.id
-            })
-          }
-
-
+          offers.push({
+            offerId: offer.id,
+            price: offer.price,
+            playerId: player.id
+          })
         })
         offers.sort((a, b) => {
           if (a.price < b.price) {

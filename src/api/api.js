@@ -439,6 +439,19 @@ const api = {
             }
         })
     },
+    revokeBid(playerId, offerId, callback) {
+        const cb = callback
+        axios({
+            'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/market/' + playerId + '/offers/' + offerId,
+            "method": "DELETE"
+        }).then((response) => {
+            if (response.status === 200) {
+                if (typeof cb === 'function') {
+                    cb(response.data)
+                }
+            }
+        })
+    },
     checkFailed(then) {
         return function (responses) {
             const someFailed = responses.some(response => response.error)
