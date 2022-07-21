@@ -4,7 +4,6 @@ function setPlayers(state, players) {
 
 function setUsers(state, users) {
   state.users = users
-
 }
 
 function setLiveData(state, liveData) {
@@ -16,6 +15,14 @@ function addPlayer(state, player) {
     const players = Object.assign({}, state.players)
     players[player.id] = player
     state.players = players
+  }
+}
+
+function addPlayersStatsFetched(state, payload) {
+  if (payload.playerId) {
+    const playersStatsFetched = Object.assign({}, state.playersStatsFetched)
+    playersStatsFetched[payload.playerId] = payload.value
+    state.playersStatsFetched = playersStatsFetched
   }
 }
 
@@ -131,6 +138,10 @@ function addErrorLoadingMessage(state, message) {
   })
 }
 
+function setSelfPlayersStatsFetched(state, selfPlayersStatsFetched) {
+  state.selfPlayersStatsFetched = selfPlayersStatsFetched
+}
+
 export default {
   addPlayer,
   addUsersPlayer,
@@ -155,4 +166,6 @@ export default {
   setGiftBonus,
   setLiveData,
   setLeagues,
+  setSelfPlayersStatsFetched,
+  addPlayersStatsFetched,
 }

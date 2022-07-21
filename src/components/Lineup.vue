@@ -154,6 +154,7 @@ import LineupTable from './LineupTable'
 import { nextMatch } from '../helper/helper'
 
 export default {
+  name: 'lineup-component',
   components: {
     LineupTable,
     LineupItem,

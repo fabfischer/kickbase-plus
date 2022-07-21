@@ -7,7 +7,8 @@
           <v-list-item-content>
             <v-row no-gutters>
               <v-col>
-                <v-list-item-title class="headline mb-1 wrap-title" v-html="player.n">
+                <v-list-item-title class="headline mb-1 wrap-title">
+                  <span v-html="player.n"></span>
                 </v-list-item-title>
               </v-col>
               <v-col>
@@ -47,6 +48,7 @@ numeral.locale('deff')
 import Spinner from './Spinner'
 
 export default {
+  name: 'live-view',
   components: {
     Spinner,
   },

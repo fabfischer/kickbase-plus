@@ -57,10 +57,6 @@ function getRanking(state) {
   return state.ranking
 }
 
-function getStartDate(state) {
-  return state.startDate
-}
-
 function getSelfPlayerDetails(state) {
   return (state.self && state.users[state.self]) ?
     state.users[state.self] :
@@ -68,10 +64,9 @@ function getSelfPlayerDetails(state) {
 }
 
 function getPlayersOfMe(state) {
-  const players = (state.self && state.users[state.self] && state.users[state.self].players) ?
-    state.users[state.self].players :
-    []
-  return players
+  return (state.self && state.users[state.self] && state.users[state.self].players) ?
+      state.users[state.self].players :
+      []
 }
 
 function getLoading(state) {
@@ -98,6 +93,14 @@ function getLeagues(state) {
   return state.leagues
 }
 
+function getSelfPlayersStatsFetched(state) {
+  return state.selfPlayersStatsFetched
+}
+
+function getPlayersStatsFetched(state) {
+  return state.playersStatsFetched
+}
+
 export default {
   getAuthData,
   getErrorMessage,
@@ -111,7 +114,6 @@ export default {
   getLeague,
   getLeagues,
   getSelectedLeague,
-  getStartDate,
   getSelfPlayerDetails,
   getPlayersOfMe,
   getRanking,
@@ -121,4 +123,6 @@ export default {
   getGiftBonus,
   getLiveData,
   getGiftLevel,
+  getSelfPlayersStatsFetched,
+  getPlayersStatsFetched,
 }

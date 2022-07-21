@@ -95,7 +95,7 @@ import Spinner from './Spinner'
 import RankingLineChart from './RankingLineChart'
 
 export default {
-  name: 'Ranking',
+  name: 'ranking-view',
   components: {
     Spinner,
     RankingLineChart,

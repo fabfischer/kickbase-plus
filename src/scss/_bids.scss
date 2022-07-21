@@ -6,24 +6,14 @@
     background: #212121;
     padding: 2px 10px;
     transition: all .5s;
-  }
-  
-  &.own-bid {
-    .head {
-      animation: colorchangeOwnBid 2s infinite;
-    }
-    
-  }
-  
-  &.no-bid {
-    .head {
-      animation: colorchangeNoBid 2s infinite;
-    }
-  }
-  
-  &.own-bid.only {
-    .head {
-      animation: colorchangeOwnBidOnly 4s infinite;
+
+    padding-left: 60px;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    background-size: contain;
+
+    @include breakpoint(xs) {
+      background-size: 60px;
     }
   }
   
@@ -36,6 +26,18 @@
   }
   
   
+}
+
+.bids-button-row {
+  display: flex;
+  flex-wrap: wrap;
+
+  button {
+    margin: 0 10px 10px 0;
+    @include breakpoint(xs) {
+      width: 100%;
+    }
+  }
 }
 
 .players-name {
