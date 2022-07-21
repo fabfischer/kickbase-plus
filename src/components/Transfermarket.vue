@@ -4,7 +4,6 @@
         text-center
         fill-height
         wrap
-        v-if="players && players.length"
     >
       <v-container>
         <v-alert
@@ -13,30 +12,42 @@
         >
           you can still buy the following number of players: <strong>{{ playersLeft }}</strong>
         </v-alert>
-        <v-container grid-list-md text-center>
-          <v-layout wrap class="">
-            <v-flex xs11 text-left>
+          <div class="pa-10 pb-0 pt-0 d-flex justify-space-between align-center flex-wrap flex-md-nowrap tm-tools">
+            <div class="tm-search">
               <v-text-field
                   label="Search for player at current market"
                   v-model="search"
                   prepend-icon="fa-search"
-
               ></v-text-field>
-            </v-flex>
-            <v-flex xs1 align-self-center>
+            </div>
+            <div >
+              <v-select
+                  :items="positions"
+                  label="Position filter"
+                  dense
+                  outlined
+                  v-model="selectedFilteredPosition"
+                  hide-details="true"
+              ></v-select>
+            </div>
+            <div >
+              <v-switch
+                  v-model="showOtherUsersPlayer"
+                  label="Show all"
+              ></v-switch>
+            </div>
+            <div >
               <v-icon large class="reload-button" @click="load">fa-redo</v-icon>
-            </v-flex>
-          </v-layout>
-        </v-container>
+            </div>
+          </div>
 
         <bid-row
-            v-for="player in players"
+            v-for="player in getFilteredPlayers"
             :key="player.id"
             :player="player"/>
       </v-container>
 
     </v-layout>
-    <spinner v-else></spinner>
   </div>
 
 </template>
@@ -46,17 +57,24 @@ import api from '../api/api'
 import {mapGetters} from 'vuex'
 
 import BidRow from './BidRow'
-import Spinner from './Spinner'
 
 export default {
   name: 'transfermarket-view',
   components: {
     BidRow,
-    Spinner,
   },
   data: () => ({
     players: [],
     search: null,
+    showOtherUsersPlayer: false,
+    positions: [
+        'All',
+        'Goalkeeper',
+        'Defender',
+        'Midfielder',
+        'Forward',
+    ],
+    selectedFilteredPosition: null,
   }),
   computed: {
     ...mapGetters([
@@ -82,18 +100,60 @@ export default {
       } else {
         return 'success darken-2'
       }
+    },
+    getFilteredPlayers() {
+      let players = this.getBids
+      if (this.search) {
+        const regex = new RegExp(this.search, 'i')
+        players = players.filter(player => player.lastName.match(regex))
+      }
+
+      if (this.selectedFilteredPosition) {
+        let p = null
+        switch(this.selectedFilteredPosition) {
+          case 'All':
+            break;
+          case 'Goalkeeper':
+            p = 1
+            break;
+          case 'Defender':
+            p = 2
+                break
+          case 'Midfielder':
+            p = 3
+                break
+          case 'Forward':
+            p = 4
+                break;
+          default:
+            p = null
+                break;
+        }
+
+        if (p) {
+          players = players.filter(player => player.position === p)
+        }
+      }
+
+      if (!this.showOtherUsersPlayer) {
+        players = players.filter(player => !player.userId)
+      }
+
+      return players
     }
   },
   mounted() {
     this.init()
   },
   watch: {
-    search(newValue) {
-      const regex = new RegExp(newValue, 'i')
-      this.players = this.getBids.filter(player => player.lastName.match(regex))
+    search() {
+      this.players = this.getFilteredPlayers
     },
     getBids() {
       this.players = this.getBids
+    },
+    selectedFilteredPosition() {
+      this.players = this.getFilteredPlayers
     }
   },
   methods: {

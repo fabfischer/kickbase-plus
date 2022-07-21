@@ -23,7 +23,11 @@ const routes = [
 ]
 
 const router = new VueRouter({
-  routes
+  routes,
+  scrollBehavior () {
+    return { x: 0, y: 0 }
+  }
+
 })
 
 export default router
