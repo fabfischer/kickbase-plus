@@ -21,6 +21,7 @@
               <span v-else>{{ player.firstName }} {{ player.lastName }}</span>
             </h3>
             <v-btn block color="grey darken-1 white--text" large @click="putOnMarket(player)">Put on market</v-btn>
+            <v-btn block color="grey darken-1 white--text" large @click="putOnMarket(player, true)">Put on market exp</v-btn>
           </v-card>
         </v-col>
 
@@ -84,7 +85,7 @@
                     <td colspan="2">
                       <v-btn block large dark @click="acceptOffers(player)" color="green">
                         <v-icon color="white" left>fa-times</v-icon>
-                        ACCEPT OFFER FROM KICKBASE (COMPUTER)
+                        ACCEPT OFFER <span class="hidden-xs-only">FROM KICKBASE <span class="hidden-md-and-down">(COMPUTER)</span></span>
                       </v-btn>
                     </td>
                   </tr>
@@ -278,13 +279,14 @@ export default {
     getOffer(offer) {
       return numeral(offer.price).format('0,0 $')
     },
-    putOnMarket(player) {
+    putOnMarket(player, multi = false) {
       this.setLoading(true)
       api.putOnMarket(
           player,
           () => {
             api.loadUsersPlayerOffers(this.setPlayers)
           },
+          multi
       )
     },
     removePlayerFromMarket(player, twice) {

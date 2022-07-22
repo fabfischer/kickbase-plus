@@ -119,12 +119,12 @@
                   </tr>
                   <tr>
                     <td class="text-start" colspan="2">
-                      <h3>Bids-Buttons:</h3>
+                      <h3>Bid-Buttons:</h3>
                       <div class="bids-button-row">
                         <v-btn @click="sendMVBid">MV: {{ getComputedPrice }}</v-btn>
-                        <v-btn @click="sendMinus09Bid">MV - 0.9%: {{ getMinus09PercentMV }}</v-btn>
-                        <v-btn @click="sendPlus05Bid">MV + 0.5%: {{ get05PercentPrice }}</v-btn>
-                        <v-btn @click="sendPlus03Bid">MV + 0.3%: {{ get03PercentPrice }}</v-btn>
+                        <v-btn @click="sendMinus09Bid"><strong>MV - 0.9%</strong>: {{ getMinus09PercentMV }}</v-btn>
+                        <v-btn @click="sendPlus05Bid"><strong>MV + 0.5%</strong>: {{ get05PercentPrice }}</v-btn>
+                        <v-btn @click="sendPlus03Bid"><strong>MV + 0.3%</strong>: {{ get03PercentPrice }}</v-btn>
                       </div>
                     </td>
                   </tr>
@@ -171,7 +171,7 @@
             ></v-data-table>
             <div v-else class="stats-loading">
             </div>
-            <v-btn block v-on:click="fetchData">fetch data</v-btn>
+            <v-btn :class=lastDayChangesClass block v-on:click="fetchData">fetch data</v-btn>
           </v-card>
         </v-col>
       </v-row>
@@ -502,6 +502,10 @@ export default {
       this.playerBid = numeral(this.calc1PercentDecrease(this.player.marketValue)).format('0')
       this.sendForm()
     },
+    sendMultiMinus09Bid() {
+      this.playerBid = numeral(this.calc1PercentDecrease(this.player.marketValue)).format('0')
+      this.sendForm(true)
+    },
     sendPlus05Bid() {
       this.playerBid = numeral(this.calc05PercentIncrease(this.player.marketValue)).format('0')
       this.sendForm()
@@ -510,12 +514,12 @@ export default {
       this.playerBid = numeral(this.calc03PercentIncrease(this.player.marketValue)).format('0')
       this.sendForm()
     },
-    sendForm() {
+    sendForm(multi) {
       api.sendBid(this.player.id, this.playerBid, async (data) => {
         if (data.offerId) {
           await api.loadBids(false)
         }
-      })
+      }, multi)
     },
     setPlayerBid() {
       if (!this.playerBid) {
