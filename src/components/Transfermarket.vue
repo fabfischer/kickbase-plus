@@ -12,7 +12,7 @@
         >
           you can still buy the following number of players: <strong>{{ playersLeft }}</strong>
         </v-alert>
-          <div class="pa-10 pb-0 pt-0 d-flex justify-space-between align-center flex-wrap flex-md-nowrap tm-tools">
+          <div class="pa-md-10 pb-md-0 pt-md-0 pb-0 pt-0 pa-2 d-flex justify-space-between align-center flex-wrap flex-md-nowrap tm-tools">
             <div class="tm-search">
               <v-text-field
                   label="Search for player at current market"
@@ -20,7 +20,7 @@
                   prepend-icon="fa-search"
               ></v-text-field>
             </div>
-            <div >
+            <div class="tm-filter-positions">
               <v-select
                   :items="positions"
                   label="Position filter"

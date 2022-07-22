@@ -54,10 +54,20 @@
 .tm-tools {
   position: sticky;
   top: 65px;
-  z-index: 999;
+  z-index: 2;
   background: #fff;
+
+  .theme--dark & {
+    background: #000;
+  }
 
   @include breakpoint(xs) {
     top: 56px;
+  }
+}
+
+.tm-filter-positions {
+  @include breakpoint(xs) {
+   width: 33%;
   }
 }

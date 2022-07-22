@@ -413,21 +413,38 @@ const api = {
             }
         })
     },
-    sendBid(playerId, price, callback) {
+    sendBid(playerId, price, callback, multi) {
+
         const cb = callback
-        axios({
-            'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/market/' + playerId + '/offers',
-            "method": "POST",
-            'data': {
-                price
-            }
-        }).then((response) => {
-            if (response.status === 200) {
+
+        const getBidReq = () => {
+            return  axios.post(
+                'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/market/' + playerId + '/offers',
+                {
+                    price
+                }
+            )
+        }
+
+        const reqs = [
+            getBidReq()
+        ]
+        if (multi) {
+            reqs.push(getBidReq())
+            reqs.push(getBidReq())
+        }
+
+        axios.all(reqs).then(axios.spread((...responses) => {
+            const responseOne = responses[0]
+            if (responseOne.status === 200) {
                 if (typeof cb === 'function') {
-                    cb(response.data)
+                    cb(responseOne.data)
                 }
             }
+        })).catch(errors => {
+            console.warn(errors)
         })
+
     },
     revokeBid(playerId, offerId, callback) {
         const cb = callback
@@ -453,31 +470,44 @@ const api = {
             return then(responses)
         }
     },
-    putOnMarket(player, callback) {
+    putOnMarket(player, callback, multi) {
 
         store.commit('addLoadingMessage', 'trying to put player "' + player.lastName + '" on market')
 
         const cb = callback
         let price = player.marketValue + ""
 
-        axios({
-            'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/market',
-            "method": "POST",
-            'data': {
-                playerId: player.id,
-                price
-            }
-        })
-            .then((data) => {
-                store.commit('addLoadingMessage', 'put player on market successfully')
-                if (typeof cb === 'function') {
-                    cb(data)
+        const getReq = () => {
+            return  axios.post(
+                'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/market',
+                {
+                    playerId: player.id,
+                    price
                 }
-            })
-            .catch(function () {
-                store.commit('addErrorLoadingMessage', 'error occured during putting player on market. lets try it again')
-                api.putOnMarket(player, cb)
-            })
+            )
+        }
+
+        const reqs = [
+            getReq()
+        ]
+        if (multi) {
+            /*reqs.push(getReq())
+            reqs.push(getReq())*/
+        }
+
+        axios.all(reqs).then(axios.spread((...responses) => {
+            const responseOne = responses[0]
+            store.commit('addLoadingMessage', 'put player on market successfully')
+            if (responseOne.status === 200) {
+                if (typeof cb === 'function') {
+                    cb(responseOne)
+                }
+            }
+        })).catch(errors => {
+            console.warn(errors)
+            store.commit('addErrorLoadingMessage', 'error occured during putting player on market. lets try it again')
+            api.putOnMarket(player, cb, multi)
+        })
     },
     removePlayerFromMarket(player, callback) {
         store.commit('addLoadingMessage', 'removing player "' + player.lastName + '" from market')
