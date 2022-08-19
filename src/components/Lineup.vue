@@ -91,17 +91,23 @@
             >
               <v-btn
                   block
-                  color="deep-purple darken-3 white--text"
+                  color="deep-purple darken-3 white--text line-up__option-button"
                   x-large
                   @click="saveLineup(lineUpDialog.player, otherPlayer)"
                   class="kp-button"
               >
-                {{ playerName(otherPlayer) }}
-                <img :src="playerTeamImg(otherPlayer)" v-if="playerTeamImg(otherPlayer)"/>
-                <status-pill :player="otherPlayer"></status-pill>
-                <span v-if="playerVs(otherPlayer)" class="vsInfo">
+                <div class="d-block d-sm-flex flex-wrap flex-sm-nowrap">
+                  <div class="d-flex align-center">
+                    {{ playerName(otherPlayer) }}
+                    <img :src="playerTeamImg(otherPlayer)" v-if="playerTeamImg(otherPlayer)"/>
+                  </div>
+                  <div class="d-flex align-center">
+                    <status-pill :player="otherPlayer"></status-pill>
+                    <span v-if="playerVs(otherPlayer)" class="vsInfo">
                         vs: <img :src="playerVs(otherPlayer).img" class="vsTeam"/> {{ playerVs(otherPlayer).abbr }}
                     </span>
+                  </div>
+                </div>
               </v-btn>
             </div>
             <v-btn v-if="lineUpDialog.player && lineUpDialog.player.id" block color="red darken-3 white--text"

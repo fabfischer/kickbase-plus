@@ -1,8 +1,12 @@
 .field {
-  background: green;
+  background: #008000;
   padding: 20px;
   display: flex;
   flex-wrap: wrap;
+
+  .theme--dark & {
+    background: #003a00;
+  }
 }
 
 .position {
@@ -36,6 +40,10 @@
     width: 100%;
     display: flex;
     border-radius: 10px;
+
+    .theme--dark & {
+      background: #333 !important;
+    }
 
     @include breakpoint(xs) {
       font-size: 12px;
@@ -116,7 +124,6 @@
   width: 30px
 }
 
-
 .change-line-up {
   &__img {
     img {
@@ -164,20 +171,33 @@
       margin-bottom: 20px;
     }
 
+    .line-up__option-button {
 
-    .v-btn__content {
-      padding-top: 10px;
-      display: flex !important;
-      align-items: center;
-
-      .v-alert {
-        margin-bottom: 0 !important;
+      @include breakpoint(xs) {
+        height: auto !important;
+        padding: 0 10px !important;
       }
 
-      .vsInfo {
-        padding: 6px;
+      .v-btn__content {
+        padding-top: 10px;
+        display: flex !important;
+        align-items: center;
+
+        @include breakpoint(xs) {
+          height: auto !important;
+          display: block !important;
+        }
+
+        .v-alert {
+          margin-bottom: 0 !important;
+        }
+
+        .vsInfo {
+          padding: 6px;
+        }
       }
     }
+
   }
 
   &__player {
