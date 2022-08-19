@@ -1,0 +1,106 @@
+.kp-button {
+  transition: all .4s;
+
+  background: #eee;
+  border: 1px solid #333;
+  border-bottom: 10px solid #333;
+
+  .theme--dark & {
+    background: #323232;
+  }
+
+  &--in-options-bar {
+    @include inlineButton()
+  }
+
+  &__decline-all, &__decline {
+    border-color: $decline_all;
+    color: $decline_all !important;
+
+    &:hover {
+      background: $decline_all !important;
+      color: #fff !important;
+
+      .v-icon {
+        color: #fff !important;
+      }
+
+      border-color: $decline_all;
+    }
+
+    .v-icon {
+      color: $decline_all !important;
+    }
+  }
+
+  &__accept {
+    &.low-offer {
+      border-color: $kp_pastell_red;
+
+      &:hover {
+        background: $kp_pastell_red;
+        color: $kp_pastell_red_dark;
+
+        .v-icon {
+          color: $kp_pastell_red_dark !important;
+        }
+
+        border-color: $kp_pastell_red_dark;
+      }
+
+      .v-icon {
+        color: $kp_pastell_red !important;
+
+        &.theme--dark {
+          color: $kp_pastell_red_icon_dark !important;
+        }
+      }
+
+      .theme--dark & {
+        border-color: $kp_pastell_red_dark;
+      }
+    }
+
+    &.high-offer {
+      border-color: $kp_pastell_green;
+
+      &:hover {
+        background: $kp_pastell_green;
+        color: $kp_pastell_green_dark;
+
+        .v-icon {
+          color: $kp_pastell_green_dark !important;
+        }
+
+        border-color: $kp_pastell_green_dark;
+      }
+
+      .v-icon {
+        color: $kp_pastell_green !important;
+
+        &.theme--dark {
+          color: $kp_pastell_green_dark !important;
+        }
+      }
+
+      .theme--dark & {
+        border-color: $kp_pastell_green_dark;
+      }
+    }
+  }
+}
+
+.button-text-wrap {
+  .v-btn__content {
+    word-wrap: normal !important;
+    white-space: normal !important;
+    width: 100%;
+    max-width: 100%;
+    display: block;
+    padding: 0 4px;
+  }
+}
+
+.button-text-065rem {
+  font-size: 0.65rem !important;
+}

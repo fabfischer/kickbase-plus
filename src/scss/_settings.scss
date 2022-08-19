@@ -1,0 +1,58 @@
+.setting {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+
+  border-bottom: 1px solid #ccc;
+
+  &:last-of-type {
+    border: none;
+  }
+
+  &__headline {
+    width: 100%;
+  }
+
+  &__description {
+    width: 73%;
+    flex-grow: 1;
+
+    @include breakpoint(up-to-md) {
+      width: 48%;
+    }
+
+    @include breakpoint(xs) {
+      width: 100%;
+      margin: 0;
+    }
+  }
+
+  &__input {
+    width: 25%;
+    margin-left: 2%;
+    @include breakpoint(up-to-md) {
+      width: 50%;
+    }
+    @include breakpoint(xs) {
+      width: 100%;
+      margin: 0;
+    }
+  }
+
+  &__fieldset {
+    padding: 16px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    border-radius: 4px;
+  }
+
+  &__default-value {
+    display: inline-flex;
+    padding: 0 3px;
+    background: rgba(200,200,200, .2);
+    font-family: courier, courier new, serif;
+    font-size: .75rem;
+    margin-top: -2px;
+  }
+}

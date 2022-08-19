@@ -2,12 +2,13 @@ import VueRouter from 'vue-router'
 import Vue from 'vue'
 
 import Home from '../components/Home'
-import Transfermarket from '../components/Transfermarket'
-import Sell from '../components/Sell'
+import TransfermarketView from '../components/TransfermarketView'
+import SellView from '../components/SellView'
 import Feed from '../components/Feed'
-import Live from '../components/Live'
+import LiveView from '../components/LiveView'
 import Lineup from '../components/Lineup'
 import Ranking from '../components/Ranking'
+import SettingsView from '../components/SettingsView'
 
 Vue.use(VueRouter)
 
@@ -15,11 +16,12 @@ const routes = [
   { path: '/', component: Home },
   { path: '/home', component: Home },
   { path: '/feed', component: Feed },
-  { path: '/transfermarket', component: Transfermarket },
-  { path: '/sell', component: Sell },
-  { path: '/live', component: Live },
+  { path: '/transfermarket', component: TransfermarketView },
+  { path: '/sell', component: SellView },
+  { path: '/live', component: LiveView },
   { path: '/lineup', component: Lineup },
   { path: '/table', component: Ranking },
+  { path: '/settings', component: SettingsView },
 ]
 
 const router = new VueRouter({

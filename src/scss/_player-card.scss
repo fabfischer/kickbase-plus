@@ -1,0 +1,280 @@
+$defaultBorder: 10px solid #dadada !important;
+.player-card {
+  border: $defaultBorder;
+
+  &.theme--dark {
+    border-color: #333 !important;
+  }
+
+  &__pre-head {
+    margin: -16px 0 16px -16px;
+    background: #f1f1f1;
+    border-bottom: 1px solid #dadada;
+    width: calc(100% + 32px);
+    border-radius: 0 !important;
+    padding: 6px 10px 2px 10px;
+
+    .v-slide-group__content {
+      padding-top: 0 !important;
+    }
+
+    .v-chip {
+      margin-bottom: 4px !important;
+    }
+
+    .theme--dark & {
+      background: #333;
+      border-bottom: 1px solid #1c1c1c;
+    }
+
+    max-height: 48px;
+    align-items: center;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: block;
+
+    &__content {
+      display: flex;
+      flex-wrap: nowrap;
+      width: 0;
+    }
+
+    .v-alert {
+      flex: 0 0 auto;
+      margin-right: 8px;
+    }
+
+    @include breakpoint(xs) {
+      padding: 6px 6px 6px 4px;
+
+      .v-alert {
+        padding: 2px 6px !important;
+        margin: 0 6px 0 0;
+
+        .v-icon {
+          margin-right: 4px !important;
+        }
+
+        .v-alert__content {
+          font-size: 10px !important;
+        }
+      }
+    }
+  }
+
+  &-content-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+
+    @include breakpoint(xs) {
+      flex-wrap: wrap;
+    }
+  }
+
+  &-slot {
+    width: 75%;
+    flex-grow: 1;
+
+    @include breakpoint(xs) {
+      width: 100%;
+    }
+  }
+
+  &-meta {
+    width: 22%;
+    margin-right: 3%;
+    max-width: 300px;
+
+    @include breakpoint(xs) {
+      width: 100%;
+      margin: 0 0 10px 0;
+      max-height: 48px;
+      align-items: center;
+      max-width: 100%;
+
+      overflow-x: auto;
+      overflow-y: hidden;
+      display: block;
+
+      &__content {
+        display: flex;
+        flex-wrap: nowrap;
+        width: 0;
+      }
+
+      &__item {
+        flex: 0 0 auto;
+
+        &--sm-third {
+          order: 3;
+        }
+
+        &--sm-fourth {
+          order: 4;
+        }
+
+        &--sm-fifth {
+          order: 5;
+        }
+      }
+
+      .v-icon {
+        margin-right: 6px;
+      }
+
+      .v-alert {
+        padding: 4px 8px;
+        margin: 0 6px 0 0;
+        flex-grow: 1;
+        flex-shrink: 0;
+      }
+    }
+  }
+
+  &__player-image {
+    @include breakpoint(xs) {
+      display: none;
+    }
+  }
+
+  &__image {
+    margin-top: -20px;
+    position: relative;
+
+    @include breakpoint(xs) {
+      margin-top: 0;
+    }
+  }
+
+  &__team-image {
+    position: absolute;
+    max-width: 64px;
+    width: 64px;
+    bottom: 0;
+    right: 0;
+    z-index: 2;
+    @include breakpoint(xs) {
+      position: relative;
+      width: 32px;
+    }
+  }
+
+  .offer, &.offer {
+    border: $defaultBorder;
+
+    &--high {
+      border-radius: 0 !important;
+      border-color: $kp_pastell_green !important;
+
+      .theme--dark & {
+        border-color: $kp_pastell_green_dark !important;
+      }
+    }
+
+    &--low {
+      border-radius: 0 !important;
+      border-color: $kp_pastell_red !important;
+
+      .theme--dark & {
+        border-color: $kp_pastell_red_dark !important;
+      }
+    }
+  }
+
+  &-accordion {
+
+    display: block !important;
+
+    &__icon, strong {
+      flex: 0 !important;
+    }
+
+    &__icon {
+      width: 32px !important;
+
+      &:before {
+        width: 32px !important;
+      }
+    }
+
+    strong {
+      margin-right: 4px;
+    }
+  }
+
+  .v-alert {
+
+    padding: 6px;
+
+    &__wrapper {
+      .v-icon {
+        margin: 0 10px 0 0;
+      }
+    }
+
+    &__content {
+      font-size: 14px;
+      @include breakpoint(xs) {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .status-pill {
+    @include breakpoint(xs) {
+      .v-alert {
+        &__wrapper {
+          .v-icon {
+            margin-right: 0 !important;
+          }
+        }
+      }
+
+      .v-alert__content {
+        display: none !important;
+      }
+    }
+
+    .theme--dark & {
+      .is-stricken {
+        .v-alert {
+          &__wrapper {
+            .v-icon {
+              color: #d16e0b !important;
+            }
+          }
+        }
+        .v-alert__content {
+          color: #d16e0b !important;
+        }
+      }
+    }
+  }
+
+  @include breakpoint(xs) {
+    .v-btn {
+      width: 100%;
+      white-space: normal;
+      display: block;
+    }
+
+    .v-card__text {
+      padding: 8px;
+    }
+
+    .v-expansion-panel-header {
+      padding: 12px;
+    }
+
+    .v-expansion-panel-content__wrap {
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+
+    .v-icon {
+      font-size: 16px;
+    }
+  }
+
+}

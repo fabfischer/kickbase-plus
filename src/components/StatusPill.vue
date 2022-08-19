@@ -1,25 +1,26 @@
 <template>
-    <span>
-        <v-chip pill v-if="player.status === 16" color="orange">
-            <v-icon color="white">fa-times-circle</v-icon>
-            <slot></slot>
-        </v-chip>
-        <v-chip pill v-else-if="player.status === 64" color="grey darken-4">
-            <v-icon color="white">fa-ghost</v-icon>
-            <slot></slot>
-        </v-chip>
-        <v-chip pill v-else-if="player.status === 2" color="orange">
-            <v-icon color="white">fa-user-injured</v-icon>
-            <slot></slot>
-        </v-chip>
-        <v-chip pill v-else-if="player.status === 1" color="red">
-            <v-icon color="white">fa-plus-square</v-icon>
-            <slot></slot>
-        </v-chip>
-        <v-chip pill v-else color="green">
-            <v-icon color="white">fa-thumbs-up</v-icon>
-            <slot></slot>
-        </v-chip>
+    <span class="status-pill">
+      <v-alert dense text v-if="player.status === 16" icon="fa-times-circle" :color="orange" class="is-stricken">
+            n/a
+        </v-alert>
+      <v-alert dense text v-else-if="player.status === 64" icon="fa-ghost" color="grey darken-4">
+            not in team
+        </v-alert>
+        <v-alert dense v-else-if="player.status === 2" :color="orange" icon="fa-user-injured" class="is-stricken">
+            stricken
+        </v-alert>
+      <v-alert dense text v-else-if="player.status === 1" icon="fa-plus-square" color="red">
+            injured
+        </v-alert>
+        <v-alert dense text v-else-if="player.status === 0" icon="fa-thumbs-up" type="success">
+            fit
+        </v-alert>
+        <v-alert dense text v-else-if="player.status === 4" icon="fa-dumbbell" color="orange">
+            recover training
+        </v-alert>
+        <v-alert dense text v-else icon="fa-question" type="info">
+            unsupported status
+        </v-alert>
     </span>
 </template>
 
@@ -29,16 +30,15 @@
 export default {
   name: 'StatusPill',
   props: {
-      player: {
-          type: Object,
-          required: true,
-      }
-  },
-  mounted() {
+    player: {
+      type: Object,
+      required: true,
+    }
   },
   computed: {
-  },
-  methods: {
+    orange() {
+      return (this.$vuetify.theme.dark) ? '#381c01' : 'orange lighten-4'
+    }
   }
 };
 </script>

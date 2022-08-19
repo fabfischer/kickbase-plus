@@ -25,7 +25,6 @@
   }
 
   &--lined-up {
-    border-radius: 50%;
     background: #fff;
     padding: 10px;
     margin: 0 40px 20px 40px;
@@ -34,12 +33,13 @@
     cursor: pointer;
 
     font-size: 13px;
+    width: 100%;
+    display: flex;
+    border-radius: 10px;
 
     @include breakpoint(xs) {
       font-size: 12px;
       border-radius: 10px;
-      width: 100%;
-      display: flex;
 
       div:first-child {
         display: flex;
@@ -86,6 +86,10 @@
         }
       }
     }
+
+    .v-alert {
+      margin: 0 !important;
+    }
   }
 }
 
@@ -95,7 +99,6 @@
 
 .vsInfo {
   display: flex;
-  width: 100%;
   justify-content: center;
   align-items: center;
 
@@ -137,20 +140,13 @@
       flex-wrap: wrap;
     }
 
-    &__column {
-      padding: 10px;
-      width: 50%;
-      box-sizing: border-box;
-
-      @include breakpoint(xs) {
-        width: 100%;
-      }
-
+    .kp-button {
+      @include inlineButton();
     }
   }
 
   &__other-player {
-    padding: 0 0 20px 0;
+    margin: 0 0 20px 0;
 
     &:last-of-type {
       padding-bottom: 0;
@@ -166,6 +162,21 @@
 
     &:last-of-type {
       margin-bottom: 20px;
+    }
+
+
+    .v-btn__content {
+      padding-top: 10px;
+      display: flex !important;
+      align-items: center;
+
+      .v-alert {
+        margin-bottom: 0 !important;
+      }
+
+      .vsInfo {
+        padding: 6px;
+      }
     }
   }
 

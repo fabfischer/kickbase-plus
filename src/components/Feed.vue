@@ -16,12 +16,11 @@
             {{ item.age | age }}
           </div>
           <v-list-item-title class="headline mb-1 wrap-title">
-            <span v-html="getCardsText(item)"></span>
+            <span class="news-details" v-html="getCardsText(item)"></span>
           </v-list-item-title>
 
-          <v-chip pill class="flex-wrap max-height" v-if="getPurchaseInfo(item)">
-            <span v-html="getPurchaseInfo(item)" ></span>
-          </v-chip>
+          <div class="flex-wrap max-height news-details" v-if="getPurchaseInfo(item)" v-html="getPurchaseInfo(item)">
+          </div>
           </v-list-item-content>
         </v-list-item>
         </div>
