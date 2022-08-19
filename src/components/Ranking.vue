@@ -23,7 +23,7 @@
                 advantage to next rank
               </th>
               <th class="text-left">
-                rank 1 advantage
+                points to 1st place
               </th>
             </tr>
           </thead>

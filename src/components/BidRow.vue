@@ -1,205 +1,181 @@
 <template>
-  <v-card
-      elevation="10"
-      class="bid-row"
+  <player-card
       :class="{'own-bid':hasOwnBid, 'no-bid':hasNoBid, 'only':hasOnlySelfBid}"
+      class="bid-row"
+      :player="player"
+      :show-purchase-statistic=false
   >
-    <v-chip-group
-        column
-        color="deep-purple darken-4"
-        class="head bid-head"
-        :style="[{'background-image':'url('+teamImage+')'}]"
-    >
-      <v-chip pill
-              :color="(this.$vuetify.theme.dark) ? 'amber darken-2': 'amber accent-2'"
+    <template v-slot:pre-head>
+      <v-alert
+          text
+          :color="(isDarkTheme) ? 'deep-purple lighten-3': 'deep-purple darken-4'"
+          icon="fa-clock"
       >
-        <v-icon left>fa-clock</v-icon>
         {{ expiryDate }}
-      </v-chip>
-      <v-chip class="players-name"
-              :color="(this.$vuetify.theme.dark) ? 'cyan darken-3': 'cyan lighten-3'"
-      >
-        <v-icon left>fa-running</v-icon>
-        <strong class="label">
-              <span v-if="player.knownName">
-                {{ player.knownName }}
-              </span>
-          <span v-else>
-                {{ player.firstName }} {{ player.lastName }}
-              </span>
-        </strong>
-        &nbsp;<span class="hidden-xs-only">(#{{ player.id }})</span> &nbsp;⌀ {{ player.averagePoints }} /
-        {{ player.totalPoints }}
+      </v-alert>
 
-      </v-chip>
-      <status-pill :player="player"></status-pill>
-      <v-chip pill>
-        <v-icon left class="hidden-xs-only">fa-futbol</v-icon>
-        {{ getPosition }}
-      </v-chip>
-
-      <v-chip v-if="hasNoBid"
-              :color="(this.$vuetify.theme.dark) ? 'lime darken-3': 'lime accent-1'"
-              class="hidden-xs-only"
+      <v-alert v-if="hasNoBid"
+               text
+               :color="(isDarkTheme) ? 'lime darken-3': 'orange darken-3'"
+               icon="fa-exclamation-circle"
       >
-        <v-icon left>fa-exclamation-circle</v-icon>
         NO BID
-      </v-chip>
+      </v-alert>
 
-      <v-chip v-if="hasOnlySelfBid" dark class="text--white hidden-xs-only" color="pink accent-4">
-        <v-icon dark left>fa-bomb</v-icon>
+      <v-alert v-if="hasOnlySelfBid" text dark class="text--white" color="pink accent-4" icon="fa-bomb">
         YOUR BID ONLY
-      </v-chip>
+      </v-alert>
 
-      <v-chip v-if="player.userId" dark class="text--white" color="brown accent-4">
-        <v-icon dark left>fa-user</v-icon>
+      <v-alert v-else-if="hasOwnBid" text dark class="text--white"
+               :color="(isDarkTheme) ? 'purple darken-1': 'purple accent-4'" icon="fa-clipboard-check">
+        YOU BID
+      </v-alert>
+
+      <template v-if="foreignOffers.length">
+        <v-alert v-for="bid in foreignOffers"
+                 :key="bid.id"
+                 text
+                 :color="(isDarkTheme) ? 'green lighten-4': 'green darken-4'"
+                 icon="fa-money-bill-wave"
+        >
+          <span class="text-caption">{{ bid.userName }}</span>
+          <small>&nbsp;{{ getDate(bid.date) }}</small>
+        </v-alert>
+      </template>
+
+      <v-alert v-if="player.userId" text :color="(isDarkTheme) ? 'brown lighten-3': 'brown darken-3'" icon="fa-user">
         Player: {{ player.username }}
-      </v-chip>
-    </v-chip-group>
+      </v-alert>
+    </template>
 
-    <fieldset class="no-padding-bottom">
-      <v-chip-group
-          column
-          v-if="player.offers && player.offers.length"
+    <v-form @submit.prevent="sendForm" class="playerBidForm mt-5 mb-4">
+      <div class="d-sm-flex d-block">
+        <div class="bid-input-container mr-5">
+          <vue-numeric-input
+              :initialNumber="bidValue"
+              :has-bid="(playerBid !== null)"
+              :min="1"
+              align="center"
+              :mousewheel=false
+              v-on:input="setInputValue"
+              v-on:enter-event="setInputValue"
+              :placeholder="inputPlaceholder"
+          ></vue-numeric-input>
+          <saved-alert :value="showSavedAlert" message="saved bid for player"></saved-alert>
+        </div>
+        <div class="bid-input-container">
+          <div class="text-caption">
+            {{ getComputedBid }}
+            <span
+                v-if="getComputedBid !== 'no bid'"
+            >
+            <span class="hidden-sm-and-up">, </span>
+          <br class="hidden-xs-only">
+            you bid
+            <strong>{{ getComputedDifference.number }}</strong> Euros{{ getComputedDifferenceWording }}
+            (<span
+                :class="{'text--green': (getComputedDifference.number<=0), 'text--red': (getComputedDifference.number>0)}">{{
+                getComputedDifference.percentage
+              }} %</span>)
+          </span>
+          </div>
+        </div>
+      </div>
+
+    </v-form>
+    <v-btn v-if="hasOwnBid" class="kp-button kp-button__decline mb-5" @click="revokeBid" block x-large>
+      revoke own bid ({{ getComputedBid }})
+    </v-btn>
+    <!--
+    TODO: re-introduce with settings options
+        -->
+    <div class="mb-5">
+      <h3 class="text-subtitle-1">Bid-Buttons:</h3>
+      <div class="bids-button-row">
+        <v-btn
+            @click="sendPercentageBid(percent)"
+            dense
+            outlined
+            v-for="percent in bidButtons"
+            :key="percent"
+        >
+          <span v-html="getButtonLabel(percent)"></span>
+        </v-btn>
+      </div>
+    </div>
+
+    <template v-slot:extra-expansion-panel v-if="player.offers && player.offers.length && hasOnlySelfBid === false">
+      <v-expansion-panel
       >
-        <v-chip v-for="(offer, okey) in player.offers" :key="okey">
-          <span v-if="offer.userName">{{ offer.userName }}</span>
-          <span v-else>KICKBASE</span>
-          :&nbsp;
-          <span v-if="offer.userId != getSelf">
+        <v-expansion-panel-header class="elevation-0">
+          <v-icon class="mr-2 player-card-accordion__icon" color="green darken-1">fa-money-bill-wave</v-icon>
+          <strong>{{ player.offers.length }}</strong> user bid on this player
+        </v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-simple-table class="mb-5 bid-table">
+            <template>
+              <tbody>
+              <tr>
+                <th>
+                  Name
+                </th>
+                <th>
+                  Details
+                </th>
+              </tr>
+              <tr v-for="(offer, okey) in sortedOffers" :key="okey" :class="{'foo': offer.isSelf}">
+                <td>
+                  <span v-if="offer.userName">{{ offer.userName }}</span>
+                  <span v-else>KICKBASE</span>:
+                </td>
+                <td>
+              <span v-if="offer.userId != getSelf">
               {{ getDate(offer.date) }}
-              <small> / {{ offer.price | numeral('0,0 $') }} / {{ getUsersPlayers(offer.userId) }} players</small>
+              <small> / has {{ getUsersPlayers(offer.userId) }} players</small>
             </span>
-          <span v-else>
+                  <span v-else>
             {{ offer.price | numeral('0,0 $') }}
           </span>
-        </v-chip>
-      </v-chip-group>
-    </fieldset>
+                </td>
+              </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </template>
 
-    <fieldset>
-
-      <v-row>
-        <v-col xs="12" sm="6" cols="12" order="2" order-sm="1">
-          <v-card
-              class="pa-2"
-              outlined
-              tile
-          >
-            <v-form @submit.prevent="sendForm" class="playerBidForm">
-              <v-text-field
-                  v-model="playerBid"
-                  label="Bid"
-                  type="number"
-                  filled
-                  @focus="setPlayerBid"
-                  @blur="resetPlayerBid"
-              ></v-text-field>
-            </v-form>
-
-            <div class="v-data-table elevation-1 theme--lightX">
-              <div class="v-data-table__wrapper">
-                <table>
-                  <tbody>
-                  <tr>
-                    <td class="text-start">
-                      your bid
-                    </td>
-                    <td class="text-start">
-                      {{ getComputedBid }}
-                    </td>
-                  </tr>
-                  <tr class="" v-if="hasOwnBid">
-                    <td colspan="2">
-                      <v-btn color="red" class="darken-3 white--text" @click="revokeBid" block>revoke own bid
-                        ({{ getComputedBid }})
-                      </v-btn>
-                      <br>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="text-start" colspan="2">
-                      <h3>Bid-Buttons:</h3>
-                      <div class="bids-button-row">
-                        <v-btn @click="sendMVBid">MV: {{ getComputedPrice }}</v-btn>
-                        <v-btn @click="sendMinus09Bid"><strong>MV - 0.9%</strong>: {{ getMinus09PercentMV }}</v-btn>
-                        <v-btn @click="sendPlus05Bid"><strong>MV + 0.5%</strong>: {{ get05PercentPrice }}</v-btn>
-                        <v-btn @click="sendPlus03Bid"><strong>MV + 0.3%</strong>: {{ get03PercentPrice }}</v-btn>
-                      </div>
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </v-card>
-        </v-col>
-        <v-col xs="12" sm="6" cols="12" order="1" order-sm="2">
-          <v-card
-              class="pa-2"
-              outlined
-              tile
-          >
-            <v-chip-group column>
-              <v-chip pill @click="openLastDayChanges">
-                <v-avatar
-                    left
-                    color="blue-grey darken-1"
-                    class="text--white"
-                >
-                  P
-                </v-avatar>
-
-                {{ getComputedPrice }}
-
-                <v-avatar
-                    right
-                    color="darkgrey"
-                >
-                  <v-icon v-if="player.marketValueTrend == 0">fa-arrow-right</v-icon>
-                  <v-icon v-if="player.marketValueTrend == 1">fa-arrow-up</v-icon>
-                  <v-icon v-if="player.marketValueTrend == 2">fa-arrow-down</v-icon>
-                </v-avatar>
-              </v-chip>
-            </v-chip-group>
-            <v-data-table
-                :headers="getLastDayChanges.headers"
-                :items="getLastDayChanges.values"
-                :hide-default-footer="true"
-                class="elevation-1" :class=lastDayChangesClass
-                v-if="getLastDayChanges"
-            ></v-data-table>
-            <div v-else class="stats-loading">
-            </div>
-            <v-btn :class=lastDayChangesClass block v-on:click="fetchData">fetch data</v-btn>
-          </v-card>
-        </v-col>
-      </v-row>
-    </fieldset>
-  </v-card>
+  </player-card>
 </template>
 
 <script>
 import api from '../api/api'
 import {mapGetters} from 'vuex'
+import debounce from "lodash.debounce";
 
 import moment from 'moment'
 import numeral from 'numeral'
 
 numeral.locale('deff')
 
-import StatusPill from './StatusPill'
+import PlayerCard from './Player/PlayerCard'
+import VueNumericInput from './Generic/NumericInput'
+import SavedAlert from './Generic/SavedAlert'
+import {sleep} from "@/helper/helper";
 
 const lastDayChangesClassConst = 'hidden-sm-and-down'
 
 export default {
   props: ['player'],
   components: {
-    StatusPill,
+    PlayerCard,
+    VueNumericInput,
+    SavedAlert,
   },
   data() {
     return {
       playerBid: null,
+      playerBidRepresentation: null,
       options: {
         responsive: false,
         maintainAspectRatio: false
@@ -208,7 +184,19 @@ export default {
       calc05Percent: 0.005,
       calc03Percent: 0.003,
       calcPercentSafe: 0.009,
-      lastDayChangesClass: ''
+      lastDayChangesClass: '',
+      selectedBidStep: 1,
+      debouncedCallback: null,
+      showSavedAlert: false,
+      inputValue: null,
+      bidButtons: [
+        0,
+        -0.9,
+        //-0.5,
+        0.3,
+        0.5,
+        //0.9,
+      ]
     }
   },
   mounted() {
@@ -216,13 +204,24 @@ export default {
     const offers = this.player.offers
     if (offers && offers.length) {
       offers.forEach((offer) => {
-        if (offer.userId == this.$store.getters.getSelf) {
+        if (offer.userId * 1 === this.$store.getters.getSelf) {
           this.playerBid = offer.price
         }
       })
     }
-    if (!this.playerBid) {
-      // this.playerBid = this.player.price
+    this.debouncedCallback = debounce((...args) => {
+      if (typeof args[0] === 'function') {
+        args[0]()
+      }
+    }, 1000);
+  },
+  watch: {
+    inputValue(newValue) {
+      this.debouncedCallback(() => {
+        if (newValue === this.inputValue && newValue !== null) {
+          this.sendForm()
+        }
+      });
     }
   },
   computed: {
@@ -232,6 +231,39 @@ export default {
       'getUsers',
       'getBids',
     ]),
+    bidValue() {
+      return this.playerBid ?? this.player.marketValue
+    },
+    inputPlaceholder() {
+      return this.player.marketValue + ''
+    },
+    sortedOffers() {
+      if (this.player.offers && this.player.offers.length) {
+        const sortedOffers = [...this.player.offers]
+        sortedOffers.sort((a, b) => {
+          const aIsOwnBid = a.userId * 1 === this.getSelf
+          const bIsOwnBid = b.userId * 1 === this.getSelf
+
+          if (aIsOwnBid) {
+            a.isSelf = true
+            return -1
+          }
+
+          if (bIsOwnBid) {
+            b.isSelf = true
+            return 1
+          }
+
+        })
+
+        return sortedOffers
+      }
+
+      return []
+    },
+    foreignOffers() {
+      return this.sortedOffers.filter((offer) => offer.userId * 1 !== this.getSelf)
+    },
     hasPlayerStats() {
       return (Object.keys(this.getPlayers).length >= 1
           &&
@@ -242,103 +274,36 @@ export default {
       const m = moment().subtract(this.player.expiry, 'seconds')
       return m.toNow()
     },
-    getBidVsMVClass() {
-      let cssClass = ''
-
-      if (this.playerBid) {
-        if (this.playerBid >= this.getRaw1PercentMV) {
-          cssClass = 'higher-than-comp-value'
-        } else {
-          cssClass = 'lower-than-comp-value'
-        }
-      }
-
-      return cssClass
-    },
-    getBidVsEstFriClass() {
-      let cssClass = ''
-
-      if (this.playerBid && this.getEsitmatedFridayPrice) {
-        if (this.playerBid >= this.getEsitmatedFridayPrice.price) {
-          cssClass = 'higher-than-comp-value'
-        } else {
-          cssClass = 'lower-than-comp-value'
-        }
-      }
-
-      return cssClass
-    },
-    getBidVsEstFri1PClass() {
-      let cssClass = ''
-      const price = this.getEsitmatedFridayPrice
-
-      if (this.playerBid && price) {
-        if (this.playerBid >= this.getRaw1PercentMV) {
-          cssClass = 'higher-than-comp-value'
-        } else {
-          cssClass = 'lower-than-comp-value'
-        }
-      }
-
-      return cssClass
-    },
-    getRaw1PercentMV() {
-      return this.calc1PercentIncrease(this.player.marketValue)
-    },
-    getRaw1PercentMVDecrease() {
-      return this.calc1PercentDecrease(this.player.marketValue)
-    },
     getComputedPrice() {
       return numeral(this.player.price).format('0,0')
     },
     getComputedBid() {
-      return (this.playerBid) ? numeral(this.playerBid).format('0,0') : 'no bid'
+      const calcBid = this.inputValue ?? this.playerBid
+      return (calcBid) ? numeral(calcBid).format('0,0') : 'no bid'
     },
-    getComputedMV() {
-      return numeral(this.player.marketValue).format('0,0')
-    },
-    get1PercentMV() {
-      return numeral(this.getRaw1PercentMV).format('0,0')
-    },
-    getMinus09PercentMV() {
-      return numeral(this.getRaw1PercentMVDecrease).format('0,0')
-    },
-    get1PercentPrice() {
-      return numeral(this.calc1PercentIncrease(this.player.price)).format('0,0')
-    },
-    get05PercentPrice() {
-      return numeral(this.calc05PercentIncrease(this.player.price)).format('0,0')
-    },
-    get03PercentPrice() {
-      return numeral(this.calc03PercentIncrease(this.player.price)).format('0,0')
-    },
-    getEsitmatedFridayPrice() {
-      const mvs = this.getLastChanges
-      if (mvs) {
-        const values = mvs.datasets[0].data.slice(0).reverse()
-        if (values[0]) {
-          const days = moment().day("Friday").diff(moment(new Date()), 'day')
-          const diff = (values[0] - values[1])
-          return {price: this.player.marketValue + (diff * days), days, diff}
-        } else {
-          return null
-        }
-      } else {
-        return null
-      }
-    },
-    getComputedEsitmatedFridayPrice() {
-      const price = this.getEsitmatedFridayPrice
-      if (price) {
-        return numeral(price.price).format('0,0')
-      } else {
-        return 'n/a'
-      }
+    getComputedDifference() {
+      const calcBid = this.inputValue ?? this.playerBid
 
+      const number = (calcBid) ? numeral(calcBid - this.player.price).format('0,0') : 'no bid'
+      const c = (calcBid - this.player.price) / this.player.price * 100
+      const percentage = Number.parseFloat(c).toPrecision(2)
+
+      return {
+        number,
+        percentage
+      }
     },
-    getComputedEsitmatedFriday1PercentPrice() {
-      const price = this.getEsitmatedFridayPrice
-      return (price) ? numeral(this.calc1PercentIncrease(price.price)).format('0,0') : 'n/a'
+    getComputedDifferenceWording() {
+      let wording = ', which is exactly the market value'
+      if (this.getComputedDifference.number < 0) {
+        wording = ' less than the market value'
+      } else if (this.getComputedDifference.number > 0) {
+        wording = ' more than the market value'
+      }
+      return wording
+    },
+    isDarkTheme() {
+      return this.$vuetify.theme.dark
     },
     getLastChanges() {
       if (this.getPlayers[this.player.id]) {
@@ -455,20 +420,11 @@ export default {
     },
   },
   methods: {
+    setInputValue(value) {
+      this.inputValue = value
+    },
     fetchData() {
       api.loadPlayersStats(this.player.id, null, true)
-    },
-    calc1PercentIncrease(value) {
-      return value + (value * this.calcPercent)
-    },
-    calc05PercentIncrease(value) {
-      return value + (value * this.calc05Percent)
-    },
-    calc03PercentIncrease(value) {
-      return value + (value * this.calc03Percent)
-    },
-    calc1PercentDecrease(value) {
-      return value - (value * this.calcPercentSafe)
     },
     getDate(date) {
       const m = moment(date)
@@ -494,37 +450,27 @@ export default {
         })
       }
     },
-    sendMVBid() {
-      this.playerBid = numeral(this.player.marketValue).format('0')
+    sendPercentageBid(percent) {
+      this.playerBid = this.getPercentMVValue(percent)
       this.sendForm()
     },
-    sendMinus09Bid() {
-      this.playerBid = numeral(this.calc1PercentDecrease(this.player.marketValue)).format('0')
-      this.sendForm()
-    },
-    sendMultiMinus09Bid() {
-      this.playerBid = numeral(this.calc1PercentDecrease(this.player.marketValue)).format('0')
-      this.sendForm(true)
-    },
-    sendPlus05Bid() {
-      this.playerBid = numeral(this.calc05PercentIncrease(this.player.marketValue)).format('0')
-      this.sendForm()
-    },
-    sendPlus03Bid() {
-      this.playerBid = numeral(this.calc03PercentIncrease(this.player.marketValue)).format('0')
-      this.sendForm()
-    },
-    sendForm(multi) {
-      api.sendBid(this.player.id, this.playerBid, async (data) => {
-        if (data.offerId) {
-          await api.loadBids(false)
-        }
-      }, multi)
-    },
-    setPlayerBid() {
-      if (!this.playerBid) {
-        this.playerBid = this.player.price
+    sendForm() {
+      let bid = this.player.marketValue
+      if (this.inputValue) {
+        bid = this.inputValue
+      } else if (this.playerBid) {
+        bid = this.playerBid
       }
+      api.sendBid(this.player.id, bid, async (data) => {
+        if (data.offerId) {
+          this.playerBid = bid
+          this.inputValue = null
+          this.showSavedAlert = true
+          await api.loadBids(false)
+          await sleep(1500)
+          this.showSavedAlert = false
+        }
+      })
     },
     resetPlayerBid() {
       if (!this.hasOwnBid) {
@@ -543,6 +489,23 @@ export default {
       } else {
         this.lastDayChangesClass = ''
       }
+    },
+    getPercentMVValue(percent) {
+      return this.player.marketValue + (this.player.marketValue * percent / 100)
+    },
+    getPercentMVValueRepresentation(percent) {
+      return numeral(this.getPercentMVValue(percent)).format('0,0')
+    },
+    getButtonLabel(percent) {
+      let mvA = ''
+      const value = this.getPercentMVValueRepresentation(percent)
+      if (percent < 0) {
+        mvA = percent + '%'
+      } else if (percent > 0) {
+        mvA = '+' + percent + '%'
+      }
+
+      return `<strong>MV${mvA}</strong>: ${value}`
     }
   }
 }

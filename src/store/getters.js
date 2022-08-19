@@ -101,6 +101,34 @@ function getPlayersStatsFetched(state) {
   return state.playersStatsFetched
 }
 
+function getOfferOpenPlayerNotOnMarketPanel(state) {
+  return state.offerOpenPlayerNotOnMarketPanel
+}
+
+function getOfferOpenPlayerWithoutAnyOfferPanel(state) {
+  return state.offerOpenPlayerWithoutAnyOfferPanel
+}
+
+function getOfferThreshold(state) {
+  return state.offerThreshold
+}
+
+function getOfferOrder(state) {
+  return state.offerOrder
+}
+
+function getOfferShowTooLowOffersOnly(state) {
+  return state.offerShowTooLowOffersOnly
+}
+
+function getOfferOrderLabel(state) {
+  return state.defaults.offerOrders[state.offerOrder.init] ?? 'n/a'
+}
+
+function getDefaults(state) {
+  return state.defaults
+}
+
 export default {
   getAuthData,
   getErrorMessage,
@@ -125,4 +153,11 @@ export default {
   getGiftLevel,
   getSelfPlayersStatsFetched,
   getPlayersStatsFetched,
+  getOfferOpenPlayerNotOnMarketPanel,
+  getOfferOpenPlayerWithoutAnyOfferPanel,
+  getOfferThreshold,
+  getOfferShowTooLowOffersOnly,
+  getOfferOrder,
+  getOfferOrderLabel,
+  getDefaults
 }
