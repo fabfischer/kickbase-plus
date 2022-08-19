@@ -451,7 +451,7 @@ export default {
       }
     },
     sendPercentageBid(percent) {
-      this.playerBid = this.getPercentMVValue(percent)
+      this.playerBid = numeral(this.getPercentMVValue(percent)).format('0') * 1
       this.sendForm()
     },
     sendForm() {

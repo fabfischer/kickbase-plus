@@ -286,7 +286,7 @@ export default {
       }
 
       if (this.getSelfPlayerDetails && this.getSelfPlayerDetails.budget) {
-        details += '&nbsp;/ <span class="d-sm-inline-block d-md-none">/</span> Transfers: ' + (this.getSelfPlayerDetails.bought + this.getSelfPlayerDetails.sold)
+        details += '&nbsp;<span class="d-sm-inline-block d-md-none">/</span> Transfers: ' + (this.getSelfPlayerDetails.bought + this.getSelfPlayerDetails.sold)
 
         if (this.getSelfPlayerDetails.players && this.getSelfPlayerDetails.players.length) {
           details += ' / <span class="d-none d-sm-none d-md-inline-block">Players</span><span class="d-inline-block d-md-none">Ply</span>: ' + this.getSelfPlayerDetails.players.length

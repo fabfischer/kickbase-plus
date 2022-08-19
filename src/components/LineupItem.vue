@@ -1,16 +1,20 @@
 <template>
   <div class="position--lined-up" @click="openChangeDialog">
-    <div v-if="item.firstName || item.knownName" class="d-flex align-center" style="width: 100%">
+    <div v-if="item.firstName || item.knownName" class="d-flex flex-wrap flex-sm-nowrap align-center" style="width: 100%">
+
+      <div class="d-flex align-center">
       <img :src="teamImage" width="48"/>
 
-      <p class="text-h6 mb-0 mr-5 d-inline-block">
+      <p class="text-caption text-sm-h6 mb-0 mr-5 d-inline-block">
         <span class="player-name" v-if="item.knownName">{{ item.knownName }}</span>
         <span class="player-name" v-else>{{ item.firstName }} {{ item.lastName }}</span>
       </p>
 
+      </div>
+
       <status-pill :player="item"></status-pill>
 
-      <span v-if="nextMatchComputed" class="vsInfo ml-5">
+      <span v-if="nextMatchComputed" class="vsInfo ml-5 text-caption text-sm-body-1">
                     vs: <img :src="nextMatchComputed.img" class="vsTeam"/> {{ nextMatchComputed.abbr }}
                 </span>
     </div>
