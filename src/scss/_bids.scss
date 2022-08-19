@@ -46,25 +46,37 @@
   }
 }
 
-@keyframes colorchangeOwnBidOnly
-{
-  0%   {background: #212121;}
-  33%  {background: #FFEE58;}
-  50% {background: #66BB6A;}
-  88% {background: #2E7D32;}
-  100%   {background: #212121;}
-}
 
-@keyframes colorchangeOwnBid
-{
-  0%   {background: #212121;}
-  50%  {background: #66BB6A;}
-  100% {background: #212121;}
-}
 
-@keyframes colorchangeNoBid
-{
-  0%   {background: #212121;}
-  50%  {background: #42A5F5;}
-  100% {background: #212121;}
+.bid-input-container {
+  width: 50%;
+  @include breakpoint(xs) {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  position: relative;
+
+  .saved-alert {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    opacity: 1;
+    height: 100%;
+    width: 100%;
+
+    &:before {
+      opacity: .75 !important;
+    }
+
+    .v-alert__content, .v-icon {
+      color: #fff !important;
+      caret-color: #fff !important;
+      position: relative;
+      z-index: 4;
+      font-size: 16px;
+      font-weight: bold;
+    }
+  }
 }

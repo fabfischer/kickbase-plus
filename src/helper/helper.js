@@ -25,6 +25,25 @@ const nextMatch = (matches, player) => {
     return m
 }
 
+const sleep = (ms) => {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const getCalcOffer = (offer, marketValue) => {
+    return (offer.price) - marketValue
+}
+const getPercent = (player, offer) => {
+    const calc = getCalcOffer(offer, player.marketValue)
+    return Number.parseFloat((calc / player.marketValue * 100)).toPrecision(2)
+}
+const isHighOffer = (player, offer, threshold) => {
+    return (getPercent(player, offer) >= threshold)
+}
+
 export {
-    nextMatch
+    nextMatch,
+    sleep,
+    getCalcOffer,
+    getPercent,
+    isHighOffer,
 }

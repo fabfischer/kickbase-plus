@@ -29,6 +29,25 @@ const store = new Vuex.Store({
     playersStatsFetched: {},
     bearerToken: '',
     ranking: null,
+    defaults: {
+      offerThreshold: .6,
+      offerOrder: 'newest',
+      offerOpenPlayerNotOnMarketPanel: true,
+      offerOpenPlayerWithoutAnyOfferPanel: false,
+      offerShowTooLowOffersOnly: false,
+      offerOrders: {
+        oldest: 'oldest first',
+        newest: 'newest first'
+      },
+    },
+    offerThreshold: null,
+    offerShowTooLowOffersOnly: false,
+    offerOpenPlayerNotOnMarketPanel: false,
+    offerOpenPlayerWithoutAnyOfferPanel: false,
+    offerOrder: {
+      init: null,
+      temporary: null,
+    },
   },
   getters,
   mutations,

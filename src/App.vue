@@ -1,46 +1,45 @@
 <template>
 
 
-    <v-app id="inspire" class="app" :class="{loading: !hasUser}">
+  <v-app id="inspire" class="app" :class="{loading: !hasUser}">
 
-    <v-overlay :value="getLoading" z-index="99999" opacity=".9">
+    <v-overlay class="app-loading-overlay" :value="getLoading" z-index="99999" opacity=".9">
       <v-progress-linear
-      indeterminate
-      color="yellow darken-2"
+          indeterminate
+          color="yellow darken-2"
       ></v-progress-linear>
       <v-container>
-        <h3 
-          v-for="(message, mkey) in getReversedLoadingMessages"
-          :key="mkey"
-          class="title"
-          :class="{'red':message.error}"
+        <p
+            v-for="(message, mkey) in getLoadingMessages"
+            :key="mkey"
+            class="title"
+            :class="{'red':message.error}"
         >
-          {{message.message}}
-        </h3>
+          {{ message.message }}
+        </p>
       </v-container>
     </v-overlay>
 
     <v-snackbar
-      color="error"
-      v-model="showSnack"
-      :timeout="4000"
+        color="error"
+        v-model="showSnack"
+        :timeout="4000"
     >
-      {{ snackMessage }}
+      <p class="text-h4">{{ snackMessage }}</p>
     </v-snackbar>
-
 
     <div v-if="hasUser">
 
       <v-navigation-drawer
-        v-model="drawer"
-        class="blue-grey darken-2"
-      dark
-      app
+          v-model="drawer"
+          class="blue-grey darken-2"
+          dark
+          app
       >
         <v-list color="blue-grey darken-2">
 
           <v-list-item to="/home" color="white">
-            <v-list-item-action >
+            <v-list-item-action>
               <v-icon>fa-home</v-icon>
             </v-list-item-action>
             <v-list-item-content>
@@ -49,11 +48,11 @@
           </v-list-item>
 
           <v-list-item to="/feed" color="white">
-            <v-list-item-action >
+            <v-list-item-action>
               <v-icon>fa-rss-square</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title>Feed</v-list-item-title>
+              <v-list-item-title>News Feed</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
@@ -71,7 +70,7 @@
               <v-icon>fa-exchange-alt</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title>Transfermarket</v-list-item-title>
+              <v-list-item-title>Transfer market</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
@@ -80,7 +79,7 @@
               <v-icon>fa-money-bill-alt</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title>Offers</v-list-item-title>
+              <v-list-item-title>Offers / Sell</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
@@ -98,7 +97,22 @@
               <v-icon>fa-satellite-dish</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title>Live</v-list-item-title>
+              <v-list-item-title>Live Scores</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item color="white">
+            <v-list-item-content>
+              <v-divider></v-divider>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item to="/settings" color="white">
+            <v-list-item-action>
+              <v-icon>fa-cog</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Settings</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
@@ -125,7 +139,7 @@
 
           <v-list-item color="white">
             <v-list-item-content>
-              <v-list-item-title>build: {{build}}</v-list-item-title>
+              <v-list-item-title>build: {{ build }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
@@ -133,11 +147,11 @@
       </v-navigation-drawer>
 
       <v-app-bar
-        app
-        color="black"
-        dark
+          app
+          color="black"
+          dark
       >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+        <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
         <v-toolbar-title class="d-none d-sm-none d-md-flex" style="align-items:baseline;">
           KICKBASE<span class="yellow--text">+</span>
           <small v-if="leagueName">
@@ -154,21 +168,21 @@
             <span><span v-if="getGiftBonus!==0">{{ getGiftBonus }} / </span>{{ getGiftLevel }}</span>
           </span>
           <span v-else-if="getFetchedGift === false">
-            <v-icon  color="red">fa-sad-tear</v-icon>
+            <v-icon color="red">fa-sad-tear</v-icon>
           </span>
           <v-progress-circular v-else indeterminate size="16"></v-progress-circular>
         </div>
-        
+
       </v-app-bar>
 
       <v-main>
         <v-container
-          fluid
-          fill-height
+            fluid
+            fill-height
         >
           <v-layout
-            align-center
-            justify-center
+              align-center
+              justify-center
           >
             <router-view
             ></router-view>
@@ -177,17 +191,16 @@
       </v-main>
     </div>
 
-
-      <login-dialog v-else-if="!hasUser" />
-
-    </v-app>
+    <login-dialog v-else-if="!hasUser"/>
+  </v-app>
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import {mapGetters, mapMutations} from 'vuex'
 import moment from 'moment'
 
 import numeral from 'numeral'
+
 numeral.locale('deff')
 
 import api from './api/api'
@@ -199,8 +212,8 @@ export default {
     LoginDialog,
   },
   props: {
-      source: String,
-    },
+    source: String,
+  },
   data: () => ({
     drawer: null,
     snackMessage: null,
@@ -217,6 +230,10 @@ export default {
     })
   },
   mounted() {
+    if (localStorage.getItem('password')) {
+      localStorage.removeItem('password')
+    }
+
     if (this.hasUser) {
       api.loadPersonalData(() => {
         api.loadLeagues(() => {
@@ -241,21 +258,13 @@ export default {
       'getSelf',
       'getLeagues',
       'getLeague',
+      'getDefaults',
     ]),
-    getReversedLoadingMessages() {
-      let rvm = this.getLoadingMessages
-
-      if (rvm && rvm.length) {
-        rvm = rvm.reverse()
-      }
-
-      return rvm
-    },
     hasUser() {
       const now = moment()
       if ((this.getAuthData.user)
-      || (localStorage.getItem('token')
-      && localStorage.getItem('tokenExp'))) {
+          || (localStorage.getItem('token')
+              && localStorage.getItem('tokenExp'))) {
         const tokenExpMoment = moment(localStorage.getItem('tokenExp'))
         if (tokenExpMoment > now) {
           return true
@@ -272,14 +281,14 @@ export default {
 
       if (this.getBids && this.getSelfPlayerDetails) {
         details += '<br>Bids: ' + numeral(this.getPlayerBidsSum).format('0,0')
-        details += ' / A<span class="d-none d-sm-none d-md-inline-block">fter</span> B<span class="d-none d-sm-none d-md-inline-block">ids</span>: ' + numeral(this.getSelfPlayerDetails.budget - this.getPlayerBidsSum).format('0,0')
-        details += '<span class="d-none d-sm-none d-md-inline-block"> / MaxedOut: ' + numeral((this.getSelfPlayerDetails.teamValue * 0.3) * -1).format('0,0') + '</span>'
+        // details += ' / A<span class="d-none d-sm-none d-md-inline-block">fter</span> B<span class="d-none d-sm-none d-md-inline-block">ids</span>: ' + numeral(this.getSelfPlayerDetails.budget - this.getPlayerBidsSum).format('0,0')
+        // details += '<span class="d-none d-sm-none d-md-inline-block"> / MaxedOut: ' + numeral((this.getSelfPlayerDetails.teamValue * 0.3) * -1).format('0,0') + '</span>'
       }
 
       if (this.getSelfPlayerDetails && this.getSelfPlayerDetails.budget) {
-        details += '<br class="d-none d-sm-none d-md-flex">&nbsp;<span class="d-sm-inline-block d-md-none">/</span> Transfers: ' + (this.getSelfPlayerDetails.bought + this.getSelfPlayerDetails.sold)
+        details += '&nbsp;/ <span class="d-sm-inline-block d-md-none">/</span> Transfers: ' + (this.getSelfPlayerDetails.bought + this.getSelfPlayerDetails.sold)
 
-        if(this.getSelfPlayerDetails.players && this.getSelfPlayerDetails.players.length) {
+        if (this.getSelfPlayerDetails.players && this.getSelfPlayerDetails.players.length) {
           details += ' / <span class="d-none d-sm-none d-md-inline-block">Players</span><span class="d-inline-block d-md-none">Ply</span>: ' + this.getSelfPlayerDetails.players.length
         }
 
@@ -293,7 +302,7 @@ export default {
         this.getBids.forEach((bid) => {
           if (bid.offers && bid.offers.length) {
             bid.offers.forEach((offer) => {
-              if(offer.userId * 1 === this.getSelf) {
+              if (offer.userId * 1 === this.getSelf) {
                 sum += offer.price * 1
               }
             })
@@ -323,26 +332,27 @@ export default {
     ...mapMutations([
       'setErrorMessage',
       'setLoading',
+      'setOfferThreshold',
     ]),
     initDarkMode() {
-    const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-    darkMediaQuery.addEventListener('change', () => {
-      this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
-    });
+      darkMediaQuery.addEventListener('change', () => {
+        this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+      });
 
-    if (darkMediaQuery.matches) {
-      // need to set 0 sec timeout to set the dark more after mounted event, due to some bug in the framework
-      setTimeout(() => this.$vuetify.theme.dark = true, 0);
-    }
-  },
-  doLogout() {
+      if (darkMediaQuery.matches) {
+        // need to set 0 sec timeout to set the dark more after mounted event, due to some bug in the framework
+        setTimeout(() => this.$vuetify.theme.dark = true, 0);
+      }
+    },
+    doLogout() {
       this.setLoading(true)
       localStorage.removeItem('token')
       localStorage.removeItem('tokenExp')
       localStorage.removeItem('league')
       window.location.reload()
     },
-  }
+  },
 };
 </script>

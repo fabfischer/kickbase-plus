@@ -1,60 +1,60 @@
 <template>
   <div>
     <v-container v-if="lineup && lineup.length">
-      <v-banner
-        single-line
-      >
-        current formation: {{ formation }}
-
-        <template v-slot:actions>
+      <div class="d-md-flex flex-wrap flex-md-nowrap align-center justify-space-between mb-5">
+        <div class="wid">
+          current formation: {{ formation }}
+        </div>
+        <div>
           <v-select
-            :items="possibleFormations"
-            filled
-            label="change formation"
-            color="primary"
-            v-model="selectedFormation"
-            @change="changeFormation"
+              :items="possibleFormations"
+              filled
+              label="change formation"
+              color="primary"
+              v-model="selectedFormation"
+              :hide-details=true
+              @change="changeFormation"
           ></v-select>
-        </template>
-      </v-banner>
+        </div>
+      </div>
       <div class="field">
         <div class="position__container position--forwards">
           <lineup-item
-            v-for="forward in lineupBlocks.forwards"
-            :key="forward.id"
-            :item="forward"
-            :matches="matches"
-            v-on:openChangeDialog="openChangeDialog"
+              v-for="forward in lineupBlocks.forwards"
+              :key="forward.id"
+              :item="forward"
+              :matches="matches"
+              v-on:openChangeDialog="openChangeDialog"
           ></lineup-item>
         </div>
         <div class="position__container position--midfielders">
           <lineup-item
-            v-for="midfielder in lineupBlocks.midfielders"
-            :key="midfielder.id"
-            :item="midfielder"
-            :matches="matches"
-            v-on:openChangeDialog="openChangeDialog"
+              v-for="midfielder in lineupBlocks.midfielders"
+              :key="midfielder.id"
+              :item="midfielder"
+              :matches="matches"
+              v-on:openChangeDialog="openChangeDialog"
           ></lineup-item>
         </div>
         <div class="position__container position--defenders">
           <lineup-item
-            v-for="defender in lineupBlocks.defenders"
-            :key="defender.id"
-            :item="defender"
-            :matches="matches"
-            v-on:openChangeDialog="openChangeDialog"
+              v-for="defender in lineupBlocks.defenders"
+              :key="defender.id"
+              :item="defender"
+              :matches="matches"
+              v-on:openChangeDialog="openChangeDialog"
           ></lineup-item>
         </div>
         <div class="position__container position--goalie">
           <lineup-item
-            v-for="goalie in lineupBlocks.goalie"
-            :key="goalie.id"
-            :item="goalie"
-            :matches="matches"
-            v-on:openChangeDialog="openChangeDialog"
+              v-for="goalie in lineupBlocks.goalie"
+              :key="goalie.id"
+              :item="goalie"
+              :matches="matches"
+              v-on:openChangeDialog="openChangeDialog"
           ></lineup-item>
         </div>
-        
+
       </div>
 
       <div class="h4 mt-4">Goalies</div>
@@ -67,69 +67,56 @@
       <lineup-table :items="forwards"></lineup-table>
 
       <v-dialog
-        v-model="lineUpDialog.show"
-        width="75%"
+          v-model="lineUpDialog.show"
+          width="75%"
       >
         <v-card>
           <v-card-title class="headline black white--text">
-            change position: {{ positionName(lineUpDialog.position) }}
+            change&nbsp;
+            <strong v-if="lineUpDialog.player && lineUpDialog.player.id">{{ playerName(lineUpDialog.player) }}</strong>
           </v-card-title>
 
           <v-card-text>
-            <div class="change-line-up__container">
-              <div class="change-line-up__container__column">
-                <h3>current player</h3>
-                <div v-if="lineUpDialog.player && lineUpDialog.player.lastName">
-                  <h2>{{ playerName(lineUpDialog.player) }}</h2>
-                  <span v-if="playerVs(lineUpDialog.player)"  class="vsInfo vsInfo--left">
-                    vs: <img :src="playerVs(lineUpDialog.player).img" class="vsTeam" /> {{ playerVs(lineUpDialog.player).abbr }}
-                  </span> 
-                  <div class="change-line-up__player">
-                    <status-pill :player="lineUpDialog.player"></status-pill>
-                    <div v-if="playerImg(lineUpDialog.player)" class="change-line-up__img">
-                      <img :src="playerImg(lineUpDialog.player)" />
-                    </div>
-                    <div v-if="playerTeamImg(lineUpDialog.player)" class="change-line-up__img change-line-up__img--logo">
-                      <img :src="playerTeamImg(lineUpDialog.player)" />
-                    </div>
-                  </div>
-                </div>
-                <div v-else>
-                  no player selected yet
-                </div>
-              </div>
-              <div class="change-line-up__container__column">
-                <h3>
-                  other {{ positionName(lineUpDialog.position) }} player<br>
-                  <small>(not already in line-up)</small>
-                </h3>
-                <div
-                  class="change-line-up__other-player"
-                  v-for="otherPlayer in otherPlayer(lineUpDialog.player)"
-                  :key="otherPlayer.id"
-                >
-                  <v-btn block color="deep-purple darken-3 white--text" x-large @click="saveLineup(lineUpDialog.player, otherPlayer)">
-                    {{ playerName(otherPlayer) }}
-                    <img :src="playerTeamImg(otherPlayer)" v-if="playerTeamImg(otherPlayer)" />
-                    <status-pill :player="otherPlayer"></status-pill>
-                    <span v-if="playerVs(otherPlayer)"  class="vsInfo vsInfo--dark">
-                        vs: <img :src="playerVs(otherPlayer).img" class="vsTeam" /> {{ playerVs(otherPlayer).abbr }}
-                    </span> 
-                  </v-btn>
-                </div>
-                <v-btn v-if="lineUpDialog.player && lineUpDialog.player.id" block color="red darken-3 white--text" x-large @click="saveLineup(lineUpDialog.player, {position:lineUpDialog.player.position})">
-                    reset position 
-                  </v-btn>
-              </div>
+
+
+            <h3>
+              other {{ positionName(lineUpDialog.position) }} player
+              <small>(not already in line-up)</small>
+            </h3>
+
+            <div
+                class="change-line-up__other-player align-center"
+                v-for="otherPlayer in otherPlayer(lineUpDialog.player)"
+                :key="otherPlayer.id"
+            >
+              <v-btn
+                  block
+                  color="deep-purple darken-3 white--text"
+                  x-large
+                  @click="saveLineup(lineUpDialog.player, otherPlayer)"
+                  class="kp-button"
+              >
+                {{ playerName(otherPlayer) }}
+                <img :src="playerTeamImg(otherPlayer)" v-if="playerTeamImg(otherPlayer)"/>
+                <status-pill :player="otherPlayer"></status-pill>
+                <span v-if="playerVs(otherPlayer)" class="vsInfo">
+                        vs: <img :src="playerVs(otherPlayer).img" class="vsTeam"/> {{ playerVs(otherPlayer).abbr }}
+                    </span>
+              </v-btn>
             </div>
+            <v-btn v-if="lineUpDialog.player && lineUpDialog.player.id" block color="red darken-3 white--text"
+                   x-large @click="saveLineup(lineUpDialog.player, {position:lineUpDialog.player.position})">
+              reset position
+            </v-btn>
+
           </v-card-text>
 
           <v-divider></v-divider>
 
           <v-card-actions>
             <v-btn
-              color="secondary"
-              @click="closeChangeDialog"
+                color="secondary"
+                @click="closeChangeDialog"
             >
               cancel
             </v-btn>
@@ -139,19 +126,19 @@
     </v-container>
     <spinner v-else></spinner>
   </div>
-  
+
 </template>
 
 <script>
 import api from '../api/api'
 import moment from 'moment'
-import { mapGetters, mapMutations } from 'vuex'
+import {mapGetters, mapMutations} from 'vuex'
 
 import StatusPill from './StatusPill'
 import Spinner from './Spinner'
 import LineupItem from './LineupItem'
 import LineupTable from './LineupTable'
-import { nextMatch } from '../helper/helper'
+import {nextMatch} from '../helper/helper'
 
 export default {
   name: 'lineup-component',
@@ -196,7 +183,7 @@ export default {
       position: '',
       player: null,
     },
-    
+
   }),
   computed: {
     ...mapGetters([
@@ -246,7 +233,7 @@ export default {
       }
       const oLength = players.length
       if (oLength < this.positions.goalie) {
-        for(let x = 0; x < this.positions.goalie - oLength; x++) {
+        for (let x = 0; x < this.positions.goalie - oLength; x++) {
           players.push({position: 1})
         }
       }
@@ -267,7 +254,7 @@ export default {
       }
       const oLength = players.length
       if (oLength < this.positions.defenders) {
-        for(let x = 0; x < this.positions.defenders - oLength; x++) {
+        for (let x = 0; x < this.positions.defenders - oLength; x++) {
           players.push({position: 2})
         }
       }
@@ -288,7 +275,7 @@ export default {
       }
       const oLength = players.length
       if (oLength < this.positions.midfielders) {
-        for(let x = 0; x < this.positions.midfielders - oLength; x++) {
+        for (let x = 0; x < this.positions.midfielders - oLength; x++) {
           players.push({position: 3})
         }
       }
@@ -309,7 +296,7 @@ export default {
       }
       const oLength = players.length
       if (oLength < this.positions.forwards) {
-        for(let x = 0; x < this.positions.forwards - oLength; x++) {
+        for (let x = 0; x < this.positions.forwards - oLength; x++) {
           players.push({position: 4})
         }
       }
@@ -323,7 +310,7 @@ export default {
     ...mapMutations([
       'setLoading'
     ]),
-    init: function() {
+    init: function () {
       if (this.getSelf) {
         this.loadLineup()
 
@@ -356,14 +343,13 @@ export default {
     parseLineup(data) {
       if (data.type === undefined) {
         this.formation = '3-5-2'
-        const dummy = {position:'dummy'}
+        const dummy = {position: 'dummy'}
         this.lineupBlocks.goalie = [null]
-        this.lineupBlocks.defenders = [null,null,null]
-        this.lineupBlocks.midfielders = [null,null,null,null,null]
-        this.lineupBlocks.forwards = [null,null]
+        this.lineupBlocks.defenders = [null, null, null]
+        this.lineupBlocks.midfielders = [null, null, null, null, null]
+        this.lineupBlocks.forwards = [null, null]
         this.saveLineup({}, dummy)
-      }
-      else if(data.lineup && data.players) {
+      } else if (data.lineup && data.players) {
         this.players = data.players
 
         if (data.type) {
@@ -402,7 +388,7 @@ export default {
     },
     changeFormation() {
       this.formation = this.selectedFormation
-      this.saveLineup({},{position:'dummy'})
+      this.saveLineup({}, {position: 'dummy'})
     },
     saveLineup(oldPlayer, newPlayer) {
 
@@ -423,19 +409,19 @@ export default {
       console.log(goalie, defenders, midfielders, forwards)
 
       api.saveLineup(
-        {
-          type: this.formation, 
-          id: this.getLeague,
-          actionId: 'LU' + this.getLeague, 
-          players: newLineup
-        },
-        () => {
-          this.loadLineup()
-          this.setLoading(false)
-        },
-        () => {
-          this.setLoading(false)
-        }
+          {
+            type: this.formation,
+            id: this.getLeague,
+            actionId: 'LU' + this.getLeague,
+            players: newLineup
+          },
+          () => {
+            this.loadLineup()
+            this.setLoading(false)
+          },
+          () => {
+            this.setLoading(false)
+          }
       )
     },
     changeBlockLineup(block, oldPlayer, newPlayer) {

@@ -1,3 +1,5 @@
+import Constants from "../Constants"
+
 function setPlayers(state, players) {
   state.players = players
 }
@@ -142,6 +144,35 @@ function setSelfPlayersStatsFetched(state, selfPlayersStatsFetched) {
   state.selfPlayersStatsFetched = selfPlayersStatsFetched
 }
 
+function setOfferThreshold(state, offerThreshold) {
+  localStorage.setItem(Constants.LOCALSTORAGE.OFFER_THRESHOLD, offerThreshold)
+  state.offerThreshold = offerThreshold
+}
+
+function setOfferShowTooLowOffersOnly(state, offerShowTooLowOffersOnly) {
+  localStorage.setItem(Constants.LOCALSTORAGE.OFFER_SHOW_TOO_LOW_OFFERS_ONLY, offerShowTooLowOffersOnly)
+  state.offerShowTooLowOffersOnly = offerShowTooLowOffersOnly
+}
+
+function setOfferOpenPlayerNotOnMarketPanel(state, offerOpenPlayerNotOnMarketPanel) {
+  localStorage.setItem(Constants.LOCALSTORAGE.OFFER_PANEL_PLAYER_NOT_ON_MARKET, offerOpenPlayerNotOnMarketPanel)
+  state.offerOpenPlayerNotOnMarketPanel = offerOpenPlayerNotOnMarketPanel
+}
+
+function setOfferOpenPlayerWithoutAnyOfferPanel(state, offerOpenPlayerWithoutAnyOfferPanel) {
+  localStorage.setItem(Constants.LOCALSTORAGE.OFFER_PANEL_PLAYER_WITHOUT_ANY_OFFER, offerOpenPlayerWithoutAnyOfferPanel)
+  state.offerOpenPlayerWithoutAnyOfferPanel = offerOpenPlayerWithoutAnyOfferPanel
+}
+
+function setOfferOrder(state, payload) {
+  if (payload.isTemporary === true) {
+    state.offerOrder.temporary = payload.order
+  } else {
+    state.offerOrder.init = payload.order
+    localStorage.setItem(Constants.LOCALSTORAGE.OFFER_ORDER, payload.order)
+  }
+}
+
 export default {
   addPlayer,
   addUsersPlayer,
@@ -168,4 +199,9 @@ export default {
   setLeagues,
   setSelfPlayersStatsFetched,
   addPlayersStatsFetched,
+  setOfferThreshold,
+  setOfferShowTooLowOffersOnly,
+  setOfferOpenPlayerNotOnMarketPanel,
+  setOfferOpenPlayerWithoutAnyOfferPanel,
+  setOfferOrder,
 }

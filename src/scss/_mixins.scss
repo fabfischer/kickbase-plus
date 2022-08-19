@@ -1,21 +1,48 @@
 @mixin breakpoint($class) {
   @if $class == xs {
-    @media (max-width: 767px) { @content; }
-  }
-  
-  @else if $class == sm {
-    @media (min-width: 768px) { @content; }
-  }
-  
-  @else if $class == md {
-    @media (min-width: 992px) { @content; }
-  }
-  
-  @else if $class == lg {
-    @media (min-width: 1200px) { @content; }
-  }
-  
-  @else {
+    @media (max-width: 767px) {
+      @content;
+    }
+  } @else if $class == up-to-md {
+    @media (max-width: 992px) {
+      @content;
+    }
+  } @else if $class == up-to-lg {
+    @media (max-width: 1264px) {
+      @content;
+    }
+  } @else if $class == sm {
+    @media (min-width: 768px) {
+      @content;
+    }
+  } @else if $class == md {
+    @media (min-width: 992px) {
+      @content;
+    }
+  } @else if $class == lg {
+    @media (min-width: 1200px) {
+      @content;
+    }
+  } @else if $class == xxl {
+    @media (min-width: 1600px) {
+      @content;
+    }
+  } @else {
     @warn "Breakpoint mixin supports: xs, sm, md, lg";
+  }
+}
+
+@mixin inlineButton() {
+  width: 100% !important;
+  flex-wrap: wrap !important;
+  height: auto !important;
+  padding: 10px !important;
+  word-wrap: break-word !important;
+  white-space: normal !important;
+
+  .v-btn__content {
+    display: block !important;
+    flex-wrap: wrap !important;
+    max-width: 100% !important;
   }
 }

@@ -30,8 +30,6 @@
     text-align: left;
     padding: 5px;
     border-bottom: 1px solid #ccc;
-
-
   }
 
   tr {
@@ -68,6 +66,38 @@
 
 .tm-filter-positions {
   @include breakpoint(xs) {
-   width: 33%;
+    width: 33%;
+  }
+}
+
+.profit-info {
+  padding: 5px;
+  background: #ccc;
+  margin: 0 10px 0 0;
+
+  &--green {
+    background: $kp_pastell_green;
+
+    .theme--dark & {
+      background: $kp_pastell_green_dark;
+    }
+  }
+
+  &--red {
+    background: $kp_pastell_red;
+
+    .theme--dark & {
+      background: $kp_pastell_red_dark;
+    }
+  }
+}
+
+.step-selection {
+  .v-input__slot {
+    min-height: 0 !important;
+
+    fieldset {
+      padding: 0 !important;
+    }
   }
 }

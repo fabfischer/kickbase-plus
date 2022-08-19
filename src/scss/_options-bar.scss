@@ -1,0 +1,138 @@
+.options-bar {
+  width: 200px;
+  margin-right: 16px;
+  position: relative;
+
+  .reload-button {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+  @include breakpoint(xs) {
+    width: 100%;
+
+    .other-buttons {
+      position: fixed;
+      top: 165px;
+      right: 20px;
+      z-index: 2;
+      max-width: 64px;
+
+      .v-btn {
+        margin-bottom: 8px;
+      }
+
+    }
+  }
+
+  @include breakpoint(md) {
+    width: 300px;
+  }
+
+  @include breakpoint(xxl) {
+    width: 500px;
+  }
+
+  &__mobile_content {
+    @include breakpoint(sm) {
+      display: none;
+    }
+  }
+
+  &__expand-btn {
+    position: fixed;
+    z-index: 2;
+    top: 90px;
+    right: 20px;
+    .v-btn__content {
+      word-wrap: break-word !important;
+      font-size: 10px;
+    }
+  }
+
+  &__expanded_content {
+    @include breakpoint(xs) {
+      display: none;
+    }
+
+    @include breakpoint(md) {
+      position: sticky;
+      top: 100px;
+    }
+
+    &--active {
+      @include breakpoint(xs) {
+        display: block;
+        position: fixed;
+        width: 90%;
+        z-index: 5;
+        height: 90%;
+        background: #fff;
+        left: 5%;
+
+        .reload-button {
+          display: none !important;
+        }
+      }
+    }
+
+    &__inner {
+      @include breakpoint(xs) {
+        padding: 16px 32px;
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+
+        &__content {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .v-card {
+    &__title, &__text {
+      padding: 0;
+    }
+  }
+
+  &__info-button {
+    @include inlineButton()
+  }
+
+  &__info_content {
+
+    .v-alert {
+      padding: 10px !important;
+    }
+
+    .v-data-table__wrapper {
+      margin-top: 10px;
+
+      th {
+        padding: 5px 0 5px 5px !important;
+        font-size: 0.75rem !important;
+        height: inherit !important;
+      }
+
+      td {
+        padding: 5px 5px 5px 0 !important;
+        font-size: 0.75rem !important;
+        height: inherit !important;
+      }
+    }
+  }
+
+  &__sibling {
+    width: 75%;
+    @include breakpoint(xs) {
+      width: 100%;
+    }
+    .options-open & {
+      filter: blur(5px);
+    }
+  }
+
+}

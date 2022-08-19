@@ -3,16 +3,16 @@
         <template v-slot:default>
             <thead>
                 <tr>
-                    <th class="text-left">
+                    <th class="text-left" style="width: 25%">
                         Name
                     </th>
-                    <th class="text-left">
+                    <th class="text-left" style="width: 25%">
                         Total points
                     </th>
-                    <th class="text-left">
+                    <th class="text-left" style="width: 25%">
                         Average points
                     </th>
-                    <th class="text-left">
+                    <th class="text-left" style="width: 25%">
                         Status
                     </th>
                 </tr>

@@ -1,6 +1,8 @@
 import axios from 'axios'
 
 import store from '../store/store'
+import Constants from "../Constants";
+import {sleep} from "@/helper/helper";
 
 const getTodaysDateAsString = () => {
     const today = new Date();
@@ -35,10 +37,33 @@ const api = {
                 if (response.status === 200) {
 
                     if (response.data) {
-                        store.commit('setGiftLevel', response.data.level)
-                        store.commit('setGiftBonus', response.data.amount)
-                        if (response.data.amount === 0) {
-                            store.commit('setGiftLevel', 'already collected today')
+                        if (response.data.amount !== 0) {
+                            store.commit('setGiftLevel', response.data.level)
+                            store.commit('setGiftBonus', response.data.amount)
+                            localStorage.setItem(
+                                Constants.LOCALSTORAGE.GIFT_DATA,
+                                JSON.stringify(
+                                    {
+                                        level: response.data.level,
+                                        amount: response.data.amount
+                                    }
+                                )
+                            )
+                        } else {
+                            let lsGiftData = localStorage.getItem(Constants.LOCALSTORAGE.GIFT_DATA)
+                            let hasGiftDetails = false
+                            if (lsGiftData) {
+                                lsGiftData = JSON.parse(lsGiftData)
+                                if (lsGiftData && lsGiftData.level) {
+                                    store.commit('setGiftLevel', lsGiftData.level)
+                                    store.commit('setGiftBonus', lsGiftData.amount)
+                                    hasGiftDetails = true
+                                }
+                            }
+                            if (hasGiftDetails === false) {
+                                store.commit('setGiftLevel', 'collected')
+
+                            }
                         }
                         if (response.data.isAvailable) {
                             axios({
@@ -66,7 +91,23 @@ const api = {
                 }
             })
             .catch(function () {
-                store.commit('setErrorMessage', 'could not fetch gift/bonus status')
+                // TODO: IMPROVE
+                let lsGiftData = localStorage.getItem(Constants.LOCALSTORAGE.GIFT_DATA)
+                console.log(localStorage.getItem(Constants.LOCALSTORAGE.GIFT_DATA), Constants.LOCALSTORAGE.GIFT_DATA, localStorage)
+                let hasGiftDetails = false
+                if (lsGiftData) {
+                    console.log(lsGiftData)
+                    lsGiftData = JSON.parse(lsGiftData)
+                    if (lsGiftData && lsGiftData.level) {
+                        store.commit('setGiftLevel', lsGiftData.level)
+                        store.commit('setGiftBonus', lsGiftData.amount)
+                        hasGiftDetails = true
+                    }
+                }
+                if (hasGiftDetails === false) {
+                    store.commit('setGiftLevel', 'collected')
+                }
+                // store.commit('setErrorMessage', 'could not fetch gift/bonus status')
             })
     },
     login() {
@@ -116,9 +157,11 @@ const api = {
             store.commit('setErrorMessage', 'could not fetch ranking')
         })
     },
-    loadPersonalData(cb) {
-        store.commit('setLoading', true)
-        store.commit('addLoadingMessage', 'loading personal data. please wait')
+    loadPersonalData(cb, showLoading = true) {
+        if (showLoading) {
+            store.commit('setLoading', true)
+            store.commit('addLoadingMessage', 'loading personal data. please wait')
+        }
         axios({
             'url': 'https://api.kickbase.com/user/settings',
             "method": "GET",
@@ -132,8 +175,10 @@ const api = {
                     }
                 }
             }).catch(function () {
-            store.commit('addErrorLoadingMessage', 'could not fetch user data')
-            store.commit('setErrorMessage', 'could not fetch user data')
+            if (showLoading) {
+                store.commit('addErrorLoadingMessage', 'could not fetch user data')
+                store.commit('setErrorMessage', 'could not fetch user data')
+            }
         })
     },
     loadLeagues(cb) {
@@ -175,14 +220,14 @@ const api = {
         })
     },
     loadUsersPlayerOffers(cb) {
-        store.commit('addLoadingMessage', 'putOnMarket callback, loading players again')
+        store.commit('addLoadingMessage', 'loading market offers')
         axios({
             'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/market',
             "method": "GET",
         })
             .then((response) => {
                 if (response.status === 200) {
-                    store.commit('addLoadingMessage', 'fetched players successfully')
+                    store.commit('addLoadingMessage', 'fetched offers successfully')
                     if (typeof cb === 'function') {
                         cb(response.data)
                     }
@@ -273,7 +318,7 @@ const api = {
                 })
         }
     },
-    loadUsers() {
+    loadUsers(loadPlayerStats = true) {
         axios({
             'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/stats',
             "method": "GET",
@@ -282,7 +327,7 @@ const api = {
                 if (response.status === 200) {
                     response.data.users.forEach((player) => {
                         if (player.id * 1 === store.getters.getSelf) {
-                            this.loadUsersStats(player)
+                            this.loadUsersStats(player, loadPlayerStats)
                         } else {
                             api.loadUsersPlayer(player.id, false)
                         }
@@ -363,7 +408,7 @@ const api = {
             .finally(function () {
             });
     },
-    loadUsersStats(user) {
+    loadUsersStats(user, loadPlayerStats = true) {
         const tmpUser = user
         axios({
             'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/users/' + user.id + '/profile',
@@ -372,7 +417,7 @@ const api = {
             if (profile.data) {
                 const userX = Object.assign(tmpUser, profile.data)
                 store.commit('addUser', userX)
-                api.loadUsersPlayer(userX.id)
+                api.loadUsersPlayer(userX.id, loadPlayerStats)
             }
         }))
             .catch(function () {
@@ -401,7 +446,7 @@ const api = {
             }
         })
     },
-    loadGlobalLiveData() {
+    loadGlobalLiveData(cb) {
         axios({
             'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/live',
             "method": "GET",
@@ -409,6 +454,9 @@ const api = {
             if (response.status === 200) {
                 if (response.data) {
                     store.commit('setLiveData', response.data)
+                }
+                if (typeof cb === 'function') {
+                    cb()
                 }
             }
         })
@@ -418,7 +466,7 @@ const api = {
         const cb = callback
 
         const getBidReq = () => {
-            return  axios.post(
+            return axios.post(
                 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/market/' + playerId + '/offers',
                 {
                     price
@@ -429,7 +477,7 @@ const api = {
         const reqs = [
             getBidReq()
         ]
-        if (multi) {
+        if (multi === true) {
             reqs.push(getBidReq())
             reqs.push(getBidReq())
         }
@@ -443,6 +491,24 @@ const api = {
             }
         })).catch(errors => {
             console.warn(errors)
+            if (errors.response && errors.response.data) {
+                if (errors.response.data.err === 5060) {
+                    // store.commit('setErrorMessage', errors.response.data.errMsg)
+                    store.commit('setErrorMessage', 'offer too low')
+                }
+                if (errors.response.data.err === 5050) {
+                    // ThirtyThreePercentRuleExceeded
+                    store.commit('setErrorMessage', 'you reached your financial limit (max. 33% debt of your team\'s market value)')
+                }
+                if (errors.response.data.err === 5030) {
+                    // ThirtyThreePercentRuleExceeded
+                    store.commit('setErrorMessage', 'You have reached the limit for players per team (max. ' + store.getters.getSelectedLeague.pl + ' players)')
+                }
+                if (errors.response.data.err === 5070) {
+                    // ThirtyThreePercentRuleExceeded
+                    store.commit('setErrorMessage', 'You have reached the limit for players of a Bundesliga team (max. ' + store.getters.getSelectedLeague.mpst + ' players)')
+                }
+            }
         })
 
     },
@@ -478,7 +544,7 @@ const api = {
         let price = player.marketValue + ""
 
         const getReq = () => {
-            return  axios.post(
+            return axios.post(
                 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/market',
                 {
                     playerId: player.id,
@@ -509,7 +575,7 @@ const api = {
             api.putOnMarket(player, cb, multi)
         })
     },
-    removePlayerFromMarket(player, callback) {
+    async removePlayerFromMarket(player, callback) {
         store.commit('addLoadingMessage', 'removing player "' + player.lastName + '" from market')
         const cb = callback
         axios({
@@ -528,7 +594,20 @@ const api = {
                 store.commit('setErrorMessage', 'could not remove player from market')
             })
     },
-
+    async setPlayerOnMarketAgain(player, callback, loadUsersPlayerOffers = true) {
+        store.commit('setLoading', true)
+        await api.removePlayerFromMarket(player)
+        await sleep(500)
+        await api.putOnMarket(player)
+        if (loadUsersPlayerOffers) {
+            await sleep(500)
+            await api.loadUsersPlayerOffers((d) => {
+                if (typeof callback === 'function') {
+                    callback(d)
+                }
+            })
+        }
+    },
     acceptBids(offer, callback) {
         axios({
             'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/market/' + offer.playerId + '/offers/' + offer.offerId + '/accept',

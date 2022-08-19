@@ -15,7 +15,7 @@ kickbase+ supports all devices - means it is responsive.
 
 ## extended features
 
-it offers some additional features compared to the official mobile and web app, such as:
+it offers some additional features compared to the official mobile ~~and web app~~, such as:
 - no ads
 - automatic fetching of daily bonus
 - transfer market:
@@ -29,9 +29,6 @@ it offers some additional features compared to the official mobile and web app, 
 	- see which player is suspended or injured
 	- see which player will play against which team on the next matchday
 - live stats: you can see you current ranking of each matchday live
-
-
-⚠️ please note that the transfer market and all own offers are limited to deals made by Kickbase (system). You can't sell or buy players from other users in the league at this time! ⚠️ 
 
 ## demo
 you can test the app here: [https://kickbaseplus.fabian-fischer.com/](https://kickbaseplus.fabian-fischer.com/)

@@ -19,6 +19,21 @@
   }
 }
 
+.app-loading-overlay {
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    height: 100%;
+    flex-direction: column-reverse;
+
+    p {
+      display: block;
+      width: 100%;
+      flex-grow: 0;
+    }
+  }
+}
+
 
 .text {
   &--white {
@@ -41,7 +56,7 @@ fieldset {
   &.no-padding-bottom {
     padding-bottom: 0;
 
-    &+fieldset {
+    & + fieldset {
       padding-top: 0;
     }
   }
@@ -73,7 +88,72 @@ fieldset {
 
 .tbl {
   width: 100%;
+
   th {
     width: 33%;
   }
+}
+
+.full-width-container {
+  width: 100%;
+  position: relative;
+
+  &--with-options-bar {
+    display: flex;
+
+    @include breakpoint(xs) {
+      flex-wrap: wrap;
+    }
+  }
+}
+
+.vertical-align {
+  &--top {
+    vertical-align: top;
+  }
+}
+
+.kp-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  &--font-large {
+    font-size: 130%;
+  }
+
+  th, td {
+    padding: 4px;
+    vertical-align: top;
+    border: none;
+    border-bottom: 1px solid #ccc;
+
+    &.xs-border-none {
+      @include breakpoint(up-to-lg) {
+        border: none;
+      }
+    }
+
+    &.border-none {
+      border: none;
+    }
+  }
+
+  th {
+    font-weight: bold;
+    text-align: left;
+  }
+}
+
+.text {
+  &--green {
+    color: $kp_green;
+  }
+
+  &--red {
+    color: $kp_red;
+  }
+}
+
+.reload-button {
+  cursor: pointer;
 }
