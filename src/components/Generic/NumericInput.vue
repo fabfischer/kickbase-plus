@@ -7,6 +7,7 @@
     ]"
   >
     <input
+        @submit.prevent="triggerEnterEvent"
         :name="name"
         ref="input"
         type="number"
@@ -169,6 +170,9 @@ export default {
       temporaryStep: 1,
       debouncedCallback: null,
       valueBeforeChange: 0,
+      hasFocus: false,
+      stepsCounterIncrease: 0,
+      stepsCounterDecrease: 0,
     };
   },
   watch: {
@@ -209,7 +213,7 @@ export default {
   },
   methods: {
     triggerEnterEvent() {
-      this.$emit('enterEvent', this.value)
+      this.$emit('submit', {value: this.computedValue, focus: false, triggeredByEnterKey: true})
     },
     /**
      * Function convert value to number
@@ -252,7 +256,25 @@ export default {
      */
     increment() {
       if (!this.readonly && !this.disabled) {
-        const val = this.computedValue || 0;
+
+        if (this.stepsCounterIncrease > 71) {
+          this.temporaryStep = 100000
+        } else if (this.stepsCounterIncrease > 55) {
+          this.temporaryStep = 10000
+        } else if (this.stepsCounterIncrease > 41) {
+          this.temporaryStep = 1000
+        } else if (this.stepsCounterIncrease > 25) {
+          this.temporaryStep = 100
+        } else if (this.stepsCounterIncrease > 11) {
+          this.temporaryStep = 10
+        }
+
+        let val = 0;
+        if (this.computedValue) {
+          val = this.computedValue
+        } else if (this.initialNumber) {
+          val = this.initialNumber
+        }
         const precisionFactor = Math.pow(10, this.numValuePrecision);
         const newVal =
             Math.round(precisionFactor * val + precisionFactor * this.temporaryStep) /
@@ -263,6 +285,8 @@ export default {
         } else {
           this.maxDisable = true;
         }
+
+        this.stepsCounterIncrease++
       }
     },
     /**
@@ -270,7 +294,25 @@ export default {
      */
     decrement() {
       if (!this.readonly && !this.disabled) {
-        const val = this.computedValue || 0;
+
+        if (this.stepsCounterDecrease > 71) {
+          this.temporaryStep = 100000
+        } else if (this.stepsCounterDecrease > 55) {
+          this.temporaryStep = 10000
+        } else if (this.stepsCounterDecrease > 41) {
+          this.temporaryStep = 1000
+        } else if (this.stepsCounterDecrease > 25) {
+          this.temporaryStep = 100
+        } else if (this.stepsCounterDecrease > 11) {
+          this.temporaryStep = 10
+        }
+
+        let val = 0;
+        if (this.computedValue) {
+          val = this.computedValue * 1
+        } else if (this.initialNumber) {
+          val = this.initialNumber * 1
+        }
         const precisionFactor = Math.pow(10, this.numValuePrecision);
         const newVal =
             Math.round(precisionFactor * val - precisionFactor * this.temporaryStep) /
@@ -281,6 +323,8 @@ export default {
         } else {
           this.minDisable = true;
         }
+
+        this.stepsCounterDecrease++
       }
     },
     /**
@@ -329,6 +373,7 @@ export default {
       if (!this.hasBid) {
         this.newValue = null
       }
+      this.hasFocus = false
     },
     /**
      * On focus event trigger on input
@@ -339,6 +384,7 @@ export default {
       if (!this.hasBid) {
         this.newValue = this.initialNumber
       }
+      this.hasFocus = true
     },
     /**
      * On change event trigger on input
@@ -373,7 +419,7 @@ export default {
     },
     throttle(fn, delay) {
       let lastCall = 0;
-      return function(...args) {
+      return function (...args) {
         const now = new Date().getTime();
         if (now - lastCall < delay) {
           return;
@@ -391,38 +437,17 @@ export default {
       set(value) {
         let addition = 0
         if (this.initialNumber && (this.newValue === 0 || this.newValue === undefined) && this.initialized === false) {
-          addition = this.initialNumber
+          //addition = this.initialNumber
           this.initialized = true
           this.valueBeforeChange = value + addition
         }
         this.newValue = value + addition;
-        this.$emit("input", this.newValue);
-
-        if (this.newValue-this.valueBeforeChange > 100000) {
-          this.temporaryStep = 100000
-        } else if (this.newValue-this.valueBeforeChange > 10000) {
-          this.temporaryStep = 10000
-        } else if (this.newValue-this.valueBeforeChange > 1000) {
-          this.temporaryStep = 1000
-        } else if (this.newValue-this.valueBeforeChange > 100) {
-          this.temporaryStep = 100
-        } else if (this.newValue-this.valueBeforeChange > 10) {
-          this.temporaryStep = 10
-        } else if (this.valueBeforeChange-this.newValue > 100000) {
-          this.temporaryStep = 100000
-        } else if (this.valueBeforeChange-this.newValue > 10000) {
-          this.temporaryStep = 10000
-        } else if (this.valueBeforeChange-this.newValue > 1000) {
-          this.temporaryStep = 1000
-        } else if (this.valueBeforeChange-this.newValue > 100) {
-          this.temporaryStep = 100
-        } else if (this.valueBeforeChange-this.newValue > 10) {
-          this.temporaryStep = 10
-        }
-
+        this.$emit("input", {value: this.newValue, focus: this.hasFocus});
         this.debouncedCallback(() => {
-          this.temporaryStep = this.step
           this.valueBeforeChange = this.newValue
+          this.temporaryStep = this.step
+          this.stepsCounterIncrease = 0
+          this.stepsCounterDecrease = 0
         });
       }
     },
@@ -445,7 +470,7 @@ export default {
       ];
     },
     inputStyle() {
-      return { textAlign: this.align };
+      return {textAlign: this.align};
     },
     widthStyle() {
       let sizeWidth = "150px";
@@ -454,7 +479,7 @@ export default {
       } else if (this.size === "large") {
         sizeWidth = "240px";
       }
-      return { width: this.width ? `${this.width}` : sizeWidth };
+      return {width: this.width ? `${this.width}` : sizeWidth};
     }
   },
   beforeDestroy() {
@@ -471,20 +496,25 @@ export default {
   box-sizing: border-box;
   height: 48px;
 }
+
 .vue-numeric-input.small {
   height: 20px;
   font-size: 12px;
 }
+
 .vue-numeric-input.small .numeric-input {
   padding: 2px 1.4rem;
 }
+
 .vue-numeric-input.large {
   height: 42px;
   font-size: 34px;
 }
+
 .vue-numeric-input.large .numeric-input {
   padding: 2px 2.8rem;
 }
+
 .vue-numeric-input .numeric-input {
   height: inherit;
   padding: 2px 2rem;
@@ -503,14 +533,17 @@ export default {
     color: #fff;
   }
 }
-.numeric-input::-webkit-inner-spin-button, .numeric-input::-webkit-outer-spin-button  {
+
+.numeric-input::-webkit-inner-spin-button, .numeric-input::-webkit-outer-spin-button {
   -webkit-appearance: none !important;
   margin: 0 !important;
 }
+
 .vue-numeric-input .numeric-input:focus {
   outline: none;
   border-color: #409eff;
 }
+
 .vue-numeric-input button {
   position: absolute;
   width: 48px;
@@ -526,26 +559,33 @@ export default {
 .vue-numeric-input button:focus {
   outline: none !important;
 }
+
 .vue-numeric-input.small button {
   width: 20px;
 }
+
 .vue-numeric-input.large button {
   width: 40px;
 }
+
 .vue-numeric-input button:hover {
   background: rgba(0, 0, 0, 0.2);
 }
+
 .vue-numeric-input button:active {
   background: #333;
 }
+
 .vue-numeric-input button:disabled {
   opacity: 0.5;
   box-shadow: none;
   cursor: not-allowed;
 }
+
 .vue-numeric-input .numeric-input.no-control {
   padding: 2px 5px;
 }
+
 .vue-numeric-input .btn-increment {
   right: 0;
   top: 0;
@@ -553,6 +593,7 @@ export default {
   border-radius: 2px;
   border-width: 1px;
 }
+
 .vue-numeric-input .btn-increment .btn-icon {
   position: absolute;
   width: 100%;
@@ -560,6 +601,7 @@ export default {
   top: 0;
   left: 0;
 }
+
 .vue-numeric-input .btn-increment .btn-icon:before {
   display: inline-block;
   visibility: visible;
@@ -575,11 +617,13 @@ export default {
     background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 16 16'><path d='M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z'/></svg>");
   }
 }
+
 .vue-numeric-input .btn-increment .btn-icon:after {
   position: absolute;
   visibility: hidden;
   content: "";
 }
+
 .vue-numeric-input .btn-decrement {
   left: 0;
   top: 0;
@@ -587,6 +631,7 @@ export default {
   border-radius: 2px;
   border-width: 1px;
 }
+
 .vue-numeric-input .btn-decrement .btn-icon {
   position: absolute;
   width: 100%;
@@ -594,6 +639,7 @@ export default {
   top: 0;
   left: 0;
 }
+
 .vue-numeric-input .btn-decrement .btn-icon:before {
   display: inline-block;
   visibility: visible;
@@ -609,15 +655,18 @@ export default {
     background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 16 16'><path d='M0 8a1 1 0 0 1 1-1h14a1 1 0 1 1 0 2H1a1 1 0 0 1-1-1z'/></svg>");
   }
 }
+
 .vue-numeric-input .btn-decrement .btn-icon:after {
   visibility: hidden;
   content: "";
   clear: both;
   height: 0;
 }
+
 .vue-numeric-input.updown .numeric-input {
   padding: 5px 2rem 5px 5px;
 }
+
 .vue-numeric-input.updown .btn-increment {
   right: 0;
   top: 0;
@@ -625,6 +674,7 @@ export default {
   border-radius: 2px 2px 0 0;
   border-width: 1px 1px 0;
 }
+
 .vue-numeric-input.updown .btn-increment .btn-icon {
   top: 50%;
   left: 50%;
@@ -635,6 +685,7 @@ export default {
   border-style: solid;
   margin: -0.25rem 0 0 -0.4rem;
 }
+
 .vue-numeric-input.updown .btn-increment .btn-icon::before {
   visibility: hidden;
   display: block;
@@ -642,9 +693,11 @@ export default {
   clear: both;
   height: 0;
 }
+
 .vue-numeric-input.updown .btn-decrement .btn-icon::before {
   content: "";
 }
+
 .vue-numeric-input.updown .btn-increment .btn-icon::after {
   visibility: hidden;
   display: block;
@@ -652,6 +705,7 @@ export default {
   clear: both;
   height: 0;
 }
+
 .vue-numeric-input.updown .btn-decrement {
   right: 0;
   top: 50%;
@@ -660,6 +714,7 @@ export default {
   border-radius: 0 0 2px 2px;
   border-width: 0 1px 1px;
 }
+
 .vue-numeric-input.updown .btn-decrement .btn-icon {
   top: 50%;
   left: 50%;

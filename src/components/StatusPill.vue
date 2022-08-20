@@ -1,7 +1,7 @@
 <template>
     <span class="status-pill">
       <v-alert dense text v-if="player.status === 16" icon="fa-times-circle" :color="orange" class="is-stricken">
-            n/a
+            second yellow card
         </v-alert>
       <v-alert dense text v-else-if="player.status === 64" icon="fa-ghost" color="grey darken-4">
             not in team
@@ -37,7 +37,7 @@ export default {
   },
   computed: {
     orange() {
-      return (this.$vuetify.theme.dark) ? '#381c01' : 'orange lighten-4'
+      return (this.$vuetify.theme.dark) ? 'orange darken-4' : 'orange lighten-1'
     }
   }
 };

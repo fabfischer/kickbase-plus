@@ -48,7 +48,7 @@
       </v-alert>
     </template>
 
-    <v-form @submit.prevent="sendForm" class="playerBidForm mt-5 mb-4">
+    <v-form @submit.prevent="dummySubmit" class="playerBidForm mt-5 mb-4">
       <div class="d-sm-flex d-block">
         <div class="bid-input-container mr-5">
           <vue-numeric-input
@@ -58,7 +58,7 @@
               align="center"
               :mousewheel=false
               v-on:input="setInputValue"
-              v-on:enter-event="setInputValue"
+              v-on:submit="setInputValue"
               :placeholder="inputPlaceholder"
           ></vue-numeric-input>
           <saved-alert :value="showSavedAlert" message="saved bid for player"></saved-alert>
@@ -189,6 +189,7 @@ export default {
       debouncedCallback: null,
       showSavedAlert: false,
       inputValue: null,
+      triggeredByEnterKey: false,
       bidButtons: [
         0,
         -0.9,
@@ -218,7 +219,7 @@ export default {
   watch: {
     inputValue(newValue) {
       this.debouncedCallback(() => {
-        if (newValue === this.inputValue && newValue !== null) {
+        if (newValue === this.inputValue && newValue !== null && this.triggeredByEnterKey === false) {
           this.sendForm()
         }
       });
@@ -420,8 +421,17 @@ export default {
     },
   },
   methods: {
-    setInputValue(value) {
-      this.inputValue = value
+    dummySubmit() {
+
+    },
+    setInputValue(payload) {
+      if (payload.triggeredByEnterKey) {
+        this.triggeredByEnterKey = true
+        this.inputValue = payload.value
+        this.sendForm()
+      } else if (payload.focus === false) {
+        this.inputValue = payload.value
+      }
     },
     fetchData() {
       api.loadPlayersStats(this.player.id, null, true)
@@ -466,10 +476,13 @@ export default {
           this.playerBid = bid
           this.inputValue = null
           this.showSavedAlert = true
+          this.triggeredByEnterKey = false
           await api.loadBids(false)
           await sleep(1500)
           this.showSavedAlert = false
         }
+      }, false, () => {
+        this.triggeredByEnterKey = false
       })
     },
     resetPlayerBid() {
