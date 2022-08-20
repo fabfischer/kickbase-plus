@@ -461,7 +461,7 @@ const api = {
             }
         })
     },
-    sendBid(playerId, price, callback, multi) {
+    sendBid(playerId, price, callback, multi, errorCb) {
 
         const cb = callback
 
@@ -508,6 +508,9 @@ const api = {
                     // ThirtyThreePercentRuleExceeded
                     store.commit('setErrorMessage', 'You have reached the limit for players of a Bundesliga team (max. ' + store.getters.getSelectedLeague.mpst + ' players)')
                 }
+            }
+            if (typeof errorCb === 'function') {
+                errorCb()
             }
         })
 
