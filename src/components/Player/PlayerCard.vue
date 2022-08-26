@@ -8,7 +8,7 @@
       </div>
     </div>
     <div class="player-card-content-wrapper">
-      <div class="player-card-meta" v-if="hideMeta===false" :style="{width: playerMetaWidth}">
+      <div class="player-card-meta" >
         <div class="player-card-meta__content">
           <div class="player-card__image">
             <v-img :src="teamImage" aspect-ratio="1" class="player-card__team-image">

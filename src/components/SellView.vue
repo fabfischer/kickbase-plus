@@ -116,7 +116,6 @@
                 v-for="player in playerWithoutAnyOffer"
                 :key="player.id"
                 :player="player"
-                :hide-meta=true
                 v-on:setPlayers="setPlayers"
             >
             </offer-player-item>

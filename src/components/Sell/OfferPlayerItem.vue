@@ -104,7 +104,7 @@ export default {
       return (!this.showPlayerWithTooLowOffersOnly || (this.showPlayerWithTooLowOffersOnly && this.player.hasLowOffer))
     },
     hidePlayerCardDetail() {
-      return (!this.player.offers || (this.player.offers & this.player.offers.length === 0)) === true
+      return false //(!this.player.offers || (this.player.offers & this.player.offers.length === 0)) === true
     },
   },
   methods: {
