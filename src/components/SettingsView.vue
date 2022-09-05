@@ -5,7 +5,53 @@
     <v-card outlined class="mb-5">
       <v-card-text>
         <h3 class="text-h5 text-sm-h4 mb-5">General</h3>
-        <p>coming soon</p>
+
+        <div class="setting">
+          <h4 class="text-h5 setting__headline text--primary">Player-Card</h4>
+          <div class="setting__description">
+            <p></p>
+
+            <div class="setting__fieldset">
+              <p class="text-h6 text--primary">Show always all details of a player card</p>
+              <p class="text-body-1">In some contexts a player card doesn't display all details of a player. You can change this behaviour
+                and force all details to be displayed with this setting. You can see an example of a changed behaviour below.
+                <br>Default is: <span class="setting__default-value">{{
+                    getPlayerCardShowAlwaysAllDetailsInfo(this.getDefaults.generalPlayerCardShowAlwaysAllDetails)
+                  }}</span></p>
+
+              <p class="text-body-1">A simplified view of the player card is currently used in the following situations:</p>
+              <ul class="mb-2 text-body-1">
+                <li>
+                  <router-link to="/sell">Offers / Sell</router-link>: player with no offer
+                </li>
+              </ul>
+
+              <p class="text-body-1">
+
+              </p>
+              <v-switch
+                  v-model="generalPlayerCardShowAlwaysAllDetailsSetting"
+                  inset
+                  :label="showAlwaysAllDetailsOfAPlayerCardPanelSettingLabel"
+              ></v-switch>
+              <saved-alert :value="showAlerts.generalPlayerCardShowAlwaysAllDetailsSetting"></saved-alert>
+
+              <v-expansion-panels  class="elevation-1 player-card-accordion">
+                <v-expansion-panel
+                >
+                  <v-expansion-panel-header class="elevation-0">
+                    <v-icon class="mr-2 player-card-accordion__icon" color="blue lighten-2">fa-user</v-icon>
+                    live example (click to open)
+                  </v-expansion-panel-header>
+                  <v-expansion-panel-content>
+                    <player-card :player="dummyPlayer" :hide-meta="!generalPlayerCardShowAlwaysAllDetailsSetting"></player-card>
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
+              </v-expansion-panels>
+
+            </div>
+          </div>
+        </div>
       </v-card-text>
     </v-card>
 
@@ -80,7 +126,9 @@
               as you leave the page</p>
 
             <p class="text-body-1">
-              Default is: <span class="setting__default-value">"order by &nbsp;<em>{{ offerOrderDefaultLabel }}</em>"</span>
+              Default is: <span class="setting__default-value">"order by &nbsp;<em>{{
+                offerOrderDefaultLabel
+              }}</em>"</span>
             </p>
 
             <p>
@@ -100,7 +148,8 @@
           <h4 class="text-h5 setting__headline text--primary">Expand panels</h4>
           <div class="setting__description">
             <p class="text-body-1">
-              These settings control which panels should be opened automatically as soon as there are players in the respective category.
+              These settings control which panels should be opened automatically as soon as there are players in the
+              respective category.
             </p>
 
             <p>
@@ -111,7 +160,9 @@
             <div class="setting__fieldset">
               <p class="text-h6 text--primary">Player not on market: </p>
               <p class="text-body-1">
-                Default is: <span class="setting__default-value">{{ getPanelWording(this.getDefaults.offerOpenPlayerNotOnMarketPanel) }}</span>
+                Default is: <span class="setting__default-value">{{
+                  getPanelWording(this.getDefaults.offerOpenPlayerNotOnMarketPanel)
+                }}</span>
               </p>
               <v-switch
                   v-model="offerOpenPlayerNotOnMarketPanelSetting"
@@ -124,7 +175,9 @@
             <div class="setting__fieldset">
               <p class="text-h6 text--primary">Player without any offer: </p>
               <p class="text-body-1">
-                Default is: <span class="setting__default-value">{{ getPanelWording(this.getDefaults.offerOpenPlayerWithoutAnyOfferPanel) }}</span>
+                Default is: <span class="setting__default-value">{{
+                  getPanelWording(this.getDefaults.offerOpenPlayerWithoutAnyOfferPanel)
+                }}</span>
               </p>
               <v-switch
                   v-model="offerOpenPlayerWithoutAnyOfferPanelSetting"
@@ -140,10 +193,12 @@
           <h4 class="text-h5 setting__headline text--primary">Show only too low offers</h4>
           <div class="setting__description">
             <p class="text-body-1">
-              If this checkbox is set, only offers that are too low will be shown directly after loading the page (see option "Offer Threshold" above)
+              If this checkbox is set, only offers that are too low will be shown directly after loading the page (see
+              option "Offer Threshold" above)
             </p>
 
-            <p class="text-body-1">Changing the checkbox within the offer list is only temporary and will be reset as soon
+            <p class="text-body-1">Changing the checkbox within the offer list is only temporary and will be reset as
+              soon
               as you leave the page.</p>
 
             <p class="text-body-1">
@@ -177,27 +232,60 @@ import {mapGetters, mapMutations} from "vuex"
 import debounce from "lodash.debounce"
 import SellViewOrder from "./Sell/OrderSelect";
 import SavedAlert from "./Generic/SavedAlert";
+import PlayerCard from "@/components/Player/PlayerCard";
 
 const openAutomaticallyWording = 'Open panel automatically'
 const keepClosedWording = 'Keep panel closed'
 
+const showAlwaysAllDetailsInPlayerCard = 'Show always all details'
+const hideDetailsInSomePlayerCardContexts = 'Hide details in some contexts'
+
 export default {
   name: "SettingsView",
-  components: {SavedAlert, SellViewOrder},
+  components: {PlayerCard, SavedAlert, SellViewOrder},
   data() {
     return {
       initialized: false,
       offerThresholdSetting: null,
+      generalPlayerCardShowAlwaysAllDetailsSetting: null,
       offerOpenPlayerNotOnMarketPanelSetting: null,
       offerOpenPlayerWithoutAnyOfferPanelSetting: null,
       offerShowTooLowOffersOnlySetting: null,
       debouncedCallback: null,
       showAlerts: {
+        generalPlayerCardShowAlwaysAllDetailsSetting: false,
         offerThresholdSetting: false,
         offerOrder: false,
         offerOpenPlayerNotOnMarketPanelSetting: false,
         offerOpenPlayerWithoutAnyOfferPanelSetting: false,
         offerShowTooLowOffersOnlySetting: false,
+      },
+      dummyPlayer: {
+        "id": "23",
+        "teamId": "9",
+        "userId": "123456789",
+        "userProfile": "https://kickbase.b-cdn.net/user/76d32515d3e3459386352033b1412ae0.jpeg",
+        "username": "Dummy",
+        "firstName": "John",
+        "lastName": "Doe",
+        "profile": null,
+        "status": 0,
+        "position": 3,
+        "number": 6,
+        "totalPoints": 1814,
+        "averagePoints": 181,
+        "marketValue": 48059668,
+        "price": 48059668,
+        "date": "2022-10-17T13:18:04Z",
+        "expiry": 2580336,
+        "offers": [],
+        "lus": 1,
+        "marketValueTrend": 2,
+        "hasHighOffer": false,
+        "hasLowOffer": false,
+        "hasExpiredOffers": false,
+        "hasKickbaseOffersOnly": false,
+        "displayName": "John Dow"
       }
     }
   },
@@ -213,6 +301,7 @@ export default {
     this.offerOpenPlayerNotOnMarketPanelSetting = this.getOfferOpenPlayerNotOnMarketPanel
     this.offerOpenPlayerWithoutAnyOfferPanelSetting = this.getOfferOpenPlayerWithoutAnyOfferPanel
     this.offerShowTooLowOffersOnlySetting = this.getOfferShowTooLowOffersOnly
+    this.generalPlayerCardShowAlwaysAllDetailsSetting = this.getGeneralPlayerCardShowAlwaysAllDetails
   },
   watch: {
     offerThresholdSetting(newValue) {
@@ -251,6 +340,15 @@ export default {
         this.initialized = true
       });
     },
+    generalPlayerCardShowAlwaysAllDetailsSetting(newValue) {
+      this.debouncedCallback(() => {
+        if (newValue === this.generalPlayerCardShowAlwaysAllDetailsSetting && this.initialized) {
+          this.setGeneralPlayerCardShowAlwaysAllDetails(newValue)
+          this.flashSaveMessage('generalPlayerCardShowAlwaysAllDetailsSetting')
+        }
+        this.initialized = true
+      });
+    },
   },
   computed: {
     ...mapGetters([
@@ -259,6 +357,7 @@ export default {
       'getOfferOpenPlayerNotOnMarketPanel',
       'getOfferOpenPlayerWithoutAnyOfferPanel',
       'getOfferShowTooLowOffersOnly',
+      'getGeneralPlayerCardShowAlwaysAllDetails',
     ]),
     rejectAllExampleValue() {
       return 1000000 * 0.1 * this.getOfferThreshold
@@ -271,6 +370,11 @@ export default {
     },
     offerOpenPlayerNotOnMarketPanelSettingLabel() {
       return (this.offerOpenPlayerNotOnMarketPanelSetting) ? openAutomaticallyWording : keepClosedWording
+    },
+    showAlwaysAllDetailsOfAPlayerCardPanelSettingLabel() {
+      return (this.generalPlayerCardShowAlwaysAllDetailsSetting)
+          ? showAlwaysAllDetailsInPlayerCard
+          : hideDetailsInSomePlayerCardContexts
     }
   },
   methods: {
@@ -279,6 +383,7 @@ export default {
       'setOfferOpenPlayerNotOnMarketPanel',
       'setOfferOpenPlayerWithoutAnyOfferPanel',
       'setOfferShowTooLowOffersOnly',
+      'setGeneralPlayerCardShowAlwaysAllDetails',
     ]),
     offerOrderSaveBubble() {
       this.flashSaveMessage('offerOrder')
@@ -293,6 +398,9 @@ export default {
     },
     getPanelWording(value) {
       return (value) ? openAutomaticallyWording : keepClosedWording
+    },
+    getPlayerCardShowAlwaysAllDetailsInfo(value) {
+      return (value) ? showAlwaysAllDetailsInPlayerCard : hideDetailsInSomePlayerCardContexts
     }
   }
 }

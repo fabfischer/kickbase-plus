@@ -40,6 +40,7 @@ numeral.locale('deff')
 import moment from 'moment'
 
 import Spinner from './Spinner'
+import {smartPlayerStatsLoading} from "@/helper/helper";
 
 export default {
   name: 'feed-view',
@@ -56,7 +57,7 @@ export default {
     items: [],
   }),
   computed: {
-    ...mapGetters(['getBearerToken', 'getSelf', 'getPlayersOfMe', 'getLeague', 'getPlayers']),
+    ...mapGetters(['getBearerToken', 'getSelf', 'getPlayersOfUser', 'getLeague', 'getPlayers']),
     getToken() {
       return api.getToken()
     },
@@ -68,7 +69,7 @@ export default {
   },
   methods: {
     ...mapMutations(['addLoadingMessage', 'setLoading', 'resetLoading']),
-    setFeed(data) {
+    async setFeed(data) {
       if (data.items) {
         this.items = data.items.sort((itemA, itemB) => {
           if (itemA.age > itemB.age) {
@@ -78,11 +79,13 @@ export default {
           }
           return 0
         })
+        const playerIds = []
         this.items.forEach((item) => {
           if (item.meta && item.meta.p && item.meta.p.i) {
-            api.loadPlayersStats(item.meta.p.i)
+            playerIds.push(item.meta.p.i)
           }
         })
+        await smartPlayerStatsLoading(playerIds)
       }
     },
     getPlayerImage(item) {

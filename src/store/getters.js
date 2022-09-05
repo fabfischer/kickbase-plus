@@ -26,6 +26,10 @@ function getTeams(state) {
   return state.teams
 }
 
+function getMarketValueComparisonPlayer(state) {
+  return state.marketValueComparisonPlayer
+}
+
 function getBearerToken(state) {
   return state.bearerToken
 }
@@ -57,13 +61,21 @@ function getRanking(state) {
   return state.ranking
 }
 
-function getSelfPlayerDetails(state) {
+function getMatches(state) {
+  return state.matches
+}
+
+function getNextMatchDay(state) {
+  return state.nextMatchDay
+}
+
+function getUsersDetails(state) {
   return (state.self && state.users[state.self]) ?
     state.users[state.self] :
     null
 }
 
-function getPlayersOfMe(state) {
+function getPlayersOfUser(state) {
   return (state.self && state.users[state.self] && state.users[state.self].players) ?
       state.users[state.self].players :
       []
@@ -93,16 +105,12 @@ function getLeagues(state) {
   return state.leagues
 }
 
-function getSelfPlayersStatsFetched(state) {
-  return state.selfPlayersStatsFetched
-}
-
-function getPlayersStatsFetched(state) {
-  return state.playersStatsFetched
-}
-
 function getOfferOpenPlayerNotOnMarketPanel(state) {
   return state.offerOpenPlayerNotOnMarketPanel
+}
+
+function getGeneralPlayerCardShowAlwaysAllDetails(state) {
+  return state.generalPlayerCardShowAlwaysAllDetails
 }
 
 function getOfferOpenPlayerWithoutAnyOfferPanel(state) {
@@ -129,21 +137,32 @@ function getDefaults(state) {
   return state.defaults
 }
 
+function getInitialized(state) {
+  return state.initialized
+}
+
+function getNextThreeMatchDays(state) {
+  return state.nextThreeMatchDays
+}
+
 export default {
+  getInitialized,
   getAuthData,
   getErrorMessage,
   getBids,
   getPlayers,
   getUsers,
-  getTeams,
   getBearerToken,
   getSelf,
   getSelfData,
+  getTeams,
+  getMatches,
+  getNextMatchDay,
   getLeague,
   getLeagues,
   getSelectedLeague,
-  getSelfPlayerDetails,
-  getPlayersOfMe,
+  getUsersDetails,
+  getPlayersOfUser,
   getRanking,
   getLoading,
   getLoadingMessages,
@@ -151,13 +170,14 @@ export default {
   getGiftBonus,
   getLiveData,
   getGiftLevel,
-  getSelfPlayersStatsFetched,
-  getPlayersStatsFetched,
   getOfferOpenPlayerNotOnMarketPanel,
   getOfferOpenPlayerWithoutAnyOfferPanel,
+  getGeneralPlayerCardShowAlwaysAllDetails,
   getOfferThreshold,
   getOfferShowTooLowOffersOnly,
   getOfferOrder,
   getOfferOrderLabel,
-  getDefaults
+  getDefaults,
+  getMarketValueComparisonPlayer,
+  getNextThreeMatchDays,
 }

@@ -4,7 +4,10 @@
   position: relative;
 
   .reload-button {
-    position: absolute;
+    &.desktop {
+      position: absolute;
+    }
+
     right: 0;
     top: 0;
   }
@@ -16,7 +19,7 @@
       position: fixed;
       top: 165px;
       right: 20px;
-      z-index: 2;
+      z-index: 6;
       max-width: 64px;
 
       .v-btn {
@@ -31,7 +34,7 @@
   }
 
   @include breakpoint(xxl) {
-    width: 500px;
+    width: 25%;
   }
 
   &__mobile_content {
@@ -45,6 +48,7 @@
     z-index: 2;
     top: 90px;
     right: 20px;
+
     .v-btn__content {
       word-wrap: break-word !important;
       font-size: 10px;
@@ -58,7 +62,7 @@
 
     @include breakpoint(md) {
       position: sticky;
-      top: 100px;
+      top: 76px;
     }
 
     &--active {
@@ -70,6 +74,10 @@
         height: 90%;
         background: #fff;
         left: 5%;
+
+        .theme--dark & {
+          background: #1e1e1e;
+        }
 
         .reload-button {
           display: none !important;
@@ -126,13 +134,29 @@
   }
 
   &__sibling {
-    width: 75%;
+    width: calc(100% - 250px);
+    @include breakpoint(md) {
+      width: calc(100% - 300px);
+    }
+
+    @include breakpoint(xxl) {
+      width: 75%;
+    }
+
     @include breakpoint(xs) {
       width: 100%;
     }
+
     .options-open & {
       filter: blur(5px);
     }
   }
 
+}
+
+
+@include breakpoint(xs) {
+  .v-list-item__title {
+    white-space: normal;
+  }
 }

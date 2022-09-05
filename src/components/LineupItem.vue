@@ -32,7 +32,7 @@
 
 <script>
 import StatusPill from './StatusPill'
-import {nextMatch} from '../helper/helper'
+import {getBundesligaClubImageUrlById, nextMatch} from '@/helper/helper'
 
 export default {
   props: {
@@ -50,7 +50,7 @@ export default {
   },
   computed: {
     teamImage() {
-      return '/assets/teams/' + this.item.teamId + '.png'
+      return getBundesligaClubImageUrlById(this.item.teamId)
     },
     nextMatchComputed() {
       return nextMatch(this.matches, this.item)

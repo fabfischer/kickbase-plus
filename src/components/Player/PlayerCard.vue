@@ -38,12 +38,23 @@
           <div class="player-card-meta__item player-card-meta__item--sm-third">
             <v-alert :color="getGrowthColor" dense text :icon="getGrowthIcon" class="mt-0">{{
                 getDiffMV | numeral('0,0 $')
-              }} (growth)
+              }}
+              <span v-if="getDiffMV > 0">(growth)</span>
+              <span v-if="getDiffMV < 0">(shrinkage)</span>
             </v-alert>
           </div>
           <div class="player-card-meta__item player-card-meta__item--sm-fifth" v-if="hidePlayerPoints === false">
             <v-alert :color="genericInfoFieldColor" dense text icon="fa-poll">
               ⌀ {{ player.averagePoints }} / {{ player.totalPoints }}
+            </v-alert>
+          </div>
+          <div class="player-card-meta__item player-card-meta__item--sm-fifth" v-if="nextMatchComputed && nextMatchComputed.img">
+            <v-alert :color="nextGameColor" dense text icon="fa-beer">
+              <div class="d-flex align-center text-left ">
+                <span class="mr-2">VS</span>
+                <v-img height="24" width="24" class="flex-grow-0 mr-1" contain aspect-ratio="1" :src="nextMatchComputed.img"></v-img>
+                <span class="text-caption">{{ nextMatchComputed.abbr }}</span>
+              </div>
             </v-alert>
           </div>
           <div class="player-card-meta__item player-card-meta__item--sm-fifth" v-if="hidePlayerPosition === false">
@@ -63,8 +74,16 @@
         <slot></slot>
 
         <div :class="statsCssClass">
-          <v-expansion-panels accordion focusable class="elevation-1 player-card-accordion">
-            <slot name="extra-expansion-panel"></slot>
+          <v-expansion-panels v-model="accordion" accordion focusable class="elevation-1 player-card-accordion">
+            <v-expansion-panel>
+              <v-expansion-panel-header class="elevation-0">
+                <v-icon class="mr-2 player-card-accordion__icon" color="yellow darken-2">fa-medal</v-icon>
+                season statistics and points
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <player-points-statistic :player="player" v-if="accordion === 0"></player-points-statistic>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
             <v-expansion-panel
                 v-if="showPurchaseStatistic"
             >
@@ -91,6 +110,7 @@
                 <player-market-value-trend :player="player"></player-market-value-trend>
               </v-expansion-panel-content>
             </v-expansion-panel>
+            <slot name="extra-expansion-panel"></slot>
           </v-expansion-panels>
         </div>
         <v-btn @click="toggleStatistics" class="hidden-sm-and-up">
@@ -109,10 +129,13 @@ import {mapGetters} from "vuex";
 import StatusPill from "../StatusPill";
 import numeral from "numeral";
 import PlayerMarketValueTrend from "./PlayerMarketValueTrend";
+import {getMarketValueGrowth, getBundesligaClubImageUrlById, nextMatch} from "@/helper/helper"
+import PlayerPointsStatistic from "@/components/Player/PlayerPointsStatistic";
 
 export default {
   name: "PlayerCard",
   components: {
+    PlayerPointsStatistic,
     StatusPill,
     PlayerMarketValueTrend,
   },
@@ -154,6 +177,7 @@ export default {
   },
   data() {
     return {
+      accordion: null,
       statsCssClass: 'hidden-xs-only',
       initStatsCssClass: null,
       playerMetaWidth: null,
@@ -166,6 +190,7 @@ export default {
   computed: {
     ...mapGetters([
       'getPlayers',
+      'getMatches',
     ]),
     hasPreHeadSlot() {
       return !!this.$slots['pre-head']
@@ -183,10 +208,22 @@ export default {
         positive = '#afd3af'
         negative = '#e6b6b6'
       }
-      return (this.getDiffMV > 0) ? positive : negative
+      let color = 'fa-caret-right'
+      if (this.getDiffMV > 0) {
+        color = positive
+      } else if (this.getDiffMV < 0) {
+        color = negative
+      }
+      return color
     },
     getGrowthIcon() {
-      return (this.getDiffMV > 0) ? 'fa-caret-up' : 'fa-caret-down'
+      let icon = 'fa-caret-right'
+      if (this.getDiffMV > 0) {
+        icon = 'fa-caret-up'
+      } else if (this.getDiffMV < 0) {
+        icon = 'fa-caret-down'
+      }
+      return icon
     },
     getPlayerStatistics() {
       return {
@@ -249,7 +286,7 @@ export default {
       return position
     },
     teamImage() {
-      return '/assets/teams/' + this.player.teamId + '.png'
+      return getBundesligaClubImageUrlById(this.player.teamId)
     },
     getYesterdaysMV() {
       if (
@@ -261,25 +298,11 @@ export default {
       return null
     },
     getDiffMV() {
-      if (
-          this.getPlayers[this.player.id]
-          && this.getPlayers[this.player.id].marketValues
-          && this.getPlayers[this.player.id].marketValues[this.getPlayers[this.player.id].marketValues.length - 1]
-          && this.getPlayers[this.player.id].marketValues[this.getPlayers[this.player.id].marketValues.length - 2]
-      ) {
-        return this.getPlayers[this.player.id].marketValues[this.getPlayers[this.player.id].marketValues.length - 1].m - this.getPlayers[this.player.id].marketValues[this.getPlayers[this.player.id].marketValues.length - 2].m
-      }
-      return null
+      return getMarketValueGrowth(this.player.id)
     },
     getDiffPurchasePrice() {
       if (this.getPlayers[this.player.id] && this.getPlayers[this.player.id].leaguePlayer && this.player.offers) {
         return this.player.offers[0].price - this.getPlayers[this.player.id].leaguePlayer.buyPrice
-      }
-      return null
-    },
-    getPlayersPurchaseMVDiff() {
-      if (this.getPlayers[this.player.id] && this.getPlayers[this.player.id].leaguePlayer) {
-        return this.player.marketValue - this.getPlayers[this.player.id].leaguePlayer.buyPrice
       }
       return null
     },
@@ -297,6 +320,12 @@ export default {
     },
     genericInfoFieldColor() {
       return (this.$vuetify.theme.dark) ? '#ccc' : '#2A3B4D'
+    },
+    nextGameColor() {
+      return (this.$vuetify.theme.dark) ? '#9b30ff' : '#5500a9'
+    },
+    nextMatchComputed() {
+      return nextMatch(this.getMatches, this.player)
     },
   },
   methods: {
