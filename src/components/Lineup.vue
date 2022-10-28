@@ -23,7 +23,7 @@
               v-for="forward in lineupBlocks.forwards"
               :key="forward.id"
               :item="forward"
-              :matches="matches"
+              :matches="getMatches"
               v-on:openChangeDialog="openChangeDialog"
           ></lineup-item>
         </div>
@@ -32,7 +32,7 @@
               v-for="midfielder in lineupBlocks.midfielders"
               :key="midfielder.id"
               :item="midfielder"
-              :matches="matches"
+              :matches="getMatches"
               v-on:openChangeDialog="openChangeDialog"
           ></lineup-item>
         </div>
@@ -41,7 +41,7 @@
               v-for="defender in lineupBlocks.defenders"
               :key="defender.id"
               :item="defender"
-              :matches="matches"
+              :matches="getMatches"
               v-on:openChangeDialog="openChangeDialog"
           ></lineup-item>
         </div>
@@ -50,7 +50,7 @@
               v-for="goalie in lineupBlocks.goalie"
               :key="goalie.id"
               :item="goalie"
-              :matches="matches"
+              :matches="getMatches"
               v-on:openChangeDialog="openChangeDialog"
           ></lineup-item>
         </div>
@@ -137,14 +137,13 @@
 
 <script>
 import api from '../api/api'
-import moment from 'moment'
 import {mapGetters, mapMutations} from 'vuex'
 
 import StatusPill from './StatusPill'
 import Spinner from './Spinner'
 import LineupItem from './LineupItem'
 import LineupTable from './LineupTable'
-import {nextMatch} from '../helper/helper'
+import {getBundesligaClubImageUrlById, nextMatch} from '@/helper/helper'
 
 export default {
   name: 'lineup-component',
@@ -183,7 +182,6 @@ export default {
       midfielders: 0,
       forwards: 0
     },
-    matches: [],
     lineUpDialog: {
       show: false,
       position: '',
@@ -195,6 +193,7 @@ export default {
     ...mapGetters([
       'getLeague',
       'getSelf',
+      'getMatches',
     ]),
     goalies() {
       let goalies = []
@@ -319,24 +318,6 @@ export default {
     init: function () {
       if (this.getSelf) {
         this.loadLineup()
-
-        api.loadMatches(null, (data) => {
-          if (data.m && data.m.length) {
-            const lastMatch = data.m[data.m.length - 1]
-            if (moment(lastMatch.d).isSameOrAfter(new Date(), 'day') === true) {
-              this.matches = data.m
-            } else {
-              const nextMatchday = data.cmd + 1
-              if (nextMatchday <= 34) {
-                api.loadMatches(nextMatchday, (data) => {
-                  if (data.m && data.m.length) {
-                    this.matches = data.m
-                  }
-                })
-              }
-            }
-          }
-        })
       } else {
         window.setTimeout(this.init, 1000)
       }
@@ -486,7 +467,7 @@ export default {
     playerTeamImg(player) {
       let img = null
       if (player) {
-        img = '/assets/teams/' + player.teamId + '.png'
+        img = getBundesligaClubImageUrlById(player.teamId)
       }
       return img
     },
@@ -507,7 +488,7 @@ export default {
       return players
     },
     playerVs(player) {
-      return nextMatch(this.matches, player)
+      return nextMatch(this.getMatches, player)
     }
   }
 };

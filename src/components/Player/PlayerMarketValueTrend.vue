@@ -114,7 +114,7 @@ export default {
   },
   methods: {
     fetchData() {
-      api.loadPlayersStats(this.player.id, null, true)
+      api.loadPlayersStats(this.player.id)
     },
   }
 }

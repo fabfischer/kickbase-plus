@@ -1,10 +1,7 @@
 <template>
   <player-card
-      :class="{'offer--high':player.hasHighOffer, 'offer--low':player.hasLowOffer}"
+      :class="[...getPlayerCardCssClasses()]"
       :player="player"
-      :hide-player-status="hidePlayerCardDetail"
-      :hide-player-position="hidePlayerCardDetail"
-      :hide-player-points="hidePlayerCardDetail"
       :hide-meta="hideMeta"
       v-if="show"
   >
@@ -12,7 +9,7 @@
         v-for="offer in player.offers"
         :key="offer.id"
         class="mb-6 elevation-0 offer"
-        :class="(isAnHighOffer(offer)) ? 'offer--high' : 'offer--low'"
+        :class="[...getOfferCssClasses(offer)]"
     >
       <v-card-text>
         <p class="mb-0" v-if="hasNonCPUOffers(player)===true">
@@ -26,13 +23,14 @@
           <span class="text-caption text-sm-body-1">
             <span v-if="offer.userName">from {{ offer.date | expiry }}</span>
             <span v-else>
-              <span class="hidden-xs-only">expires</span>
+              <span class="hidden-xs-only" v-if="!offerExpired(offer)">expires</span>
+              <span class="hidden-xs-only" v-if="offerExpired(offer)">expired</span>
               <span class="hidden-sm-and-up">exp.</span>
               {{ offer.validUntilDate | expiry }}
             </span>
           </span>
         </p>
-        <div class="text-subtitle-2 text-sm-h6 text--primary mb-0 d-flex align-center">
+        <div class="text-subtitle-2 text-sm-h6 text--primary mb-0 d-flex ">
           <span class="profit-info" :class="(isAnHighOffer(offer)) ? 'profit-info--green' : 'profit-info--red'">
             Offer: {{ calcOffer(offer, player.marketValue) | numeral('0,0 $') }} ({{ percent(offer) }}%)
           </span>
@@ -40,10 +38,15 @@
             Profit: {{ profit(offer) | numeral('0,0 $') }}
           </span>
         </div>
+        <div class="expired-info" v-if="offerExpired(offer)">
+        <v-icon color="white">fa-hourglass-end</v-icon>
+          this offer expired {{ offer.validUntilDate | expiry }}
+        </div>
       </v-card-text>
-      <v-card-actions>
+      <v-card-actions v-if="offerExpired(offer) === false">
         <accept-button :offer="offer" :player="player" :is-high-offer="isAnHighOffer(offer)"
-                       v-on:acceptOffer="acceptOffer"></accept-button>
+                       v-on:acceptOffer="acceptOffer"
+                       ></accept-button>
       </v-card-actions>
     </v-card>
 
@@ -66,7 +69,7 @@ numeral.locale('deff')
 import AcceptButton from './AcceptButton'
 import api from "../../api/api";
 import PlayerCard from "../Player/PlayerCard";
-import {isHighOffer, getCalcOffer, getPercent, sleep} from "@/helper/helper";
+import {isHighOffer, getCalcOffer, getPercent, sleep, offerIsExpired} from "@/helper/helper";
 
 export default {
   name: "offer-player-item",
@@ -99,7 +102,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['getSelf', 'getPlayersOfMe', 'getLeague', 'getPlayers', 'getOfferThreshold']),
+    ...mapGetters(['getSelf', 'getPlayersOfUser', 'getLeague', 'getPlayers', 'getOfferThreshold']),
     show() {
       return (!this.showPlayerWithTooLowOffersOnly || (this.showPlayerWithTooLowOffersOnly && this.player.hasLowOffer))
     },
@@ -109,6 +112,33 @@ export default {
   },
   methods: {
     ...mapMutations(['addLoadingMessage', 'setLoading', 'resetLoading']),
+    getPlayerCardCssClasses() {
+      const classes = []
+
+      if (this.player.hasExpiredOffers === true) {
+        classes.push('offer--expired')
+      }
+      if (this.player.hasHighOffer === true) {
+        classes.push('offer--high')
+      }
+      if (this.player.hasLowOffer === true) {
+        classes.push('offer--low')
+      }
+
+      return classes
+    },
+    getOfferCssClasses(offer) {
+      const classes = []
+      if (this.offerExpired(offer)) {
+        classes.push('offer--expired')
+      } else if (this.isAnHighOffer(offer) === true) {
+        classes.push('offer--high')
+      } else if (this.isAnHighOffer(offer) === false) {
+        classes.push('offer--low')
+      }
+
+      return classes
+    },
     calcOffer(offer, marketValue) {
       return getCalcOffer(offer, marketValue)
     },
@@ -127,6 +157,9 @@ export default {
     hasOffer(player) {
       return (player.offers && player.offers.length)
     },
+    offerExpired(offer) {
+      return offerIsExpired(offer)
+    },
     profit(offer) {
       if (this.getPlayers[this.player.id] && this.getPlayers[this.player.id].leaguePlayer) {
         return offer.price - this.getPlayers[this.player.id].leaguePlayer.buyPrice
@@ -144,15 +177,6 @@ export default {
     },
 
     async setPlayerOnMarketAgain(player) {
-      /*this.setLoading(true)
-      await api.removePlayerFromMarket(player)
-      await sleep(500);
-      await api.putOnMarket(player)
-      // await api.loadUsersPlayerOffers(this.setPlayers)
-      await sleep(500);
-      await api.loadUsersPlayerOffers((d) => {
-        this.$emit('setPlayers', d)
-      })*/
       api.setPlayerOnMarketAgain(player, (d) => {
         this.$emit('setPlayers', d)
       })
@@ -162,9 +186,8 @@ export default {
       this.setLoading(true)
       await api.acceptBids(payload.offer)
       await sleep(500);
-      await api.loadUsersPlayer(this.getSelf, false)
+      await api.loadUsersStats(true)
       await sleep(500);
-      await api.loadUsers(false)
       await api.loadUsersPlayerOffers((d) => {
         this.$emit('setPlayers', d)
       })

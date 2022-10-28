@@ -5,25 +5,25 @@
   >
     <options-bar info-button-title="your defaults">
       <template v-slot:content>
-        <reload-button :loading="loading" v-on:click.native="load" color="transparent"></reload-button>
+        <reload-button :loading="loading" v-on:click.native="load" color="transparent" extra-classes="desktop"></reload-button>
         <sell-view-order></sell-view-order>
         <v-checkbox
             v-model="showPlayerWithTooLowOffersOnly"
             label="show only too low offers"
         ></v-checkbox>
 
-        <div v-if="tooLowOffers.length">
+        <div v-if="computedDeclinableOffers.length">
           <v-btn
               class="kp-button kp-button__decline-all kp-button--in-options-bar mb-4"
               x-large
-              @click="declineAllTooLowOffers"
+              @click="declineAllTooLowOrExpiredOffers"
           >
-            decline all <strong>{{ tooLowOffers.length }} offers</strong> that are too low
+            decline all <strong>{{ computedDeclinableOffers.length }} offers</strong> that are too low or expired
           </v-btn>
 
           <p class="text-caption">Players with too low offers:</p>
           <ol class="text-caption mb-5">
-            <li v-for="tooLowOffer in tooLowOffers" :key="tooLowOffer.id">
+            <li v-for="tooLowOffer in computedDeclinableOffers" :key="tooLowOffer.id">
               {{ tooLowOffer.displayName }}
             </li>
           </ol>
@@ -33,13 +33,13 @@
       <template v-slot:other-buttons>
         <reload-button :loading="loading" v-on:click.native="load" :large=true color="secondary"></reload-button>
         <v-btn
-            v-if="tooLowOffers.length"
+            v-if="computedDeclinableOffers.length"
             large
             fab
-            @click="declineAllTooLowOffers"
+            @click="declineAllTooLowOrExpiredOffers"
             color="red darken-4 text--white"
             class="button-text-wrap button-text-065rem">
-          decline <strong>{{ tooLowOffers.length }}</strong> low offers
+          decline <strong>{{ computedDeclinableOffers.length }}</strong> offers
         </v-btn>
       </template>
       <template v-slot:info>
@@ -116,7 +116,7 @@
                 v-for="player in playerWithoutAnyOffer"
                 :key="player.id"
                 :player="player"
-                :hide-meta=true
+                :hide-meta=!getGeneralPlayerCardShowAlwaysAllDetails
                 v-on:setPlayers="setPlayers"
             >
             </offer-player-item>
@@ -149,7 +149,7 @@ import OfferPlayerItem from './Sell/OfferPlayerItem'
 import OptionsBar from "./Generic/OptionsBar";
 import ReloadButton from "./Generic/ReloadButton";
 import SellViewOrder from "./Sell/OrderSelect";
-import {isHighOffer, sleep} from "@/helper/helper";
+import {isHighOffer, sleep, offerIsExpired} from "@/helper/helper";
 
 export default {
   name: 'sell-view',
@@ -169,6 +169,7 @@ export default {
     actionMessages: [],
     openPanels: [],
     tooLowOffers: [],
+    expiredOffers: [],
     viewOrder: null,
     loading: true,
   }),
@@ -186,8 +187,9 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'getInitialized',
       'getSelf',
-      'getPlayersOfMe',
+      'getPlayersOfUser',
       'getLeague',
       'getPlayers',
       'getOfferThreshold',
@@ -196,7 +198,8 @@ export default {
       'getOfferOpenPlayerNotOnMarketPanel',
       'getOfferOpenPlayerWithoutAnyOfferPanel',
       'getOfferOrder',
-      'getOfferShowTooLowOffersOnly'
+      'getOfferShowTooLowOffersOnly',
+      'getGeneralPlayerCardShowAlwaysAllDetails',
     ]),
     getToken() {
       return api.getToken()
@@ -217,6 +220,9 @@ export default {
     getComputedOrder() {
       return this.getOfferOrder.temporary ?? this.getOfferOrder.init
     },
+    computedDeclinableOffers() {
+      return [...this.tooLowOffers, ...this.expiredOffers]
+    }
   },
   mounted() {
     this.init()
@@ -225,16 +231,15 @@ export default {
   methods: {
     ...mapMutations(['addLoadingMessage', 'setLoading', 'resetLoading']),
     init: async function () {
-      if (this.getSelf) {
+      if (this.getInitialized) {
         await this.load()
-        await api.loadUsers(false)
       } else {
         window.setTimeout(this.init, 1000)
       }
     },
     async load() {
       this.loading = true
-      await api.loadUsersPlayer(this.getSelf)
+      await api.loadUsersStats(true)
       await api.loadUsersPlayerOffers(this.setPlayers)
     },
     sortOffers(order) {
@@ -248,16 +253,21 @@ export default {
       this.playerNotOnMarket = []
       this.playersStack = []
       this.tooLowOffers = []
+      this.expiredOffers = []
       if (data.players && data.players.length) {
         data.players.forEach((player) => {
           if (player.userId && player.userId * 1 === this.getSelf) {
             if (!player.offers || (player.offers && player.offers.length >= 0)) {
               player.hasHighOffer = this.hasHighOffer(player)
               player.hasLowOffer = this.hasLowOffer(player)
+              player.hasExpiredOffers = this.hasExpiredOffers(player)
+              player.hasKickbaseOffersOnly = this.hasKickbaseOffersOnly(player)
               player.displayName = player.knownName ?? `${player.firstName} ${player.lastName}`
 
               if (player.hasHighOffer === false && player.hasLowOffer === true) {
                 this.tooLowOffers.push(player)
+              } else if (player.hasExpiredOffers === true && player.hasKickbaseOffersOnly === true) {
+                this.expiredOffers.push(player)
               }
 
 
@@ -269,7 +279,7 @@ export default {
 
         this.sortOffers()
 
-        this.getPlayersOfMe.forEach((player) => {
+        this.getPlayersOfUser.forEach((player) => {
           if (this.playersStack.indexOf(player.id) === -1) {
             this.playerNotOnMarket.push(player)
           }
@@ -291,9 +301,9 @@ export default {
           multi
       )
     },
-    async declineAllTooLowOffers() {
+    async declineAllTooLowOrExpiredOffers() {
       const playerIds = []
-      for (const player of this.tooLowOffers) {
+      for (const player of this.computedDeclinableOffers) {
         await api.setPlayerOnMarketAgain(player, null, false)
         playerIds.push(player.id)
       }
@@ -312,6 +322,16 @@ export default {
         }
       }
     },
+    hasKickbaseOffersOnly(player) {
+      let result = false
+      if (player.offers && player.offers.length) {
+        const offerResult = player.offers.filter((offer) => {
+          return offer.userName
+        })
+        result = (offerResult.length === 0)
+      }
+      return result
+    },
     hasHighOffer(player) {
       let result = false
       if (player.offers && player.offers.length) {
@@ -327,6 +347,16 @@ export default {
       if (player.offers && player.offers.length) {
         const offerResult = player.offers.filter((offer) => {
           return isHighOffer(player, offer, this.getOfferThreshold) === false
+        })
+        result = (offerResult.length >= 1)
+      }
+      return result
+    },
+    hasExpiredOffers(player) {
+      let result = false
+      if (player.offers && player.offers.length) {
+        const offerResult = player.offers.filter((offer) => {
+          return offerIsExpired(offer) === true
         })
         result = (offerResult.length >= 1)
       }

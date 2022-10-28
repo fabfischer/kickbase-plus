@@ -1,10 +1,13 @@
 $kp_green: #2E7D32;
 $kp_pastell_green: #afd3af;
 $kp_pastell_green_dark: #2a5b2a;
+$kp_yellow: #ffb90e;
 $kp_red: #b80000;
 $kp_pastell_red: #e6b6b6;
 $kp_pastell_red_icon_dark: #9b4040;
-$kp_pastell_red_dark: #682828;
+$kp_pastell_red_dark: #682828;;
+$kp_pastell_purple: #9383a5;
+$kp_pastell_purple_dark: #594c6b;
 $decline_all: #b80000;
 
 @import 'mixins';
@@ -15,5 +18,6 @@ $decline_all: #b80000;
 @import 'lineup';
 @import 'feed';
 @import 'player-card';
+@import 'player-card-points';
 @import 'settings';
 @import 'options-bar';

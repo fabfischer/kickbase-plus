@@ -8,6 +8,18 @@ function setUsers(state, users) {
   state.users = users
 }
 
+function setTeams(state, teams) {
+  state.teams = teams
+}
+
+function setMatches(state, matches) {
+  state.matches = matches
+}
+
+function setNextMatchDay(state, nextMatchDay) {
+  state.nextMatchDay = nextMatchDay
+}
+
 function setLiveData(state, liveData) {
   state.liveData = liveData
 }
@@ -17,14 +29,6 @@ function addPlayer(state, player) {
     const players = Object.assign({}, state.players)
     players[player.id] = player
     state.players = players
-  }
-}
-
-function addPlayersStatsFetched(state, payload) {
-  if (payload.playerId) {
-    const playersStatsFetched = Object.assign({}, state.playersStatsFetched)
-    playersStatsFetched[payload.playerId] = payload.value
-    state.playersStatsFetched = playersStatsFetched
   }
 }
 
@@ -65,6 +69,7 @@ function addTransfersToUser(state, payload) {
 function addUser(state, user) {
   if (user.id) {
     const users = Object.assign({}, state.users)
+    user.ts = Date.now()
     users[user.id] = user
     state.users = users
   }
@@ -140,10 +145,6 @@ function addErrorLoadingMessage(state, message) {
   })
 }
 
-function setSelfPlayersStatsFetched(state, selfPlayersStatsFetched) {
-  state.selfPlayersStatsFetched = selfPlayersStatsFetched
-}
-
 function setOfferThreshold(state, offerThreshold) {
   localStorage.setItem(Constants.LOCALSTORAGE.OFFER_THRESHOLD, offerThreshold)
   state.offerThreshold = offerThreshold
@@ -152,6 +153,11 @@ function setOfferThreshold(state, offerThreshold) {
 function setOfferShowTooLowOffersOnly(state, offerShowTooLowOffersOnly) {
   localStorage.setItem(Constants.LOCALSTORAGE.OFFER_SHOW_TOO_LOW_OFFERS_ONLY, offerShowTooLowOffersOnly)
   state.offerShowTooLowOffersOnly = offerShowTooLowOffersOnly
+}
+
+function setGeneralPlayerCardShowAlwaysAllDetails(state, generalPlayerCardShowAlwaysAllDetails) {
+  localStorage.setItem(Constants.LOCALSTORAGE.GENERAL_PLAYER_CARD_SHOW_ALWAYS_ALL_DETAILS, generalPlayerCardShowAlwaysAllDetails)
+  state.generalPlayerCardShowAlwaysAllDetails = generalPlayerCardShowAlwaysAllDetails
 }
 
 function setOfferOpenPlayerNotOnMarketPanel(state, offerOpenPlayerNotOnMarketPanel) {
@@ -173,16 +179,33 @@ function setOfferOrder(state, payload) {
   }
 }
 
+function setMarketValueComparison(state, marketValueComparisonPlayer) {
+  state.marketValueComparisonPlayer = marketValueComparisonPlayer
+}
+
+function setInitialized(state, initialized) {
+  state.initialized = initialized
+}
+
+function setNextThreeMatchDays(state, nextThreeMatchDays) {
+  state.nextThreeMatchDays = nextThreeMatchDays
+}
+
 export default {
+  setInitialized,
   addPlayer,
   addUsersPlayer,
   addTransfersToUser,
   addUser,
   setSelf,
+  setTeams,
+  setMatches,
+  setNextMatchDay,
   setSelfData,
   setLeague,
   setPlayers,
   setUsers,
+  setNextThreeMatchDays,
   setBids,
   setErrorMessage,
   setLoadingMessages,
@@ -197,11 +220,11 @@ export default {
   setGiftBonus,
   setLiveData,
   setLeagues,
-  setSelfPlayersStatsFetched,
-  addPlayersStatsFetched,
   setOfferThreshold,
   setOfferShowTooLowOffersOnly,
   setOfferOpenPlayerNotOnMarketPanel,
   setOfferOpenPlayerWithoutAnyOfferPanel,
+  setGeneralPlayerCardShowAlwaysAllDetails,
   setOfferOrder,
+  setMarketValueComparison,
 }

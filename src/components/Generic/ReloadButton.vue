@@ -7,6 +7,7 @@
       :large="large"
       :color="color"
       class="reload-button elevation-0"
+      :class="extraClasses"
   >
     <v-icon>
       fa-redo
@@ -37,6 +38,11 @@ export default {
       type: Boolean,
       required: false,
       default: false,
+    },
+    extraClasses: {
+      type: String,
+      required: false,
+      default: '',
     }
   }
 }

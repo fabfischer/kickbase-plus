@@ -73,7 +73,15 @@
 .profit-info {
   padding: 5px;
   background: #ccc;
-  margin: 0 10px 0 0;
+  margin: 0 1% 0 0;
+  box-sizing: border-box;
+
+  &:last-of-type {
+    margin-right: 0;
+  }
+
+  min-width: 49%;
+  flex-grow: 1;
 
   &--green {
     background: $kp_pastell_green;
@@ -99,5 +107,22 @@
     fieldset {
       padding: 0 !important;
     }
+  }
+}
+
+.expired-info {
+  background: $kp_pastell_purple;
+  color: #fff;
+  display: flex;
+  padding: 10px;
+  align-items: center;
+  margin: 4px 0 0 0;
+
+  .theme--dark & {
+    background: $kp_pastell_purple_dark !important;
+  }
+
+  .v-icon {
+    margin-right: 16px;
   }
 }

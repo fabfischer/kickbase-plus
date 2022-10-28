@@ -71,6 +71,14 @@ if (typeof offerShowTooLowOffersOnly === "undefined" || offerShowTooLowOffersOnl
 }
 store.commit('setOfferShowTooLowOffersOnly', offerShowTooLowOffersOnly)
 
+let generalPlayerCardShowAlwaysAllDetails = localStorage.getItem(Constants.LOCALSTORAGE.GENERAL_PLAYER_CARD_SHOW_ALWAYS_ALL_DETAILS)
+if (typeof generalPlayerCardShowAlwaysAllDetails === "undefined" || generalPlayerCardShowAlwaysAllDetails === null) {
+    generalPlayerCardShowAlwaysAllDetails = store.getters.getDefaults.generalPlayerCardShowAlwaysAllDetails
+} else {
+    generalPlayerCardShowAlwaysAllDetails = (generalPlayerCardShowAlwaysAllDetails === "true")
+}
+store.commit('setGeneralPlayerCardShowAlwaysAllDetails', generalPlayerCardShowAlwaysAllDetails)
+
 new Vue({
     vuetify,
     router,

@@ -1,0 +1,183 @@
+/*::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background-color: rgba(0, 0, 0, .2);
+}*/
+
+$pointsGrey: #e5e5e5;
+
+.player-points-loader {
+  display: flex;
+  padding: 10px 0;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+
+  &__info {
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+  }
+}
+
+.player-points {
+  overflow-x: scroll;
+  width: 100%;
+  display: flex;
+  border: 1px solid $pointsGrey;
+  margin: 10px 0;
+
+  &__season {
+    border-right: 1px solid $pointsGrey;
+
+    &__summary {
+      background: $pointsGrey;
+      padding: 5px;
+      text-align: center;
+      width: 120px;
+      font-size: .7rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-end;
+      justify-content: center;
+
+      i {
+        margin-bottom: 15px;
+      }
+
+      &__part {
+        margin-bottom: 15px;
+        line-height: 130%;
+        width: 100%;
+
+        strong {
+          display: block;
+          font-size: .9rem;
+        }
+      }
+    }
+  }
+
+  &__title {
+    background: $pointsGrey;
+    padding: 5px 10px;
+    width: 100%;
+    span {
+      position: sticky;
+      left: 10px;
+    }
+  }
+
+  &__matches {
+    display: flex;
+  }
+
+  &__match {
+    width: 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 10px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+
+    &__day {
+      line-height: 100%;
+      text-align: center;
+      font-size: 0.70rem;
+      margin-bottom: 10px;
+    }
+
+    &__missed_bar {
+      background: black;
+      color: #fff;
+      height: 150px;
+      width: 32px;
+      display: flex;
+      position: relative;
+      opacity: .5;
+
+      i {
+        position: absolute !important;
+        top: 5px;
+        left: 9px;
+      }
+
+      span {
+        transform: rotate(-90deg);
+        transform-origin: 0 0;
+        position: absolute;
+        bottom: -10px;
+        left: 6px;
+        overflow: auto;
+        white-space: nowrap;
+        font-size: .75rem;
+        font-style: italic;
+        display: flex;
+      }
+    }
+
+    &__bar {
+      height: 150px;
+      background: #e6e6e6;
+      width: 32px;
+      margin-bottom: 5px;
+      display: flex;
+      flex-direction: column-reverse;
+
+      .theme--dark & {
+        background: #3e3e3e;
+      }
+
+      &__indicator {
+        display: flex;
+        background: #333;
+        align-items: center;
+        align-content: center;
+        flex-direction: column-reverse;
+
+        &--green {
+          background: #4caf50;
+        }
+
+        &--yellow {
+          background: $kp_yellow;
+        }
+
+        &--red {
+          background: #ea5f42;
+        }
+      }
+    }
+
+    &__points {
+      text-align: center;
+      font-size: 0.75rem;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    &__game-details {
+      &__logos {
+        display: flex;
+      }
+
+      &__result {
+        font-style: italic;
+        font-size: 0.90rem;
+        text-align: center;
+      }
+    }
+
+    &__minutes {
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+  }
+}
+
