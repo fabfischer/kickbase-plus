@@ -43,6 +43,15 @@
       "contributions": [
         "ideas"
       ]
+    },
+    {
+      "login": "FelixSchuSi",
+      "name": "Felix Schulze Sindern",
+      "avatar_url": "https://avatars.githubusercontent.com/u/47390169?v=4",
+      "profile": "https://github.com/FelixSchuSi",
+      "contributions": [
+        "ideas"
+      ]
     }
   ],
   "commitConvention": "angular",
