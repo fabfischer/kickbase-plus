@@ -81,6 +81,7 @@ npm run serve
   <tbody>
     <tr>
       <td align="center"><a href="https://github.com/ismailoezcan"><img src="https://avatars.githubusercontent.com/u/32710563?v=4" width="100px;" alt=""/><br /><sub><b>ismailoezcan</b></sub></a></td>
+      <td align="center"><a href="https://github.com/eLindros"><img src="https://avatars.githubusercontent.com/u/4130049?v=4" width="100px;" alt=""/><br /><sub><b>Ronny Klein</b></sub></a></td>
     </tr>
   </tbody>
 </table>

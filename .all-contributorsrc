@@ -24,6 +24,16 @@
       "contributions": [
         "ideas"
       ]
+    },
+    {
+      "login": "eLindros",
+      "name": "Ronny Klein",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4130049?v=4",
+      "profile": "https://github.com/eLindros",
+      "contributions": [
+        "ideas",
+        "code"
+      ]
     }
   ],
   "commitConvention": "angular",
