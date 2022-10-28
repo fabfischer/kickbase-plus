@@ -34,6 +34,15 @@
         "ideas",
         "code"
       ]
+    },
+    {
+      "login": "Quotic",
+      "name": "Bastian",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1618550?v=4",
+      "profile": "https://github.com/Quotic",
+      "contributions": [
+        "ideas"
+      ]
     }
   ],
   "commitConvention": "angular",
