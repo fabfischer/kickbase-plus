@@ -16,6 +16,16 @@
   },
   "skipCi": "true",
   "contributors": [
+
+    {
+      "login": "fabfischer",
+      "name": "fabfischer",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1053032?v=4",
+      "profile": "https://github.com/fabfischer",
+      "contributions": [
+        "code"
+      ]
+    },
     {
       "login": "ismailoezcan",
       "name": "ismailoezcan",
