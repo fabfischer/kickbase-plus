@@ -9,6 +9,7 @@
 }*/
 
 $pointsGrey: #e5e5e5;
+$pointsGreyDark: #353535;
 
 .player-points-loader {
   display: flex;
@@ -31,11 +32,24 @@ $pointsGrey: #e5e5e5;
   border: 1px solid $pointsGrey;
   margin: 10px 0;
 
+  .theme--dark & {
+    border-color: $pointsGreyDark;
+  }
+
   &__season {
     border-right: 1px solid $pointsGrey;
 
+    .theme--dark & {
+      border-color: $pointsGreyDark;
+    }
+
     &__summary {
       background: $pointsGrey;
+
+      .theme--dark & {
+        background: $pointsGreyDark;
+      }
+
       padding: 5px;
       text-align: center;
       width: 120px;
@@ -66,6 +80,10 @@ $pointsGrey: #e5e5e5;
     background: $pointsGrey;
     padding: 5px 10px;
     width: 100%;
+
+    .theme--dark & {
+      background: $pointsGreyDark;
+    }
     span {
       position: sticky;
       left: 10px;
