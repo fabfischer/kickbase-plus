@@ -80,6 +80,7 @@ npm run serve
 <table>
   <tbody>
     <tr>
+      <td align="center"><a href="https://github.com/fabfischer"><img src="https://avatars.githubusercontent.com/u/1053032?v=4" width="100px;" alt=""/><br /><sub><b>fabfischer</b></sub></a></td>
       <td align="center"><a href="https://github.com/ismailoezcan"><img src="https://avatars.githubusercontent.com/u/32710563?v=4" width="100px;" alt=""/><br /><sub><b>ismailoezcan</b></sub></a></td>
       <td align="center"><a href="https://github.com/eLindros"><img src="https://avatars.githubusercontent.com/u/4130049?v=4" width="100px;" alt=""/><br /><sub><b>Ronny Klein</b></sub></a></td>
       <td align="center"><a href="https://github.com/Quotic"><img src="https://avatars.githubusercontent.com/u/1618550?v=4" width="100px;" alt=""/><br /><sub><b>Bastian</b></sub></a></td>
