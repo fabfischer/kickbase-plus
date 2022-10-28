@@ -83,6 +83,7 @@ npm run serve
       <td align="center"><a href="https://github.com/ismailoezcan"><img src="https://avatars.githubusercontent.com/u/32710563?v=4" width="100px;" alt=""/><br /><sub><b>ismailoezcan</b></sub></a></td>
       <td align="center"><a href="https://github.com/eLindros"><img src="https://avatars.githubusercontent.com/u/4130049?v=4" width="100px;" alt=""/><br /><sub><b>Ronny Klein</b></sub></a></td>
       <td align="center"><a href="https://github.com/Quotic"><img src="https://avatars.githubusercontent.com/u/1618550?v=4" width="100px;" alt=""/><br /><sub><b>Bastian</b></sub></a></td>
+      <td align="center"><a href="https://github.com/FelixSchuSi"><img src="https://avatars.githubusercontent.com/u/47390169?v=4" width="100px;" alt=""/><br /><sub><b>Felix Schulze Sindern</b></sub></a></td>
     </tr>
   </tbody>
 </table>
