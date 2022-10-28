@@ -77,6 +77,13 @@ npm run serve
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center"><a href="https://github.com/ismailoezcan"><img src="https://avatars.githubusercontent.com/u/32710563?v=4" width="100px;" alt=""/><br /><sub><b>ismailoezcan</b></sub></a></td>
+    </tr>
+  </tbody>
+</table>
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
