@@ -13,7 +13,7 @@
             <v-icon color="white" class="mt-1" size="16">fa-ban</v-icon>
 
             <span>
-                  missed match day
+                  did not play
                 </span>
           </div>
           <template v-else>

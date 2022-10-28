@@ -5,7 +5,7 @@
 
         <player-points-seasons :seasons="seasonStats"></player-points-seasons>
 
-        <h3 class="mt-2">Season {{ seasonStats[0].t }}</h3>
+        <h3 class="mt-2">Season {{ latestSeasonStats.season }}</h3>
         <v-simple-table v-if="latestSeasonStats">
           <template v-slot:default>
             <tbody>
