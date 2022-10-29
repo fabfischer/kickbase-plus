@@ -39,6 +39,8 @@ const store = new Vuex.Store({
       offerOpenPlayerNotOnMarketPanel: true,
       offerOpenPlayerWithoutAnyOfferPanel: false,
       offerShowTooLowOffersOnly: false,
+      transfermarketExpiryDateFadeEffect: true,
+      transfermarketExpiryDisplayType: 'relative',
       offerOrders: {
         oldest: 'oldest first',
         newest: 'newest first'
@@ -49,6 +51,8 @@ const store = new Vuex.Store({
     offerShowTooLowOffersOnly: false,
     offerOpenPlayerNotOnMarketPanel: false,
     offerOpenPlayerWithoutAnyOfferPanel: false,
+    transfermarketExpiryDateFadeEffect: false,
+    transfermarketExpiryDisplayType: null,
     offerOrder: {
       init: null,
       temporary: null,

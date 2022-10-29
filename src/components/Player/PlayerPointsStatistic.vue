@@ -167,7 +167,7 @@ export default {
           season.highestPoints = highestPoints
         })
 
-        // add next match days as a season. hack way, but the easiest/fastest one
+        // add next matchdays as a season. hack way, but the easiest/fastest one
         if (this.getNextThreeMatchDays && this.getNextThreeMatchDays.length) {
           const matches = [];
 
@@ -182,7 +182,7 @@ export default {
           if (matches.length) {
             const dummySeason = {
               m: matches,
-              t: 'next match days',
+              t: 'next matchdays',
               hideSummary: true
             }
             seasons.push(dummySeason)

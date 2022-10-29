@@ -18,11 +18,11 @@
             </tr>
             <tr>
               <th class="pa-2 blue-grey lighten-3 text-left">max players per user team:</th>
-              <td class="pa-2 blue-grey darken-1 white--text text-left">{{ getSelectedLeague.pl }}</td>
+              <td class="pa-2 blue-grey darken-1 white--text text-left">{{ getSelectedLeague.pl || "unlimited" }}</td>
             </tr>
             <tr>
               <th class="pa-2 blue-grey lighten-3 text-left">max players of a league team:</th>
-              <td class="pa-2 blue-grey darken-1 white--text text-left">{{ getSelectedLeague.mpst }}</td>
+              <td class="pa-2 blue-grey darken-1 white--text text-left">{{ getSelectedLeague.mpst || "unlimited" }}</td>
             </tr>
           </table>
         </div>

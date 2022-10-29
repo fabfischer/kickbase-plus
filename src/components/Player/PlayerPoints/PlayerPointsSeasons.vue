@@ -7,7 +7,7 @@
       <div class="player-points__matches">
         <div class="player-points__match" v-for="match in season.m" :key="season.i + '-' + match.d">
           <div class="player-points__match__day">
-            <strong>{{ match.d }}.</strong><br>match day
+            <strong>{{ match.d }}.</strong><br>matchday
           </div>
           <div class="player-points__match__missed_bar" v-if="match.missed">
             <v-icon color="white" class="mt-1" size="16">fa-ban</v-icon>

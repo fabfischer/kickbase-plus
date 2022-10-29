@@ -1,3 +1,15 @@
+.expiry-info {
+  position: relative;
+
+  span {
+    position: absolute;
+  }
+
+  &__shadow-info {
+    opacity: 0;
+  }
+}
+
 .bid-row {
   
   margin: 0 0 30px 0;

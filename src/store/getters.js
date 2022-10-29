@@ -129,6 +129,14 @@ function getOfferShowTooLowOffersOnly(state) {
   return state.offerShowTooLowOffersOnly
 }
 
+function getTransfermarketExpiryDateFadeEffect(state) {
+  return state.transfermarketExpiryDateFadeEffect
+}
+
+function getTransfermarketExpiryDisplayType(state) {
+  return state.transfermarketExpiryDisplayType
+}
+
 function getOfferOrderLabel(state) {
   return state.defaults.offerOrders[state.offerOrder.init] ?? 'n/a'
 }
@@ -173,6 +181,8 @@ export default {
   getOfferOpenPlayerNotOnMarketPanel,
   getOfferOpenPlayerWithoutAnyOfferPanel,
   getGeneralPlayerCardShowAlwaysAllDetails,
+  getTransfermarketExpiryDateFadeEffect,
+  getTransfermarketExpiryDisplayType,
   getOfferThreshold,
   getOfferShowTooLowOffersOnly,
   getOfferOrder,

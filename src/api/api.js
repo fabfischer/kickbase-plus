@@ -248,7 +248,7 @@ const api = {
         })
             .then((response) => {
                 if (response.status === 200) {
-                    store.commit('addLoadingMessage', 'fetched player\'s league successfully')
+                    store.commit('addLoadingMessage', 'player\'s league successfully fetched')
                     if (response.data && response.data.leagues && response.data.leagues.length) {
                         store.commit('setLeagues', response.data.leagues)
                         let setLeague = null
@@ -273,17 +273,17 @@ const api = {
                 store.commit('setErrorMessage', 'could not fetch player\'s leagues')
             })
     },
-    loadUsersPlayerOffers(cb) {
+    async loadUsersPlayerOffers(cb) {
         store.commit('addLoadingMessage', 'loading market offers')
-        axios({
+        await axios({
             'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/market',
             "method": "GET",
         })
-            .then((response) => {
+            .then(async (response) => {
                 if (response.status === 200) {
-                    store.commit('addLoadingMessage', 'fetched offers successfully ... please wait')
+                    store.commit('addLoadingMessage', 'offers successfully fetched ... please wait')
                     if (typeof cb === 'function') {
-                        cb(response.data)
+                        await cb(response.data)
                     }
                 }
             }).catch(function () {
@@ -404,11 +404,11 @@ const api = {
             "method": "GET",
         }).then(async (profile) => {
             if (profile.data) {
-                const userX = Object.assign(store.getters.getUsersDetails, profile.data)
-                store.commit('addUser', userX)
                 if (includeUsersToUpdateBudget === true) {
                     await api.loadUsers(includeUsersToUpdateBudget)
                 }
+                const userX = Object.assign(store.getters.getUsersDetails, profile.data)
+                store.commit('addUser', userX)
                 await api.loadUsersPlayers(userX.id, true)
             }
         })
@@ -427,10 +427,8 @@ const api = {
                     if (response.data && response.data.users && response.data.users.length) {
                         for (let i = 0; i < response.data.users.length; i++) {
                             const player = response.data.users[i]
-                            if (player.id * 1 !== store.getters.getSelf) {
-                                store.commit('addUser', player)
-                            } else if (justToUpdateBudget === false) {
-                                store.commit('addUser', player)
+                            store.commit('addUser', player)
+                            if (justToUpdateBudget === false) {
                                 await api.loadUsersPlayers(player.id, false)
                             }
                         }
@@ -478,7 +476,7 @@ const api = {
         const fetchedGameDays = []
         if (currentMatchDay.no) {
             fetchedGameDays.push({m: currentMatchDay.matches, md: currentMatchDay.no, d: currentMatchDay.no})
-            store.commit('addLoadingMessage', 'loading next match days for stats')
+            store.commit('addLoadingMessage', 'loading next matchdays for stats')
             const gameDays = [currentMatchDay.no + 1, currentMatchDay.no + 2]
             for (let i = 0; i < gameDays.length; i++) {
                 if (gameDays[i] <= 34) {
@@ -508,7 +506,7 @@ const api = {
         if (matchDay) {
             mQuery = '?matchDay=' + matchDay
         }
-        store.commit('addLoadingMessage', 'loading next match day')
+        store.commit('addLoadingMessage', 'loading next matchday')
         await axios({
             'url': 'https://api.kickbase.com/competition/matches' + mQuery,
             "method": "GET",
@@ -527,7 +525,7 @@ const api = {
                 }
             })
             .catch(function () {
-                store.commit('setErrorMessage', 'could not fetch match day')
+                store.commit('setErrorMessage', 'could not fetch matchday')
             })
     },
     async loadFeed(cb) {
