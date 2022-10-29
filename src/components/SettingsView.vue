@@ -68,7 +68,7 @@
           <h4 class="text-h5 setting__headline text--primary">display of "expiry date"</h4>
           <div class="setting__description">
             <p class="text-body-1">Here you can specify whether the display of the expiration date of transfer market
-              offers should be "speaking" or whether the exact time should be displayed by default.
+              offers should be "relative" or whether the exact time should be displayed by default.
               Furthermore, you can define whether the two displays should alternate (with a fade-in/fade-out
               effect).</p>
             <div class="setting__fieldset">
