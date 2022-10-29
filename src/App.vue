@@ -163,7 +163,8 @@
           </small>
         </v-toolbar-title>
         <v-spacer></v-spacer>
-        <small style="font-size:11px;" v-html="getPlayersDetails" v-if="getUsersDetails && getUsersDetails.bought"></small>
+        <small style="font-size:11px;" v-html="getPlayersDetails"
+               v-if="getUsersDetails && getUsersDetails.budget"></small>
         <v-progress-circular v-else indeterminate size="16"></v-progress-circular>
         <v-spacer></v-spacer>
         <div style="font-size:11px;">
@@ -286,7 +287,7 @@ export default {
       }
 
       if (this.getUsersDetails && this.getUsersDetails.budget) {
-        details += '&nbsp;/ Transfers: ' + (this.getUsersDetails.bought + this.getUsersDetails.sold)
+        details += '&nbsp;/ Transfers: ' + ((this.getUsersDetails.bought || 0) + (this.getUsersDetails.sold || 0))
 
         if (this.getUsersDetails.players && this.getUsersDetails.players.length) {
           details += ' / <span class="d-none d-sm-none d-md-inline-block">Players</span><span class="d-inline-block d-md-none">Ply</span>: ' + this.getUsersDetails.players.length
@@ -336,7 +337,7 @@ export default {
     ]),
     ...mapActions(
         [
-            'setAsInitialized'
+          'setAsInitialized'
         ]
     ),
     initDarkMode() {

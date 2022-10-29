@@ -13,16 +13,20 @@
 
             <div class="setting__fieldset">
               <p class="text-h6 text--primary">Show always all details of a player card</p>
-              <p class="text-body-1">In some contexts a player card doesn't display all details of a player. You can change this behaviour
-                and force all details to be displayed with this setting. You can see an example of a changed behaviour below.
+              <p class="text-body-1">In some contexts a player card doesn't display all details of a player. You can
+                change this behaviour
+                and force all details to be displayed with this setting. You can see an example of a changed behaviour
+                below.
                 <br>Default is: <span class="setting__default-value">{{
                     getPlayerCardShowAlwaysAllDetailsInfo(this.getDefaults.generalPlayerCardShowAlwaysAllDetails)
                   }}</span></p>
 
-              <p class="text-body-1">A simplified view of the player card is currently used in the following situations:</p>
+              <p class="text-body-1">A simplified view of the player card is currently used in the following
+                situations:</p>
               <ul class="mb-2 text-body-1">
                 <li>
-                  <router-link to="/sell">Offers / Sell</router-link>: player with no offer
+                  <router-link to="/sell">Offers / Sell</router-link>
+                  : player with no offer
                 </li>
               </ul>
 
@@ -36,7 +40,7 @@
               ></v-switch>
               <saved-alert :value="showAlerts.generalPlayerCardShowAlwaysAllDetailsSetting"></saved-alert>
 
-              <v-expansion-panels  class="elevation-1 player-card-accordion">
+              <v-expansion-panels class="elevation-1 player-card-accordion">
                 <v-expansion-panel
                 >
                   <v-expansion-panel-header class="elevation-0">
@@ -44,7 +48,8 @@
                     live example (click to open)
                   </v-expansion-panel-header>
                   <v-expansion-panel-content>
-                    <player-card :player="dummyPlayer" :hide-meta="!generalPlayerCardShowAlwaysAllDetailsSetting"></player-card>
+                    <player-card :player="dummyPlayer"
+                                 :hide-meta="!generalPlayerCardShowAlwaysAllDetailsSetting"></player-card>
                   </v-expansion-panel-content>
                 </v-expansion-panel>
               </v-expansion-panels>
@@ -58,8 +63,45 @@
     <v-card outlined class="mb-5">
       <v-card-text>
         <h3 class="text-h5 text-sm-h4 mb-5">Transfer market</h3>
-        <p>coming soon</p>
-        <!-- <p>bid buttons</p> -->
+
+        <div class="setting">
+          <h4 class="text-h5 setting__headline text--primary">display of "expiry date"</h4>
+          <div class="setting__description">
+            <p class="text-body-1">Here you can specify whether the display of the expiration date of transfer market
+              offers should be "speaking" or whether the exact time should be displayed by default.
+              Furthermore, you can define whether the two displays should alternate (with a fade-in/fade-out
+              effect).</p>
+            <div class="setting__fieldset">
+              <p class="text-h6 text--primary">Display type:</p>
+              <p class="text-body-1">
+                Default is: <span class="setting__default-value">{{
+                  transfermarketExpiryDateDisplayTypeWording(this.getDefaults.transfermarketExpiryDisplayType)
+                }}</span>
+              </p>
+              <v-switch
+                  v-model="transfermarketExpiryDateDisplayTypeSetting"
+                  inset
+                  value="timestamp"
+                  :label="transfermarketExpiryDateDisplayTypeSettingLabel"
+              ></v-switch>
+              <saved-alert :value="showAlerts.transfermarketExpiryDateDisplayTypeSetting"></saved-alert>
+            </div>
+            <div class="setting__fieldset">
+              <p class="text-h6 text--primary">Use fade-in/fade-out effect:</p>
+              <p class="text-body-1">
+                Default is: <span class="setting__default-value">{{
+                  transfermarketExpiryDateFadeEffectSettingWording(this.getDefaults.transfermarketExpiryDateFadeEffect)
+                }}</span>
+              </p>
+              <v-switch
+                  v-model="transfermarketExpiryDateFadeEffectSetting"
+                  inset
+                  :label="transfermarketExpiryDateFadeEffectSettingLabel"
+              ></v-switch>
+              <saved-alert :value="showAlerts.transfermarketExpiryDateFadeEffectSetting"></saved-alert>
+            </div>
+          </div>
+        </div>
       </v-card-text>
     </v-card>
 
@@ -170,7 +212,6 @@
                   :label="offerOpenPlayerNotOnMarketPanelSettingLabel"
               ></v-switch>
               <saved-alert :value="showAlerts.offerOpenPlayerNotOnMarketPanelSetting"></saved-alert>
-
             </div>
             <div class="setting__fieldset">
               <p class="text-h6 text--primary">Player without any offer: </p>
@@ -240,6 +281,12 @@ const keepClosedWording = 'Keep panel closed'
 const showAlwaysAllDetailsInPlayerCard = 'Show always all details'
 const hideDetailsInSomePlayerCardContexts = 'Hide details in some contexts'
 
+const expiryDateUseFadeInFadeoutEffect = 'use fade-in/fade-out effect'
+const expiryDateDontUseFadeInFadeoutEffect = 'don\'t use fade-in/fade-out effect'
+
+const expiryDateDisplayTypeTimestamp = 'show complete timestamp, like "10:15 am"'
+const expiryDateDisplayTypeRelative = 'show "relative" expression, like "in an hour"'
+
 export default {
   name: "SettingsView",
   components: {PlayerCard, SavedAlert, SellViewOrder},
@@ -251,6 +298,8 @@ export default {
       offerOpenPlayerNotOnMarketPanelSetting: null,
       offerOpenPlayerWithoutAnyOfferPanelSetting: null,
       offerShowTooLowOffersOnlySetting: null,
+      transfermarketExpiryDateFadeEffectSetting: null,
+      transfermarketExpiryDateDisplayTypeSetting: null,
       debouncedCallback: null,
       showAlerts: {
         generalPlayerCardShowAlwaysAllDetailsSetting: false,
@@ -259,6 +308,8 @@ export default {
         offerOpenPlayerNotOnMarketPanelSetting: false,
         offerOpenPlayerWithoutAnyOfferPanelSetting: false,
         offerShowTooLowOffersOnlySetting: false,
+        transfermarketExpiryDateFadeEffectSetting: false,
+        transfermarketExpiryDateDisplayTypeSetting: false,
       },
       dummyPlayer: {
         "id": "23",
@@ -302,6 +353,8 @@ export default {
     this.offerOpenPlayerWithoutAnyOfferPanelSetting = this.getOfferOpenPlayerWithoutAnyOfferPanel
     this.offerShowTooLowOffersOnlySetting = this.getOfferShowTooLowOffersOnly
     this.generalPlayerCardShowAlwaysAllDetailsSetting = this.getGeneralPlayerCardShowAlwaysAllDetails
+    this.transfermarketExpiryDateFadeEffectSetting = this.getTransfermarketExpiryDateFadeEffect
+    this.transfermarketExpiryDateDisplayTypeSetting = this.getTransfermarketExpiryDisplayType
   },
   watch: {
     offerThresholdSetting(newValue) {
@@ -349,6 +402,25 @@ export default {
         this.initialized = true
       });
     },
+    transfermarketExpiryDateFadeEffectSetting(newValue) {
+      this.debouncedCallback(() => {
+        if (newValue === this.transfermarketExpiryDateFadeEffectSetting && this.initialized) {
+          this.setTransfermarketExpiryDateFadeEffect(newValue)
+          this.flashSaveMessage('transfermarketExpiryDateFadeEffectSetting')
+        }
+        this.initialized = true
+      });
+    },
+    transfermarketExpiryDateDisplayTypeSetting(newValue) {
+      this.debouncedCallback(() => {
+        if (newValue === this.transfermarketExpiryDateDisplayTypeSetting && this.initialized) {
+          const v = newValue !== "timestamp" ? "relative" : "timestamp"
+          this.setTransfermarketExpiryDisplayType(v)
+          this.flashSaveMessage('transfermarketExpiryDateDisplayTypeSetting')
+        }
+        this.initialized = true
+      });
+    },
   },
   computed: {
     ...mapGetters([
@@ -358,6 +430,8 @@ export default {
       'getOfferOpenPlayerWithoutAnyOfferPanel',
       'getOfferShowTooLowOffersOnly',
       'getGeneralPlayerCardShowAlwaysAllDetails',
+      'getTransfermarketExpiryDateFadeEffect',
+      'getTransfermarketExpiryDisplayType',
     ]),
     rejectAllExampleValue() {
       return 1000000 * 0.1 * this.getOfferThreshold
@@ -370,6 +444,12 @@ export default {
     },
     offerOpenPlayerNotOnMarketPanelSettingLabel() {
       return (this.offerOpenPlayerNotOnMarketPanelSetting) ? openAutomaticallyWording : keepClosedWording
+    },
+    transfermarketExpiryDateFadeEffectSettingLabel() {
+      return (this.transfermarketExpiryDateFadeEffectSetting) ? expiryDateUseFadeInFadeoutEffect : expiryDateDontUseFadeInFadeoutEffect
+    },
+    transfermarketExpiryDateDisplayTypeSettingLabel() {
+      return (this.transfermarketExpiryDateDisplayTypeSetting === 'timestamp') ? expiryDateDisplayTypeTimestamp : expiryDateDisplayTypeRelative
     },
     showAlwaysAllDetailsOfAPlayerCardPanelSettingLabel() {
       return (this.generalPlayerCardShowAlwaysAllDetailsSetting)
@@ -384,6 +464,8 @@ export default {
       'setOfferOpenPlayerWithoutAnyOfferPanel',
       'setOfferShowTooLowOffersOnly',
       'setGeneralPlayerCardShowAlwaysAllDetails',
+      'setTransfermarketExpiryDateFadeEffect',
+      'setTransfermarketExpiryDisplayType',
     ]),
     offerOrderSaveBubble() {
       this.flashSaveMessage('offerOrder')
@@ -398,6 +480,12 @@ export default {
     },
     getPanelWording(value) {
       return (value) ? openAutomaticallyWording : keepClosedWording
+    },
+    transfermarketExpiryDateFadeEffectSettingWording(value) {
+      return (value) ? expiryDateUseFadeInFadeoutEffect : expiryDateDontUseFadeInFadeoutEffect
+    },
+    transfermarketExpiryDateDisplayTypeWording(value) {
+      return (value === 'timestamp') ? expiryDateDisplayTypeTimestamp : expiryDateDisplayTypeRelative
     },
     getPlayerCardShowAlwaysAllDetailsInfo(value) {
       return (value) ? showAlwaysAllDetailsInPlayerCard : hideDetailsInSomePlayerCardContexts

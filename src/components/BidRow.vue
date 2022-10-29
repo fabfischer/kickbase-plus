@@ -10,8 +10,19 @@
           text
           :color="(isDarkTheme) ? 'deep-purple lighten-3': 'deep-purple darken-4'"
           icon="fa-clock"
+          class="expiry-info"
+          style="cursor: pointer"
+          @click="toggleExpiryAsDateTime"
       >
-        {{ expiryDate }}
+        <transition name="fade">
+          <span v-if="expiryAsDateTime === true">{{ expiryDateAsDateTime }}</span>
+        </transition>
+        <transition name="fade">
+          <span v-if="expiryAsDateTime === false">{{ expiryDate }}</span>
+        </transition>
+
+        <div class="expiry-info__shadow-info" v-if="expiryAsDateTime === false">{{ expiryDate }}</div>
+        <div class="expiry-info__shadow-info" v-if="expiryAsDateTime === true">{{ expiryDateAsDateTime }}</div>
       </v-alert>
 
       <v-alert v-if="player.hasNoBid"
@@ -104,7 +115,8 @@
       </div>
     </div>
 
-    <template v-slot:extra-expansion-panel v-if="player.offers && player.offers.length && player.hasOnlySelfBid === false">
+    <template v-slot:extra-expansion-panel
+              v-if="player.offers && player.offers.length && player.hasOnlySelfBid === false">
       <v-expansion-panel
       >
         <v-expansion-panel-header class="elevation-0">
@@ -166,7 +178,12 @@ import {sleep, getBundesligaClubImageUrlById} from "@/helper/helper";
 const lastDayChangesClassConst = 'hidden-sm-and-down'
 
 export default {
-  props: ['player'],
+  props: {
+    player: {
+      type: Object,
+      required: true
+    },
+  },
   components: {
     PlayerCard,
     VueNumericInput,
@@ -192,6 +209,9 @@ export default {
       inputValue: null,
       triggeredByEnterKey: false,
       resetCall: false,
+      toggledExpiryDate: false,
+      expiryAsDateTime: false,
+      expiryTimer: null,
       bidButtons: [
         0,
         -0.9,
@@ -217,6 +237,19 @@ export default {
         args[0]()
       }
     }, 1000);
+
+    console.log(this.getTransfermarketExpiryDisplayType)
+    this.expiryAsDateTime = (this.getTransfermarketExpiryDisplayType === 'timestamp')
+
+    if (this.getTransfermarketExpiryDateFadeEffect === true) {
+      this.expiryTimer = setInterval(() => {
+        if (this.toggledExpiryDate) {
+          clearInterval(this.expiryTimer)
+        } else {
+          this.expiryAsDateTime = !this.expiryAsDateTime
+        }
+      }, 7000);
+    }
   },
   watch: {
     inputValue(newValue) {
@@ -233,6 +266,8 @@ export default {
       'getPlayers',
       'getUsers',
       'getBids',
+      'getTransfermarketExpiryDisplayType',
+      'getTransfermarketExpiryDateFadeEffect',
     ]),
     bidValue() {
       return (this.playerBid ?? this.player.marketValue) * 1
@@ -267,15 +302,14 @@ export default {
     foreignOffers() {
       return this.sortedOffers.filter((offer) => offer.userId * 1 !== this.getSelf)
     },
-    hasPlayerStats() {
-      return (Object.keys(this.getPlayers).length >= 1
-          &&
-          this.getPlayers[this.player.id]
-      )
-    },
     expiryDate() {
       const m = moment().subtract(this.player.expiry, 'seconds')
       return m.toNow()
+    },
+    expiryDateAsDateTime() {
+      const m = moment().add(this.player.expiry, 'seconds')
+      const format = m.isSame(moment(), 'day') ? 'HH:mm:ss a' : 'HH:mm:ss a (DD.MM.YY)'
+      return m.format(format)
     },
     getComputedPrice() {
       return numeral(this.player.price).format('0,0')
@@ -414,10 +448,15 @@ export default {
     },
   },
   methods: {
+    toggleExpiryAsDateTime() {
+      this.toggledExpiryDate = true
+      this.expiryAsDateTime = !this.expiryAsDateTime
+    },
     inputReset() {
       this.resetCall = false
     },
-    dummySubmit() {},
+    dummySubmit() {
+    },
     preview(previewValue) {
       this.previewValue = previewValue
     },
@@ -493,23 +532,11 @@ export default {
         this.resetCall = false
       })
     },
-    resetPlayerBid() {
-      if (!this.hasOwnBid) {
-        this.playerBid = null
-      }
-    },
     getUsersPlayers(userId) {
       const users = this.getUsers
       return (
           users[userId] && users[userId].players && users[userId].players.length
       ) ? users[userId].players.length : 0
-    },
-    openLastDayChanges() {
-      if (this.lastDayChangesClass === '') {
-        this.lastDayChangesClass = lastDayChangesClassConst
-      } else {
-        this.lastDayChangesClass = ''
-      }
     },
     getPercentMVValue(percent) {
       return this.player.marketValue + (this.player.marketValue * percent / 100)

@@ -19,6 +19,36 @@
             <span class="news-details" v-html="getCardsText(item)"></span>
           </v-list-item-title>
 
+            <v-list-item-content v-if="item.type === 17">
+              <v-simple-table>
+                <template v-slot:default>
+                  <thead>
+                  <tr>
+                    <th class="text-left">
+                      #
+                    </th>
+                    <th class="text-left">
+                      Name
+                    </th>
+                    <th class="text-left">
+                      Points
+                    </th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr
+                      v-for="player in item.meta.u"
+                      :key="player.n"
+                  >
+                    <td>{{ player.p }}</td>
+                    <td>{{ player.n }}</td>
+                    <td>{{ player.s }}</td>
+                  </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
+            </v-list-item-content>
+
           <div class="flex-wrap max-height news-details" v-if="getPurchaseInfo(item)" v-html="getPurchaseInfo(item)">
           </div>
           </v-list-item-content>
@@ -135,6 +165,11 @@ export default {
       // news
       if (item.type === 16) {
         text = `<strong>${item.meta.t}</strong> ${item.meta.sti}`
+      }
+
+      // matchday
+      if (item.type === 17) {
+        text = `<strong>Matchday #${item.meta.day} results</strong>`
       }
 
       return text

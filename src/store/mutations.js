@@ -170,6 +170,16 @@ function setOfferOpenPlayerWithoutAnyOfferPanel(state, offerOpenPlayerWithoutAny
   state.offerOpenPlayerWithoutAnyOfferPanel = offerOpenPlayerWithoutAnyOfferPanel
 }
 
+function setTransfermarketExpiryDateFadeEffect(state, transfermarketExpiryDateFadeEffect) {
+  localStorage.setItem(Constants.LOCALSTORAGE.TRANSFER_MARKET_EXPIRY_DATE_FADE_EFFECT, transfermarketExpiryDateFadeEffect)
+  state.transfermarketExpiryDateFadeEffect = transfermarketExpiryDateFadeEffect
+}
+
+function setTransfermarketExpiryDisplayType(state, transfermarketExpiryDisplayType) {
+  localStorage.setItem(Constants.LOCALSTORAGE.TRANSFER_MARKET_EXPIRY_DISPLAY_TYPE, transfermarketExpiryDisplayType)
+  state.transfermarketExpiryDisplayType = transfermarketExpiryDisplayType
+}
+
 function setOfferOrder(state, payload) {
   if (payload.isTemporary === true) {
     state.offerOrder.temporary = payload.order
@@ -225,6 +235,8 @@ export default {
   setOfferOpenPlayerNotOnMarketPanel,
   setOfferOpenPlayerWithoutAnyOfferPanel,
   setGeneralPlayerCardShowAlwaysAllDetails,
+  setTransfermarketExpiryDateFadeEffect,
+  setTransfermarketExpiryDisplayType,
   setOfferOrder,
   setMarketValueComparison,
 }
