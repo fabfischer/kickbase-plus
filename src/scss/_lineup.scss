@@ -1,5 +1,34 @@
+$card-border: 3px solid #131313;
+
+.lineup-container {
+  position: relative;
+
+  &__loading-spinner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    background: rgba(255, 255, 255, .75);
+    display: flex;
+    justify-content: center;
+
+    .v-progress-circular {
+      position: fixed;
+    }
+  }
+
+  .saved-alert {
+    position: fixed;
+    z-index: 2;
+    left: 50%;
+
+  }
+}
+
 .field {
-  background: #008000;
+  background: #047404;
   padding: 20px;
   display: flex;
   flex-wrap: wrap;
@@ -10,13 +39,47 @@
 }
 
 .position {
+
+  &__choose {
+    display: flex;
+    border: $card-border;
+    background: #fff;
+    padding: 20px;
+    align-items: center;
+    align-content: center;
+    border-radius: 10px;
+    width: 100%;
+    flex-wrap: wrap;
+
+    .theme--dark & {
+      background: #333 !important;
+    }
+
+    .v-avatar {
+      display: block;
+      width: 100% !important;
+    }
+
+    span {
+      font-size: 1.1rem;
+      font-weight: bold;
+      padding-top: 5px;
+      text-align: center;
+      display: block;
+      width: 100% !important;
+    }
+
+  }
+
   &__container {
     display: flex;
     justify-content: center;
     width: 100%;
-    padding: 40px 0;
+    padding: 20px 0;
     flex-wrap: wrap;
     border-bottom: 3px dashed rgba(255, 255, 255, .5);
+    align-items: center;
+    align-content: center;
 
     &:first-of-type {
       padding-top: 0;
@@ -28,75 +91,139 @@
     }
   }
 
-  &--lined-up {
+  &__next-match {
     background: #fff;
-    padding: 10px;
-    margin: 0 40px 20px 40px;
-    position: relative;
-    text-align: center;
-    cursor: pointer;
-
-    font-size: 13px;
-    width: 100%;
+    padding: 8px 0;
     display: flex;
-    border-radius: 10px;
+    width: 100%;
+    justify-content: center;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border: $card-border;
+    border-bottom: none;
 
     .theme--dark & {
       background: #333 !important;
     }
+  }
 
+  &__avatar {
+    background: #fff;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    border: $card-border;
+    border-bottom: none;
+    border-top: none;
+
+    @include breakpoint(up-to-lg) {
+      display: none;
+    }
+
+    .theme--dark & {
+      background: #333 !important;
+    }
+  }
+
+  &__details {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
     @include breakpoint(xs) {
-      font-size: 12px;
-      border-radius: 10px;
-
-      div:first-child {
-        display: flex;
-        width: 100%;
-        align-items: center;
-      }
-
-      .avatar {
-        max-width: 100px;
-
-        img {
-          max-width: 100px;
-        }
-      }
-
-      .player-name {
-        font-size: 130%;
-      }
-
+      flex-wrap: nowrap;
     }
 
-    .v-chip {
-      position: absolute;
-      top: 0;
-      right: -20px;
-    }
-
-    .club {
-      position: absolute;
-      top: 30px;
-      right: -20px;
-      max-width: 50px;
-    }
-
-
-    .avatar {
+    &__name {
+      border: $card-border;
+      border-bottom: none;
+      font-size: 1.2rem;
       width: 100%;
+      background: #333;
+      color: #fff;
+      padding: 10px 10px 5px 10px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
 
-      img {
-        max-width: 160px;
+      .theme--dark & {
+        border-top: none;
+      }
 
-        @include breakpoint(xs) {
-          max-width: 80px;
-        }
+      span {
+        width: 100%;
+      }
+
+      @include breakpoint(xs) {
+        border-bottom: $card-border;
+        border-right: none;
+        align-content: center;
       }
     }
 
-    .v-alert {
-      margin: 0 !important;
+    &__status {
+      width: 100%;
+      background: #333;
+      color: #fff;
+      padding: 0 10px;
+
+      border: $card-border;
+      border-top: none;
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+
+      .v-alert {
+        font-size: .8rem;
+      }
+
+      @include breakpoint(xs) {
+        width: 25%;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-top: $card-border;
+        border-left: none;
+        .theme--dark & {
+          border-top: none;
+        }
+        .v-alert {
+          margin: 6px 0 !important;
+
+          .v-alert__wrapper {
+            justify-content: center !important;
+          }
+
+          .v-alert__content {
+            display: none !important;
+          }
+          .v-icon {
+            margin: 0 !important;
+          }
+        }
+      }
+    }
+  }
+
+
+  &--lined-up {
+    padding: 10px;
+    position: relative;
+    text-align: center;
+    cursor: pointer;
+
+    width: calc(25% - 60px);
+    display: flex;
+    border-radius: 10px;
+    flex-grow: 0;
+    flex-shrink: 0;
+
+    flex-wrap: wrap;
+    justify-content: center;
+
+    @include breakpoint(up-to-lg) {
+      width: calc(50% - 60px);
+    }
+    @include breakpoint(xs) {
+      width: 100%;
     }
   }
 }
@@ -121,7 +248,10 @@
 }
 
 .vsTeam {
-  width: 30px
+  width: 40px;
+  @include breakpoint(xs) {
+    width: 24px;
+  }
 }
 
 .change-line-up {

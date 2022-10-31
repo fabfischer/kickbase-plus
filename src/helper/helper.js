@@ -6,27 +6,43 @@ const nextMatch = (matches, player) => {
     let m = null
     if (matches && matches.length && player) {
         matches.forEach((match) => {
-            if (match.t1i === player.teamId || match.t2i === player.teamId) {
-                if (match.t1i === player.teamId) {
-                    m = {
-                        abbr: match.t2y,
-                        name: match.t2n,
-                        id: match.t2i,
-                        img: '/assets/teams/' + match.t2i + '.png',
-                    }
-                } else if (match.t2i === player.teamId) {
-                    m = {
-                        abbr: match.t1y,
-                        name: match.t1n,
-                        id: match.t1i,
-                        img: '/assets/teams/' + match.t1i + '.png',
-                    }
+            if (match.t1 && match.t1.i === player.teamId) {
+                m = {
+                    abbr: match.t2.s,
+                    name: match.t2.n,
+                    id: match.t2.i,
+                    img: '/assets/teams/' + match.t2.i + '.png',
                 }
-                return
+            } else if (match.t2 && match.t2.i === player.teamId) {
+                m = {
+                    abbr: match.t1.s,
+                    name: match.t1.n,
+                    id: match.t1.i,
+                    img: '/assets/teams/' + match.t1.i + '.png',
+                }
             }
         })
     }
     return m
+}
+
+const getPositionWording = (positionId) => {
+    let position = ''
+    switch (positionId) {
+        case 1:
+            position = 'goalkeeper'
+            break;
+        case 2:
+            position = 'defender'
+            break;
+        case 3:
+            position = 'midfielder'
+            break;
+        case 4:
+            position = 'forward'
+            break;
+    }
+    return position
 }
 
 const getBundesligaClubImageUrlById = (id) => {
@@ -57,10 +73,12 @@ const getMarketValueGrowth = (id) => {
     if (
         store.getters.getPlayers[id]
         && store.getters.getPlayers[id].marketValues
+        && store.getters.getPlayers[id].marketValues.length
         && store.getters.getPlayers[id].marketValues[store.getters.getPlayers[id].marketValues.length - 1]
         && store.getters.getPlayers[id].marketValues[store.getters.getPlayers[id].marketValues.length - 2]
     ) {
-        return store.getters.getPlayers[id].marketValues[store.getters.getPlayers[id].marketValues.length - 1].m - store.getters.getPlayers[id].marketValues[store.getters.getPlayers[id].marketValues.length - 2].m
+        return store.getters.getPlayers[id].marketValues[store.getters.getPlayers[id].marketValues.length - 1].m
+            - store.getters.getPlayers[id].marketValues[store.getters.getPlayers[id].marketValues.length - 2].m
     }
     return null
 }
@@ -121,4 +139,5 @@ export {
     getBundesligaClubImageUrlById,
     getUserTime,
     smartPlayerStatsLoading,
+    getPositionWording,
 }

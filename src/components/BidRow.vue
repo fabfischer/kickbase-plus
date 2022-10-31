@@ -173,7 +173,7 @@ numeral.locale('deff')
 import PlayerCard from './Player/PlayerCard'
 import VueNumericInput from './Generic/NumericInput'
 import SavedAlert from './Generic/SavedAlert'
-import {sleep, getBundesligaClubImageUrlById} from "@/helper/helper";
+import {sleep, getBundesligaClubImageUrlById, getPositionWording} from "@/helper/helper";
 
 const lastDayChangesClassConst = 'hidden-sm-and-down'
 
@@ -238,7 +238,6 @@ export default {
       }
     }, 1000);
 
-    console.log(this.getTransfermarketExpiryDisplayType)
     this.expiryAsDateTime = (this.getTransfermarketExpiryDisplayType === 'timestamp')
 
     if (this.getTransfermarketExpiryDateFadeEffect === true) {
@@ -426,22 +425,7 @@ export default {
       }
     },
     getPosition() {
-      let position = ''
-      switch (this.player.position) {
-        case 1:
-          position = 'goalkeeper'
-          break;
-        case 2:
-          position = 'defender'
-          break;
-        case 3:
-          position = 'midfielder'
-          break;
-        case 4:
-          position = 'forward'
-          break;
-      }
-      return position
+      return getPositionWording(this.player.position)
     },
     teamImage() {
       return getBundesligaClubImageUrlById(this.player.teamId)
