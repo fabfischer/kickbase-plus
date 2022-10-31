@@ -117,7 +117,6 @@
                 :key="player.id"
                 :player="player"
                 :hide-meta=!getGeneralPlayerCardShowAlwaysAllDetails
-                v-on:setPlayers="setPlayers"
             >
             </offer-player-item>
           </v-expansion-panel-content>
@@ -129,7 +128,8 @@
           :key="player.id"
           :player="player"
           :show-player-with-too-low-offers-only="showPlayerWithTooLowOffersOnly"
-          v-on:setPlayers="setPlayers"
+          v-on:acceptOffer="acceptOffer"
+          v-on:setPlayerOnMarketAgain="setPlayerOnMarketAgain"
       >
       </offer-player-item>
     </div>
@@ -240,7 +240,11 @@ export default {
     async load() {
       this.loading = true
       await api.loadUsersStats(true)
-      await api.loadUsersPlayerOffers(this.setPlayers)
+      await this.loadOffers()
+    },
+    async loadOffers() {
+      const currentOffers = await api.loadUsersPlayerOffers()
+      this.setPlayers(currentOffers)
     },
     sortOffers(order) {
       this.viewOrder = order
@@ -270,7 +274,6 @@ export default {
                 this.expiredOffers.push(player)
               }
 
-
               this.offers.push(player)
               this.playersStack.push(player.id)
             }
@@ -286,25 +289,32 @@ export default {
         })
 
       }
-      // suggest to the user a bit longer that loading is in progress
+
       window.setTimeout(() => {
         this.loading = false
       }, 500)
     },
-    putOnMarket(player, multi = false) {
+    async putOnMarket(player) {
       this.setLoading(true)
-      api.putOnMarket(
-          player,
-          () => {
-            api.loadUsersPlayerOffers(this.setPlayers)
-          },
-          multi
-      )
+      await api.putOnMarket(player)
+      await this.loadOffers()
+    },
+    async setPlayerOnMarketAgain(player) {
+      await api.setPlayerOnMarketAgain(player)
+      await this.loadOffers()
+    },
+    async acceptOffer(payload) {
+      this.setLoading(true)
+      await api.acceptBids(payload.offer)
+      await sleep(500);
+      await api.loadUsersStats(true)
+      await sleep(500);
+      await this.loadOffers()
     },
     async declineAllTooLowOrExpiredOffers() {
       const playerIds = []
       for (const player of this.computedDeclinableOffers) {
-        await api.setPlayerOnMarketAgain(player, null, false)
+        await api.setPlayerOnMarketAgain(player)
         playerIds.push(player.id)
       }
       await sleep(500)
@@ -313,7 +323,7 @@ export default {
         let reAdded = false
         for (const playerNotOnMarket of this.playerNotOnMarket) {
           if (playerIds.indexOf(playerNotOnMarket.id) !== -1) {
-            await api.setPlayerOnMarketAgain(playerNotOnMarket, null, false)
+            await api.setPlayerOnMarketAgain(playerNotOnMarket)
             reAdded = true
           }
         }

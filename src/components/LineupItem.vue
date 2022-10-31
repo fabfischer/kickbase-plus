@@ -1,31 +1,45 @@
 <template>
   <div class="position--lined-up" @click="openChangeDialog">
-    <div v-if="item.firstName || item.knownName" class="d-flex flex-wrap flex-sm-nowrap align-center" style="width: 100%">
-
-      <div class="d-flex align-center">
-      <img :src="teamImage" width="48"/>
-
-      <p class="text-caption text-sm-h6 mb-0 mr-5 d-inline-block">
-        <span class="player-name" v-if="item.knownName">{{ item.knownName }}</span>
-        <span class="player-name" v-else>{{ item.firstName }} {{ item.lastName }}</span>
-      </p>
-
-      </div>
-
-      <status-pill :player="item"></status-pill>
-
-      <span v-if="nextMatchComputed" class="vsInfo ml-5 text-caption text-sm-body-1">
-                    vs: <img :src="nextMatchComputed.img" class="vsTeam"/> {{ nextMatchComputed.abbr }}
+    <template v-if="item.firstName || item.knownName">
+        <div class="position__next-match">
+          <span v-if="nextMatchComputed" class="vsInfo">
+                   <img :src="teamImage" class="vsTeam" /> vs <img :src="nextMatchComputed.img" class="vsTeam"/>
                 </span>
-    </div>
-    <div v-else class="d-flex align-center">
+        </div>
+
+        <div class="position__avatar">
+          <v-img
+              v-if="item.profileBig"
+              :src="item.profileBig"
+              width="150"
+              height="150"
+              aspect-ratio="1"
+              contain
+          ></v-img>
+          <v-avatar v-else>
+
+          </v-avatar>
+        </div>
+
+        <div class="position__details">
+          <div class="position__details__name">
+            <span class="player-name" v-if="item.knownName">{{ item.knownName }}</span>
+            <span class="player-name" v-else>{{ item.firstName }} {{ item.lastName }}</span>
+          </div>
+          <div class="position__details__status">
+            <status-pill :player="item"></status-pill>
+          </div>
+
+        </div>
+
+    </template>
+    <div class="position__choose" v-else>
       <v-avatar class="no-position" size="48">
         <v-icon size="48" color="blue-grey darken-2">
           fa-plus-circle
         </v-icon>
       </v-avatar>
-      <p class="text-body-1 ma-0 ml-5">add player</p>
-
+      <span>add player</span>
     </div>
   </div>
 </template>

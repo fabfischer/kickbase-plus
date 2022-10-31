@@ -41,6 +41,9 @@ function addUsersPlayer(state, payload) {
 
     users[payload.user] = user
     state.users = users
+    if (payload.user.id * 1 === state.self) {
+      state.players = payload.players
+    }
   }
 }
 

@@ -129,7 +129,7 @@ import {mapGetters} from "vuex";
 import StatusPill from "../StatusPill";
 import numeral from "numeral";
 import PlayerMarketValueTrend from "./PlayerMarketValueTrend";
-import {getMarketValueGrowth, getBundesligaClubImageUrlById, nextMatch} from "@/helper/helper"
+import {getMarketValueGrowth, getBundesligaClubImageUrlById, nextMatch, getPositionWording} from "@/helper/helper"
 import PlayerPointsStatistic from "@/components/Player/PlayerPointsStatistic";
 
 export default {
@@ -268,22 +268,7 @@ export default {
       }
     },
     getPosition() {
-      let position = ''
-      switch (this.player.position) {
-        case 1:
-          position = 'goalkeeper'
-          break;
-        case 2:
-          position = 'defender'
-          break;
-        case 3:
-          position = 'midfielder'
-          break;
-        case 4:
-          position = 'forward'
-          break;
-      }
-      return position
+      return getPositionWording(this.player.position)
     },
     teamImage() {
       return getBundesligaClubImageUrlById(this.player.teamId)
@@ -291,6 +276,8 @@ export default {
     getYesterdaysMV() {
       if (
           this.getPlayers[this.player.id]
+          && this.getPlayers[this.player.id].marketValues
+          && this.getPlayers[this.player.id].marketValues.length
           && this.getPlayers[this.player.id].marketValues.length > 3
       ) {
         return this.getPlayers[this.player.id].marketValues[this.getPlayers[this.player.id].marketValues.length - 2].m

@@ -37,7 +37,7 @@ const api = {
             "method": 'GET',
             'data': {},
         })
-            .then((response) => {
+            .then(async (response) => {
                 if (response.status === 200) {
                     if (response.data && response.data.day) {
                         const nextGameDay = {
@@ -48,7 +48,7 @@ const api = {
                         }
                         let teams = [];
 
-                        axios({
+                        await axios({
                             'url': 'https://api.kickbase.com/v2/competitions/1/matches?',
                             "method": 'GET',
                             'data': {},
@@ -273,18 +273,16 @@ const api = {
                 store.commit('setErrorMessage', 'could not fetch player\'s leagues')
             })
     },
-    async loadUsersPlayerOffers(cb) {
+    async loadUsersPlayerOffers() {
         store.commit('addLoadingMessage', 'loading market offers')
-        await axios({
+        return await axios({
             'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/market',
             "method": "GET",
         })
             .then(async (response) => {
                 if (response.status === 200) {
                     store.commit('addLoadingMessage', 'offers successfully fetched ... please wait')
-                    if (typeof cb === 'function') {
-                        await cb(response.data)
-                    }
+                    return response.data
                 }
             }).catch(function () {
             store.commit('addErrorLoadingMessage', 'could not fetch player\'s offers')
@@ -481,18 +479,22 @@ const api = {
             for (let i = 0; i < gameDays.length; i++) {
                 if (gameDays[i] <= 34) {
                     const matchDay = await axios({
-                        'url': 'https://api.kickbase.com/competition/matches?matchDay=' + gameDays[i],
+                        'url': 'https://api.kickbase.com/v2/competitions/1/matches?matchDay=' + gameDays[i],
                         "method": "GET",
                     })
                         .then(async (response) => {
-                            if (response.data && response.data.m && response.data.m.length) {
+                            if (response.data && response.data.e && response.data.e.length) {
                                 return response.data
                             }
                         })
                         .catch(function () {
                         })
-                    if (matchDay.md) {
-                        fetchedGameDays.push(matchDay)
+                    if (matchDay.nd) {
+                        fetchedGameDays.push({
+                            d: matchDay.day,
+                            m: matchDay.e,
+                            md: matchDay.day
+                        })
                     }
                 }
             }
@@ -508,16 +510,28 @@ const api = {
         }
         store.commit('addLoadingMessage', 'loading next matchday')
         await axios({
-            'url': 'https://api.kickbase.com/competition/matches' + mQuery,
+            'url': 'https://api.kickbase.com/v2/competitions/1/matches' + mQuery,
             "method": "GET",
         })
             .then(async (response) => {
-                if (response.data && response.data.m && response.data.m.length) {
-                    const lastMatch = response.data.m[response.data.m.length - 1]
+                if (response.data && response.data.e && response.data.e.length) {
+                    const lastMatch = response.data.e[response.data.e.length - 1]
                     if (moment(lastMatch.d).isSameOrAfter(new Date(), 'day') === true) {
-                        store.commit('setMatches', response.data.m)
+                        const lNextDay = store.getters.getNextMatchDay
+                        const nextGameDay = Object.assign(lNextDay, {
+                            no: response.data.day,
+                            ts: response.data.e[0].d,
+                            nts: moment(response.data.e[0].d),
+                            matches: response.data.e
+                        })
+                        const matches = response.data.e.map((match) => {
+                            match.md = response.data.day
+                            return match
+                        })
+                        store.commit('setMatches', matches)
+                        store.commit('setNextMatchDay', nextGameDay)
                     } else {
-                        const nextMatchday = response.data.cmd + 1
+                        const nextMatchday = response.data.day + 1
                         if (nextMatchday <= 34) {
                             await api.loadMatches(nextMatchday)
                         }
@@ -637,52 +651,43 @@ const api = {
         })
 
     },
-    revokeBid(playerId, offerId, callback) {
+    async revokeBid(playerId, offerId, callback) {
         const cb = callback
-        axios({
+        await axios({
             'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/market/' + playerId + '/offers/' + offerId,
             "method": "DELETE"
-        }).then((response) => {
+        }).then(async (response) => {
             if (response.status === 200) {
                 if (typeof cb === 'function') {
-                    cb(response.data)
+                    await cb(response.data)
                 }
             }
         })
     },
-    putOnMarket(player, callback, multi) {
-
+    async putOnMarket(player, callback) {
         store.commit('addLoadingMessage', 'trying to put player "' + player.lastName + '" on market')
 
         const cb = callback
         let price = player.marketValue + ""
 
-        const getReq = () => {
-            return axios.post(
-                'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/market',
-                {
-                    playerId: player.id,
-                    price
-                }
-            )
-        }
-
-        const reqs = [
-            getReq()
-        ]
-
-        axios.all(reqs).then(axios.spread((...responses) => {
-            const responseOne = responses[0]
-            store.commit('addLoadingMessage', 'player successfully put on market')
-            if (responseOne.status === 200) {
+        await axios({
+            'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/market',
+            "method": "POST",
+            'data': {
+                playerId: player.id,
+                price
+            },
+        }).then(async (response) => {
+            if (response.status === 200) {
+                store.commit('addLoadingMessage', 'player successfully put on market')
                 if (typeof cb === 'function') {
-                    cb(responseOne)
+                    await cb(response)
                 }
             }
-        })).catch(errors => {
+        }).catch(errors => {
             console.warn(errors)
             store.commit('addErrorLoadingMessage', 'error occured during putting player on market. lets try it again')
-            api.putOnMarket(player, cb, multi)
+            api.putOnMarket(player, cb)
         })
     },
     async removePlayerFromMarket(player, callback) {
@@ -704,19 +709,11 @@ const api = {
                 store.commit('setErrorMessage', 'could not remove player from market')
             })
     },
-    async setPlayerOnMarketAgain(player, callback, loadUsersPlayerOffers = true) {
+    async setPlayerOnMarketAgain(player) {
         store.commit('setLoading', true)
         await api.removePlayerFromMarket(player)
         await sleep(500)
         await api.putOnMarket(player)
-        if (loadUsersPlayerOffers) {
-            await sleep(500)
-            await api.loadUsersPlayerOffers((d) => {
-                if (typeof callback === 'function') {
-                    callback(d)
-                }
-            })
-        }
     },
     acceptBids(offer, callback) {
         axios({

@@ -67,9 +67,8 @@ import {mapGetters, mapMutations} from "vuex";
 numeral.locale('deff')
 
 import AcceptButton from './AcceptButton'
-import api from "../../api/api";
 import PlayerCard from "../Player/PlayerCard";
-import {isHighOffer, getCalcOffer, getPercent, sleep, offerIsExpired} from "@/helper/helper";
+import {isHighOffer, getCalcOffer, getPercent, offerIsExpired} from "@/helper/helper";
 
 export default {
   name: "offer-player-item",
@@ -177,20 +176,11 @@ export default {
     },
 
     async setPlayerOnMarketAgain(player) {
-      api.setPlayerOnMarketAgain(player, (d) => {
-        this.$emit('setPlayers', d)
-      })
+      this.$emit('setPlayerOnMarketAgain', player)
     },
 
     async acceptOffer(payload) {
-      this.setLoading(true)
-      await api.acceptBids(payload.offer)
-      await sleep(500);
-      await api.loadUsersStats(true)
-      await sleep(500);
-      await api.loadUsersPlayerOffers((d) => {
-        this.$emit('setPlayers', d)
-      })
+      this.$emit('acceptOffer', payload)
     }
   }
 }
