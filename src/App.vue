@@ -260,6 +260,7 @@ export default {
       'getLeagues',
       'getLeague',
       'getDefaults',
+      'getSelectedPlayersMarketValueSum',
     ]),
     hasUser() {
       const now = moment()
@@ -276,10 +277,14 @@ export default {
     getPlayersDetails() {
       let details = ''
       if (this.getUsersDetails && this.getUsersDetails.budget) {
-        details += 'Budget: ' + numeral(this.getUsersDetails.budget).format('0,0')
-        details += '&nbsp; / Team: ' + numeral(this.getUsersDetails.teamValue).format('0,0')
+          if (this.getSelectedPlayersMarketValueSum == 0) {
+            details += 'Budget: ' + numeral(this.getUsersDetails.budget).format('0,0');
+            details += '&nbsp;/ Team: ' + numeral(this.getUsersDetails.teamValue).format('0,0')
+          } else {
+            details += 'Budget: ' + numeral( this.getUsersDetails.budget + this.getSelectedPlayersMarketValueSum).format('0,0');
+            details += '&nbsp;/ Team: ' + numeral(this.getUsersDetails.teamValue - this.getSelectedPlayersMarketValueSum).format('0,0')
+          }
       }
-
       if (this.getBids && this.getUsersDetails) {
         details += '<br>Bids: ' + numeral(this.getPlayerBidsSum).format('0,0')
         // details += ' / A<span class="d-none d-sm-none d-md-inline-block">fter</span> B<span class="d-none d-sm-none d-md-inline-block">ids</span>: ' + numeral(this.getUsersDetails.budget - this.getPlayerBidsSum).format('0,0')
