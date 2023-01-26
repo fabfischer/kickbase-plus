@@ -18,6 +18,14 @@ function getLiveData(state) {
   return state.liveData
 }
 
+function getSelectedPlayers(state) {
+  return state.selectedPlayers
+}
+
+function getSelectedPlayersMarketValueSum(state) {
+  return state.selectedPlayersMarketValueSum
+}
+
 function getUsers(state) {
   return state.users
 }
@@ -159,6 +167,8 @@ export default {
   getErrorMessage,
   getBids,
   getPlayers,
+  getSelectedPlayers,
+	getSelectedPlayersMarketValueSum,
   getUsers,
   getBearerToken,
   getSelf,

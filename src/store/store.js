@@ -18,6 +18,8 @@ const store = new Vuex.Store({
     teams: [],
     bids: [],
     players: {},
+    selectedPlayers: {},
+    selectedPlayersMarketValueSum: 0,
     users: {},
     liveData: {},
     matches: [],

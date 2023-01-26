@@ -204,6 +204,25 @@ function setNextThreeMatchDays(state, nextThreeMatchDays) {
   state.nextThreeMatchDays = nextThreeMatchDays
 }
 
+function setSelectedPlayers(state, player) {
+  if (player.id) {
+    if (state.selectedPlayers[player.id] !== undefined) {
+      delete state.selectedPlayers[player.id];
+    } else {
+      state.selectedPlayers[player.id] = player;
+    }
+    setSelectedPlayersMarketValueSum(state);
+  }
+}
+
+function setSelectedPlayersMarketValueSum(state) {
+  const players = Object.values(state.selectedPlayers);
+  state.selectedPlayersMarketValueSum = players.reduce(
+    (acc, obj) => acc + obj.marketValue,
+    0
+  );
+}
+
 export default {
   setInitialized,
   addPlayer,
@@ -242,4 +261,6 @@ export default {
   setTransfermarketExpiryDisplayType,
   setOfferOrder,
   setMarketValueComparison,
+  setSelectedPlayers,
+  setSelectedPlayersMarketValueSum,
 }
