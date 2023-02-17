@@ -6,37 +6,18 @@
       controlsType === 'updown' ? 'updown' : ''
     ]"
   >
-    <input
-        @submit.prevent="triggerEnterEvent"
-        :name="name"
-        ref="input"
-        type="number"
-        step="any"
-        :class="inputClasses"
-        :value="computedValue"
-        :placeholder="placeholder"
-        :max="max"
-        :min="min"
-        :style="inputStyle"
-        @input="onInput"
-        @change="onChange"
-        @blur="onBlur"
-        @focus="onFocus"
-        v-on:keyup.enter="triggerEnterEvent"
-        :autofocus="autofocus"
-        :disabled="disabled"
-        :readonly="readonly || !isInput"
-        v-bind="$attrs"
-        v-on="
-        mousewheel
-          ? { wheel: throttle(mouseWheelHandler, 6000) }
-          : {
-              wheel: function(evt) {
-                evt.preventDefault();
-              }
-            }
-      "
-    />
+    <formatted-number-input
+        :value="newValue"
+        :nullValue="initialNumber"
+        decimal=","
+        separator="."
+        class="numeric-input"
+        v-on:change="submit"
+        v-on:input="emitPreview"
+    >
+    </formatted-number-input>
+    <!--
+    need refactpring
     <button
         type="button"
         v-if="controls"
@@ -58,10 +39,15 @@
         :disabled="disabled || maxDisable"
     >
       <span class="btn-icon"></span>
-    </button>
+    </button> -->
   </div>
 </template>
 <script>
+import FormattedNumberInput from './FormattedNumberInput/numberInput'
+import numeral from 'numeral'
+
+numeral.locale('deff')
+
 /**
  * this is a fork of vue-numeric-input
  * adapted to the needs of this app
@@ -69,11 +55,13 @@
  * url: https://github.com/JayeshLab/vue-numeric-input
  */
 const timeInterval = 100;
-
 import debounce from "lodash.debounce"
 
 export default {
   name: "vue-numeric-input",
+  components: {
+    FormattedNumberInput
+  },
   props: {
     name: String,
     value: [String, Number],
@@ -152,6 +140,11 @@ export default {
       default: false,
       required: false,
     },
+    resetCall: {
+      type: Boolean,
+      default: false,
+      required: false,
+    },
     enterEvent: {
       type: Function,
       default: null,
@@ -176,10 +169,27 @@ export default {
     };
   },
   watch: {
-    value: {
+    resetCall(newValue) {
+      if (newValue === true) {
+        this.newValue = this.initialNumber
+        this.temporaryStep = this.step
+        this.valueBeforeChange = 0
+        this.$emit('input-reset', true)
+      }
+    },
+    newValue() {
+      /*
+      console.log(newValue)
+      this.debouncedCallback(() => {
+        if (newValue === this.newValue && newValue !== null) {
+          this.$emit('submit', {value: newValue, focus: false, triggeredByEnterKey: false})
+        }
+      });*/
+    },
+    /*value: {
       immediate: true,
       handler(val) {
-        if (this.precision) {
+        /!*if (this.precision) {
           val = this.toPrecision(val, this.precision);
         }
         if (this.max && val >= this.max) {
@@ -192,14 +202,23 @@ export default {
 
         if (this.newValue !== val) {
           this.$emit("input", this.newValue);
-        }
+        }*!/
       }
-    },
+    },*/
     hasBid(newValue) {
       if (newValue === true) {
-        this.newValue = this.initialNumber
+        const values = this.getNewValues(this.initialNumber)
+        this.newValue = values.newValue
+        // this.valueBeforeChange = values.valueBeforeChange
       } else if (newValue === false) {
-        this.newValue = null
+        this.computedValue = null
+      }
+    },
+    initialNumber(newValue, oldValue) {
+      if (newValue > 0 && (oldValue !== undefined)) {
+        const values = this.getNewValues(this.initialNumber)
+        this.newValue = values.newValue
+        // this.valueBeforeChange = values.valueBeforeChange
       }
     }
   },
@@ -212,8 +231,22 @@ export default {
     }, 1000);
   },
   methods: {
-    triggerEnterEvent() {
-      this.$emit('submit', {value: this.computedValue, focus: false, triggeredByEnterKey: true})
+    emitPreview(newValue) {
+      this.$emit('preview', newValue)
+    },
+    submit(newValue) {
+      this.newValue = newValue
+      this.$emit('submit', {value: newValue, focus: false, triggeredByEnterKey: true})
+    },
+    getNewValues(value) {
+      let tmpValue = value + ''
+      const sRegex = new RegExp('/[,.\\s]*/', 'g')
+      const plainValue = numeral(tmpValue.replaceAll(sRegex, '')).value()
+
+      return {
+        newValue: plainValue,
+        valueBeforeChange: plainValue,
+      }
     },
     /**
      * Function convert value to number
@@ -270,8 +303,8 @@ export default {
         }
 
         let val = 0;
-        if (this.computedValue) {
-          val = this.computedValue
+        if (this.newValue) {
+          val = this.newValue
         } else if (this.initialNumber) {
           val = this.initialNumber
         }
@@ -281,7 +314,7 @@ export default {
             precisionFactor;
         if (newVal <= this.max) {
           this.minDisable = false;
-          this.computedValue = newVal;
+          this.newValue = newVal;
         } else {
           this.maxDisable = true;
         }
@@ -308,8 +341,8 @@ export default {
         }
 
         let val = 0;
-        if (this.computedValue) {
-          val = this.computedValue * 1
+        if (this.newValue) {
+          val = this.newValue * 1
         } else if (this.initialNumber) {
           val = this.initialNumber * 1
         }
@@ -319,23 +352,13 @@ export default {
             precisionFactor;
         if (newVal >= this.min) {
           this.maxDisable = false;
-          this.computedValue = newVal;
+          this.newValue = newVal;
         } else {
           this.minDisable = true;
         }
 
         this.stepsCounterDecrease++
       }
-    },
-    /**
-     * Handle value on Input
-     */
-    onInput(event) {
-      this.$nextTick(() => {
-        if (event.target) {
-          this.computedValue = this.toNumber(event.target.value);
-        }
-      });
     },
     /**
      *  Start a repetitive call to increment and decrement method after a timeInterval on mousedown event and will stop on mouseup event on controls
@@ -365,35 +388,6 @@ export default {
         this.$emit("change", this.computedValue);
     },
     /**
-     * On blur event trigger
-     * @param event - blur event on input
-     */
-    onBlur(event) {
-      this.$emit("blur", event);
-      if (!this.hasBid) {
-        this.newValue = null
-      }
-      this.hasFocus = false
-    },
-    /**
-     * On focus event trigger on input
-     * @param event
-     */
-    onFocus(event) {
-      this.$emit("focus", event);
-      if (!this.hasBid) {
-        this.newValue = this.initialNumber
-      }
-      this.hasFocus = true
-    },
-    /**
-     * On change event trigger on input
-     * @param event
-     */
-    onChange() {
-      this.$emit("change", this.computedValue);
-    },
-    /**
      * focus method to set the focus on input
      */
     focus() {
@@ -401,54 +395,27 @@ export default {
         this.$refs.input.focus();
       }
     },
-    /**
-     * blur to be trigger on input
-     */
-    blur() {
-      this.$refs.input.blur();
-    },
-    mouseWheelHandler(event) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      if (event.deltaY < 0) {
-        this.increment();
-      } else {
-        this.decrement();
-      }
-      return false;
-    },
-    throttle(fn, delay) {
-      let lastCall = 0;
-      return function (...args) {
-        const now = new Date().getTime();
-        if (now - lastCall < delay) {
-          return;
-        }
-        lastCall = now;
-        return fn(...args);
-      };
-    }
   },
   computed: {
     computedValue: {
       get() {
-        return this.newValue;
+        return this.newValue ?? null;
       },
       set(value) {
-        let addition = 0
-        if (this.initialNumber && (this.newValue === 0 || this.newValue === undefined) && this.initialized === false) {
-          //addition = this.initialNumber
-          this.initialized = true
-          this.valueBeforeChange = value + addition
+        if (this.newValue && value !== null) {
+          if (this.initialNumber && (this.newValue === 0 || this.newValue === undefined) && this.initialized === false) {
+            this.initialized = true
+            this.valueBeforeChange = this.newValue
+          }
+          this.newValue = value;
+          this.$emit("input", {value: this.newValue, focus: this.hasFocus});
+          this.debouncedCallback(() => {
+            this.valueBeforeChange = this.newValue
+            this.temporaryStep = this.step
+            this.stepsCounterIncrease = 0
+            this.stepsCounterDecrease = 0
+          });
         }
-        this.newValue = value + addition;
-        this.$emit("input", {value: this.newValue, focus: this.hasFocus});
-        this.debouncedCallback(() => {
-          this.valueBeforeChange = this.newValue
-          this.temporaryStep = this.step
-          this.stepsCounterIncrease = 0
-          this.stepsCounterDecrease = 0
-        });
       }
     },
     numValuePrecision() {
@@ -462,25 +429,6 @@ export default {
         );
       }
     },
-    inputClasses() {
-      return [
-        this.controls ? "" : "no-control",
-        this.className ? this.className : "",
-        "numeric-input"
-      ];
-    },
-    inputStyle() {
-      return {textAlign: this.align};
-    },
-    widthStyle() {
-      let sizeWidth = "150px";
-      if (this.size === "small") {
-        sizeWidth = "100px";
-      } else if (this.size === "large") {
-        sizeWidth = "240px";
-      }
-      return {width: this.width ? `${this.width}` : sizeWidth};
-    }
   },
   beforeDestroy() {
     clearInterval(this.interval);
@@ -527,6 +475,7 @@ export default {
   transition: all 0.1s ease 0s;
   width: 100%;
   -moz-appearance: textfield !important;
+  text-align: center;
 
   .theme--dark & {
     border-color: #333;

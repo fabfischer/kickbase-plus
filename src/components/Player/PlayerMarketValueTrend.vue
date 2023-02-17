@@ -29,8 +29,7 @@ export default {
     }
   },
   data() {
-    return {
-    }
+    return {}
   },
   mounted() {
   },
@@ -51,11 +50,13 @@ export default {
             }
           ]
         }
-        for (let y = mv.length; y >= (mv.length - 21); y--) {
-          if (mv[y]) {
-            const date = moment(mv[y].d)
-            values.labels.push(date.format('DD MM'))
-            values.datasets[0].data.push(mv[y].m)
+        if (mv && mv.length) {
+          for (let y = mv.length; y >= (mv.length - 21); y--) {
+            if (mv[y]) {
+              const date = moment(mv[y].d)
+              values.labels.push(date.format('DD MM'))
+              values.datasets[0].data.push(mv[y].m)
+            }
           }
         }
         values.labels = values.labels.reverse()
@@ -114,7 +115,7 @@ export default {
   },
   methods: {
     fetchData() {
-      api.loadPlayersStats(this.player.id, null, true)
+      api.loadPlayersStats(this.player.id)
     },
   }
 }

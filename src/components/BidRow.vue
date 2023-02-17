@@ -1,50 +1,28 @@
 <template>
   <player-card
-      :class="{'own-bid':hasOwnBid, 'no-bid':hasNoBid, 'only':hasOnlySelfBid}"
+      :class="{'own-bid':player.hasOwnBid, 'no-bid':player.hasNoBid, 'only':player.hasOnlySelfBid}"
       class="bid-row"
       :player="player"
       :show-purchase-statistic=false
   >
-    <template v-slot:pre-head>
+    <template v-slot:pre-meta>
       <v-alert
           text
           :color="(isDarkTheme) ? 'deep-purple lighten-3': 'deep-purple darken-4'"
           icon="fa-clock"
+          class="expiry-info"
+          style="cursor: pointer"
+          @click="toggleExpiryAsDateTime"
       >
-        {{ expiryDate }}
-      </v-alert>
+        <transition name="fade">
+          <span v-if="expiryAsDateTime === true">{{ expiryDateAsDateTime }}</span>
+        </transition>
+        <transition name="fade">
+          <span v-if="expiryAsDateTime === false">{{ expiryDate }}</span>
+        </transition>
 
-      <v-alert v-if="hasNoBid"
-               text
-               :color="(isDarkTheme) ? 'lime darken-3': 'orange darken-3'"
-               icon="fa-exclamation-circle"
-      >
-        NO BID
-      </v-alert>
-
-      <v-alert v-if="hasOnlySelfBid" text dark class="text--white" color="pink accent-4" icon="fa-bomb">
-        YOUR BID ONLY
-      </v-alert>
-
-      <v-alert v-else-if="hasOwnBid" text dark class="text--white"
-               :color="(isDarkTheme) ? 'purple darken-1': 'purple accent-4'" icon="fa-clipboard-check">
-        YOU BID
-      </v-alert>
-
-      <template v-if="foreignOffers.length">
-        <v-alert v-for="bid in foreignOffers"
-                 :key="bid.id"
-                 text
-                 :color="(isDarkTheme) ? 'green lighten-4': 'green darken-4'"
-                 icon="fa-money-bill-wave"
-        >
-          <span class="text-caption">{{ bid.userName }}</span>
-          <small>&nbsp;{{ getDate(bid.date) }}</small>
-        </v-alert>
-      </template>
-
-      <v-alert v-if="player.userId" text :color="(isDarkTheme) ? 'brown lighten-3': 'brown darken-3'" icon="fa-user">
-        Player: {{ player.username }}
+        <div class="expiry-info__shadow-info" v-if="expiryAsDateTime === false">{{ expiryDate }}</div>
+        <div class="expiry-info__shadow-info" v-if="expiryAsDateTime === true">{{ expiryDateAsDateTime }}</div>
       </v-alert>
     </template>
 
@@ -54,24 +32,24 @@
           <vue-numeric-input
               :initialNumber="bidValue"
               :has-bid="(playerBid !== null)"
+              :reset-call="resetCall"
               :min="1"
               align="center"
               :mousewheel=false
               v-on:input="setInputValue"
+              v-on:input-reset="inputReset"
               v-on:submit="setInputValue"
+              v-on:preview="preview"
               :placeholder="inputPlaceholder"
           ></vue-numeric-input>
           <saved-alert :value="showSavedAlert" message="saved bid for player"></saved-alert>
         </div>
         <div class="bid-input-container">
           <div class="text-caption">
-            {{ getComputedBid }}
             <span
                 v-if="getComputedBid !== 'no bid'"
             >
-            <span class="hidden-sm-and-up">, </span>
-          <br class="hidden-xs-only">
-            you bid
+            you <span v-if="previewValue && !getValidBidNumber" class="font-italic">would</span> bid
             <strong>{{ getComputedDifference.number }}</strong> Euros{{ getComputedDifferenceWording }}
             (<span
                 :class="{'text--green': (getComputedDifference.number<=0), 'text--red': (getComputedDifference.number>0)}">{{
@@ -83,7 +61,7 @@
       </div>
 
     </v-form>
-    <v-btn v-if="hasOwnBid" class="kp-button kp-button__decline mb-5" @click="revokeBid" block x-large>
+    <v-btn v-if="player.hasOwnBid" class="kp-button kp-button__decline mb-5" @click="revokeBid" block x-large>
       revoke own bid ({{ getComputedBid }})
     </v-btn>
     <!--
@@ -104,7 +82,8 @@
       </div>
     </div>
 
-    <template v-slot:extra-expansion-panel v-if="player.offers && player.offers.length && hasOnlySelfBid === false">
+    <template v-slot:extra-expansion-panel
+              v-if="player.offers && player.offers.length && player.hasOnlySelfBid === false">
       <v-expansion-panel
       >
         <v-expansion-panel-header class="elevation-0">
@@ -161,12 +140,17 @@ numeral.locale('deff')
 import PlayerCard from './Player/PlayerCard'
 import VueNumericInput from './Generic/NumericInput'
 import SavedAlert from './Generic/SavedAlert'
-import {sleep} from "@/helper/helper";
+import {sleep, getBundesligaClubImageUrlById, getPositionWording} from "@/helper/helper";
 
 const lastDayChangesClassConst = 'hidden-sm-and-down'
 
 export default {
-  props: ['player'],
+  props: {
+    player: {
+      type: Object,
+      required: true
+    },
+  },
   components: {
     PlayerCard,
     VueNumericInput,
@@ -184,12 +168,17 @@ export default {
       calc05Percent: 0.005,
       calc03Percent: 0.003,
       calcPercentSafe: 0.009,
+      previewValue: null,
       lastDayChangesClass: '',
       selectedBidStep: 1,
       debouncedCallback: null,
       showSavedAlert: false,
       inputValue: null,
       triggeredByEnterKey: false,
+      resetCall: false,
+      toggledExpiryDate: false,
+      expiryAsDateTime: false,
+      expiryTimer: null,
       bidButtons: [
         0,
         -0.9,
@@ -215,6 +204,18 @@ export default {
         args[0]()
       }
     }, 1000);
+
+    this.expiryAsDateTime = (this.getTransfermarketExpiryDisplayType === 'timestamp')
+
+    if (this.getTransfermarketExpiryDateFadeEffect === true) {
+      this.expiryTimer = setInterval(() => {
+        if (this.toggledExpiryDate) {
+          clearInterval(this.expiryTimer)
+        } else {
+          this.expiryAsDateTime = !this.expiryAsDateTime
+        }
+      }, 7000);
+    }
   },
   watch: {
     inputValue(newValue) {
@@ -231,9 +232,11 @@ export default {
       'getPlayers',
       'getUsers',
       'getBids',
+      'getTransfermarketExpiryDisplayType',
+      'getTransfermarketExpiryDateFadeEffect',
     ]),
     bidValue() {
-      return this.playerBid ?? this.player.marketValue
+      return (this.playerBid ?? this.player.marketValue) * 1
     },
     inputPlaceholder() {
       return this.player.marketValue + ''
@@ -265,25 +268,34 @@ export default {
     foreignOffers() {
       return this.sortedOffers.filter((offer) => offer.userId * 1 !== this.getSelf)
     },
-    hasPlayerStats() {
-      return (Object.keys(this.getPlayers).length >= 1
-          &&
-          this.getPlayers[this.player.id]
-      )
-    },
     expiryDate() {
       const m = moment().subtract(this.player.expiry, 'seconds')
       return m.toNow()
     },
+    expiryDateAsDateTime() {
+      const m = moment().add(this.player.expiry, 'seconds')
+      const format = m.isSame(moment(), 'day') ? 'HH:mm:ss a' : 'HH:mm:ss a (DD.MM.YY)'
+      return m.format(format)
+    },
     getComputedPrice() {
       return numeral(this.player.price).format('0,0')
     },
+    getValidBidNumber() {
+      return this.inputValue ?? this.playerBid
+    },
+    getBidNumber() {
+      let calcBid = this.getValidBidNumber
+      if (this.previewValue && !calcBid) {
+        calcBid = this.previewValue
+      }
+      return calcBid * 1
+    },
     getComputedBid() {
-      const calcBid = this.inputValue ?? this.playerBid
+      let calcBid = this.getBidNumber
       return (calcBid) ? numeral(calcBid).format('0,0') : 'no bid'
     },
     getComputedDifference() {
-      const calcBid = this.inputValue ?? this.playerBid
+      const calcBid = this.getBidNumber
 
       const number = (calcBid) ? numeral(calcBid - this.player.price).format('0,0') : 'no bid'
       const c = (calcBid - this.player.price) / this.player.price * 100
@@ -380,49 +392,24 @@ export default {
       }
     },
     getPosition() {
-      let position = ''
-      switch (this.player.position) {
-        case 1:
-          position = 'goalkeeper'
-          break;
-        case 2:
-          position = 'defender'
-          break;
-        case 3:
-          position = 'midfielder'
-          break;
-        case 4:
-          position = 'forward'
-          break;
-      }
-      return position
+      return getPositionWording(this.player.position)
     },
     teamImage() {
-      return '/assets/teams/' + this.player.teamId + '.png'
-    },
-    hasOwnBid() {
-      const offers = this.player.offers
-      let hasOwnBid = false
-      if (offers && offers.length) {
-        offers.forEach((offer) => {
-          if (offer.userId == this.$store.getters.getSelf) {
-            hasOwnBid = true
-          }
-        })
-      }
-      return hasOwnBid
-    },
-    hasOnlySelfBid() {
-      return (this.player.offers && this.player.offers.length === 1 && this.hasOwnBid)
-    },
-    hasNoBid() {
-      const offers = this.player.offers
-      return (offers && offers.length === 0 || !offers)
+      return getBundesligaClubImageUrlById(this.player.teamId)
     },
   },
   methods: {
+    toggleExpiryAsDateTime() {
+      this.toggledExpiryDate = true
+      this.expiryAsDateTime = !this.expiryAsDateTime
+    },
+    inputReset() {
+      this.resetCall = false
+    },
     dummySubmit() {
-
+    },
+    preview(previewValue) {
+      this.previewValue = previewValue
     },
     setInputValue(payload) {
       if (payload.triggeredByEnterKey) {
@@ -434,14 +421,13 @@ export default {
       }
     },
     fetchData() {
-      api.loadPlayersStats(this.player.id, null, true)
+      api.loadPlayersStats(this.player.id)
     },
     getDate(date) {
       const m = moment(date)
       return m.fromNow()
     },
     revokeBid() {
-
       let offer = null
       this.getBids.forEach((bid) => {
         if (bid.id === this.player.id && bid.offers && bid.offers.length) {
@@ -456,6 +442,11 @@ export default {
       if (offer) {
         api.revokeBid(this.player.id, offer.id, async () => {
           this.playerBid = null
+          this.previewValue = null
+          this.inputValue = null
+          this.resetCall = true
+          await sleep(100)
+          this.resetCall = false
           await api.loadBids(false)
         })
       }
@@ -475,33 +466,28 @@ export default {
         if (data.offerId) {
           this.playerBid = bid
           this.inputValue = null
+          this.previewValue = null
           this.showSavedAlert = true
           this.triggeredByEnterKey = false
           await api.loadBids(false)
           await sleep(1500)
           this.showSavedAlert = false
         }
-      }, false, () => {
+      }, false, async () => {
         this.triggeredByEnterKey = false
-      })
-    },
-    resetPlayerBid() {
-      if (!this.hasOwnBid) {
         this.playerBid = null
-      }
+        this.inputValue = null
+        this.resetCall = true
+        this.previewValue = null
+        await sleep(1500)
+        this.resetCall = false
+      })
     },
     getUsersPlayers(userId) {
       const users = this.getUsers
       return (
           users[userId] && users[userId].players && users[userId].players.length
       ) ? users[userId].players.length : 0
-    },
-    openLastDayChanges() {
-      if (this.lastDayChangesClass === '') {
-        this.lastDayChangesClass = lastDayChangesClassConst
-      } else {
-        this.lastDayChangesClass = ''
-      }
     },
     getPercentMVValue(percent) {
       return this.player.marketValue + (this.player.marketValue * percent / 100)

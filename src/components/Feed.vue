@@ -1,6 +1,11 @@
 <template>
-  <div>
+  <div class="full-width-container">
+    <div class="d-flex flex-wrap flex-sm-nowrap justify-space-between align-center">
+      <h2 class="text-h4 text-sm-h3 mb-5">News Feed</h2>
+      <reload-button :loading="loading" v-on:click.native="loadFeed"></reload-button>
+    </div>
     <v-container v-if="items && items.length">
+      
       <v-card style="margin-bottom: 20px;" v-for="item in items" :key="item.id">
         <div class="d-flex flex-no-wrap justify-space-between">
         <v-avatar
@@ -18,6 +23,36 @@
           <v-list-item-title class="headline mb-1 wrap-title">
             <span class="news-details" v-html="getCardsText(item)"></span>
           </v-list-item-title>
+
+            <v-list-item-content v-if="item.type === 17">
+              <v-simple-table>
+                <template v-slot:default>
+                  <thead>
+                  <tr>
+                    <th class="text-left">
+                      #
+                    </th>
+                    <th class="text-left">
+                      Name
+                    </th>
+                    <th class="text-left">
+                      Points
+                    </th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr
+                      v-for="player in item.meta.u"
+                      :key="player.n"
+                  >
+                    <td>{{ player.p }}</td>
+                    <td>{{ player.n }}</td>
+                    <td>{{ player.s }}</td>
+                  </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
+            </v-list-item-content>
 
           <div class="flex-wrap max-height news-details" v-if="getPurchaseInfo(item)" v-html="getPurchaseInfo(item)">
           </div>
@@ -40,11 +75,14 @@ numeral.locale('deff')
 import moment from 'moment'
 
 import Spinner from './Spinner'
+import ReloadButton from "./Generic/ReloadButton";
+import {smartPlayerStatsLoading} from "@/helper/helper";
 
 export default {
   name: 'feed-view',
   components: {
-    Spinner
+    Spinner,
+    ReloadButton
   },
   filters: {
     age: (age) => {
@@ -54,21 +92,27 @@ export default {
   },
   data: () => ({
     items: [],
+    loading: false,
   }),
   computed: {
-    ...mapGetters(['getBearerToken', 'getSelf', 'getPlayersOfMe', 'getLeague', 'getPlayers']),
+    ...mapGetters(['getBearerToken', 'getSelf', 'getPlayersOfUser', 'getLeague', 'getPlayers']),
     getToken() {
       return api.getToken()
     },
   },
   mounted() {
-    window.setTimeout(() => {
-      api.loadFeed(this.setFeed)
-    }, 2000)
+    this.loadFeed()
   },
   methods: {
     ...mapMutations(['addLoadingMessage', 'setLoading', 'resetLoading']),
-    setFeed(data) {
+    loadFeed() {
+      this.loading = true
+      this.items = []
+      window.setTimeout(() => {
+        api.loadFeed(this.setFeed)
+      }, 2000)
+    },
+    async setFeed(data) {
       if (data.items) {
         this.items = data.items.sort((itemA, itemB) => {
           if (itemA.age > itemB.age) {
@@ -78,11 +122,14 @@ export default {
           }
           return 0
         })
+        const playerIds = []
         this.items.forEach((item) => {
           if (item.meta && item.meta.p && item.meta.p.i) {
-            api.loadPlayersStats(item.meta.p.i)
+            playerIds.push(item.meta.p.i)
           }
         })
+        await smartPlayerStatsLoading(playerIds)
+        this.loading = false
       }
     },
     getPlayerImage(item) {
@@ -134,39 +181,44 @@ export default {
         text = `<strong>${item.meta.t}</strong> ${item.meta.sti}`
       }
 
+      // matchday
+      if (item.type === 17) {
+        text = `<strong>Matchday #${item.meta.day} results</strong>`
+      }
+
       return text
     },
     getPurchaseInfo(item) {
       let purchaseInfo = null
 
       // purchase info
-      if (item.type === 15 && item.meta && item.meta.b) {
-        const p = numeral(item.meta.v).format('0,0 $')
-        purchaseInfo = `${p}`
+      if (item.type === 15 && item.meta && (item.meta.b || item.meta.s)) {
+        const options = {
+          verb: item.meta.b ? 'paid' : 'sold',
+          over: {
+            color: item.meta.b ? 'red' : 'green',
+            determiner: item.meta.b ? 'more' : 'over',
+          },
+          under: {
+            color: item.meta.b ? 'green' : 'red',
+            determiner: item.meta.b ? 'less' : 'below',
+          },
+        };
+        
+        const price = item.meta.v;
+        const priceFormated = numeral(price).format('0,0 $')
+        purchaseInfo = `${priceFormated}`
 
         if (item.meta.p && this.getPlayers[item.meta.p.i]) {
-          purchaseInfo += ' / MV: ' + numeral(this.getPlayers[item.meta.p.i].marketValue).format('0,0 $')
-          const pp = item.meta.v - this.getPlayers[item.meta.p.i].marketValue
+          const marketValue = this.getPlayers[item.meta.p.i].marketValue;
+          purchaseInfo += ' | MV: ' + numeral(marketValue).format('0,0 $')
+          const pp = item.meta.v - marketValue
+          const ppct = (item.meta.v - marketValue)/marketValue
 
           if (pp > 0) {
-            purchaseInfo += '&nbsp;/&nbsp;<span style="color: red"> paid ' + numeral(pp).format('0,0 $') + ' more than MV</span>'
+            purchaseInfo += `&nbsp;|&nbsp;<span style="color: ${options.over.color}">${options.verb} ${numeral(pp).format('0,0 $')} ${options.over.determiner} MV (${numeral(ppct).format('0.00 %')})</span>`
           } else {
-            purchaseInfo += '&nbsp;/&nbsp;<span style="color: green"> paid ' + numeral(pp).format('0,0 $') + ' less than MV</span>'
-          }
-
-        }
-      } else if (item.type === 15 && item.meta && item.meta.s) {
-        const p = numeral(item.meta.v).format('0,0 $')
-        purchaseInfo = `${p}`
-
-        if (item.meta.p && this.getPlayers[item.meta.p.i]) {
-          purchaseInfo += ' / MV: ' + numeral(this.getPlayers[item.meta.p.i].marketValue).format('0,0 $')
-          const pp = item.meta.v - this.getPlayers[item.meta.p.i].marketValue
-
-          if (pp > 0) {
-            purchaseInfo += '&nbsp;/&nbsp;<span style="color: green"> sold ' + numeral(pp).format('0,0 $') + ' over MV</span>'
-          } else {
-            purchaseInfo += '&nbsp;/&nbsp;<span style="color: red"> sold ' + numeral(pp).format('0,0 $') + ' below MV</span>'
+            purchaseInfo += `&nbsp;|&nbsp;<span style="color: ${options.under.color}">${options.verb} ${numeral(pp).format('0,0 $')} ${options.under.determiner} MV (${numeral(ppct).format('0.00 %')})</span>`
           }
 
         }

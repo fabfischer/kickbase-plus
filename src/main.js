@@ -35,6 +35,7 @@ numeral.register('locale', 'deff', {
 Vue.use(vueNumeralFilterInstaller, {locale: 'deff'});
 Vue.use(VueNumberInput);
 
+// TODO: refactor this. its a mess
 let offerThreshold = localStorage.getItem(Constants.LOCALSTORAGE.OFFER_THRESHOLD) * 1
 if (!offerThreshold) {
     offerThreshold = store.getters.getDefaults.offerThreshold
@@ -70,6 +71,28 @@ if (typeof offerShowTooLowOffersOnly === "undefined" || offerShowTooLowOffersOnl
     offerShowTooLowOffersOnly = (offerShowTooLowOffersOnly === "true")
 }
 store.commit('setOfferShowTooLowOffersOnly', offerShowTooLowOffersOnly)
+
+let generalPlayerCardShowAlwaysAllDetails = localStorage.getItem(Constants.LOCALSTORAGE.GENERAL_PLAYER_CARD_SHOW_ALWAYS_ALL_DETAILS)
+if (typeof generalPlayerCardShowAlwaysAllDetails === "undefined" || generalPlayerCardShowAlwaysAllDetails === null) {
+    generalPlayerCardShowAlwaysAllDetails = store.getters.getDefaults.generalPlayerCardShowAlwaysAllDetails
+} else {
+    generalPlayerCardShowAlwaysAllDetails = (generalPlayerCardShowAlwaysAllDetails === "true")
+}
+store.commit('setGeneralPlayerCardShowAlwaysAllDetails', generalPlayerCardShowAlwaysAllDetails)
+
+let transfermarketExpiryDateFadeEffect = localStorage.getItem(Constants.LOCALSTORAGE.TRANSFER_MARKET_EXPIRY_DATE_FADE_EFFECT)
+if (typeof transfermarketExpiryDateFadeEffect === "undefined" || transfermarketExpiryDateFadeEffect === null) {
+    transfermarketExpiryDateFadeEffect = store.getters.getDefaults.transfermarketExpiryDateFadeEffect
+} else {
+    transfermarketExpiryDateFadeEffect = (transfermarketExpiryDateFadeEffect === "true")
+}
+store.commit('setTransfermarketExpiryDateFadeEffect', transfermarketExpiryDateFadeEffect)
+
+let transfermarketExpiryDisplayType = localStorage.getItem(Constants.LOCALSTORAGE.TRANSFER_MARKET_EXPIRY_DISPLAY_TYPE)
+if (typeof transfermarketExpiryDisplayType === "undefined" || transfermarketExpiryDisplayType === null) {
+    transfermarketExpiryDisplayType = store.getters.getDefaults.transfermarketExpiryDisplayType
+}
+store.commit('setTransfermarketExpiryDisplayType', transfermarketExpiryDisplayType)
 
 new Vue({
     vuetify,

@@ -15,6 +15,9 @@
             class="title"
             :class="{'red':message.error}"
         >
+          <v-progress-circular v-if="mkey === (getLoadingMessages.length - 1)" indeterminate color="yellow" size="24"
+                               class="mr-2"></v-progress-circular>
+          <v-icon color="green" v-else class="mr-2">fa-check</v-icon>
           {{ message.message }}
         </p>
       </v-container>
@@ -24,6 +27,7 @@
         color="error"
         v-model="showSnack"
         :timeout="4000"
+        :top="true"
     >
       <p class="text-h4">{{ snackMessage }}</p>
     </v-snackbar>
@@ -61,7 +65,7 @@
               <v-icon>fa-trophy</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title>League Table</v-list-item-title>
+              <v-list-item-title>League</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
@@ -139,7 +143,7 @@
 
           <v-list-item color="white">
             <v-list-item-content>
-              <v-list-item-title>build: {{ build }}</v-list-item-title>
+              <v-list-item-title>version: {{ version }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
@@ -159,7 +163,9 @@
           </small>
         </v-toolbar-title>
         <v-spacer></v-spacer>
-        <small style="font-size:11px;" v-html="getPlayersDetails"></small>
+        <small style="font-size:11px;" v-html="getPlayersDetails"
+               v-if="getUsersDetails && getUsersDetails.budget"></small>
+        <v-progress-circular v-else indeterminate size="16"></v-progress-circular>
         <v-spacer></v-spacer>
         <div style="font-size:11px;">
           daily bonus:<br>
@@ -196,7 +202,7 @@
 </template>
 
 <script>
-import {mapGetters, mapMutations} from 'vuex'
+import {mapGetters, mapMutations, mapActions} from 'vuex'
 import moment from 'moment'
 
 import numeral from 'numeral'
@@ -235,12 +241,7 @@ export default {
     }
 
     if (this.hasUser) {
-      api.loadPersonalData(() => {
-        api.loadLeagues(() => {
-          api.checkBonusState()
-          api.loadUsers()
-        })
-      })
+      this.initLoading()
     }
     this.initDarkMode();
   },
@@ -254,7 +255,7 @@ export default {
       'getBids',
       'getGiftLevel',
       'getLoadingMessages',
-      'getSelfPlayerDetails',
+      'getUsersDetails',
       'getSelf',
       'getLeagues',
       'getLeague',
@@ -274,22 +275,22 @@ export default {
     },
     getPlayersDetails() {
       let details = ''
-      if (this.getSelfPlayerDetails && this.getSelfPlayerDetails.budget) {
-        details += 'Budget: ' + numeral(this.getSelfPlayerDetails.budget).format('0,0')
-        details += '&nbsp; / Team: ' + numeral(this.getSelfPlayerDetails.teamValue).format('0,0')
+      if (this.getUsersDetails && this.getUsersDetails.budget) {
+        details += 'Budget: ' + numeral(this.getUsersDetails.budget).format('0,0')
+        details += '&nbsp; / Team: ' + numeral(this.getUsersDetails.teamValue).format('0,0')
       }
 
-      if (this.getBids && this.getSelfPlayerDetails) {
+      if (this.getBids && this.getUsersDetails) {
         details += '<br>Bids: ' + numeral(this.getPlayerBidsSum).format('0,0')
-        // details += ' / A<span class="d-none d-sm-none d-md-inline-block">fter</span> B<span class="d-none d-sm-none d-md-inline-block">ids</span>: ' + numeral(this.getSelfPlayerDetails.budget - this.getPlayerBidsSum).format('0,0')
-        // details += '<span class="d-none d-sm-none d-md-inline-block"> / MaxedOut: ' + numeral((this.getSelfPlayerDetails.teamValue * 0.3) * -1).format('0,0') + '</span>'
+        // details += ' / A<span class="d-none d-sm-none d-md-inline-block">fter</span> B<span class="d-none d-sm-none d-md-inline-block">ids</span>: ' + numeral(this.getUsersDetails.budget - this.getPlayerBidsSum).format('0,0')
+        // details += '<span class="d-none d-sm-none d-md-inline-block"> / MaxedOut: ' + numeral((this.getUsersDetails.teamValue * 0.3) * -1).format('0,0') + '</span>'
       }
 
-      if (this.getSelfPlayerDetails && this.getSelfPlayerDetails.budget) {
-        details += '&nbsp;<span class="d-sm-inline-block d-md-none">/</span> Transfers: ' + (this.getSelfPlayerDetails.bought + this.getSelfPlayerDetails.sold)
+      if (this.getUsersDetails && this.getUsersDetails.budget) {
+        details += '&nbsp;/ Transfers: ' + ((this.getUsersDetails.bought || 0) + (this.getUsersDetails.sold || 0))
 
-        if (this.getSelfPlayerDetails.players && this.getSelfPlayerDetails.players.length) {
-          details += ' / <span class="d-none d-sm-none d-md-inline-block">Players</span><span class="d-inline-block d-md-none">Ply</span>: ' + this.getSelfPlayerDetails.players.length
+        if (this.getUsersDetails.players && this.getUsersDetails.players.length) {
+          details += ' / <span class="d-none d-sm-none d-md-inline-block">Players</span><span class="d-inline-block d-md-none">Ply</span>: ' + this.getUsersDetails.players.length
         }
 
       }
@@ -324,8 +325,8 @@ export default {
     leagueName() {
       return this.selectedLeague ? this.selectedLeague.name : null
     },
-    build() {
-      return process.env.VUE_APP_BUILD ? process.env.VUE_APP_BUILD : 'unknown'
+    version() {
+      return process.env.VUE_APP_VERSION ? process.env.VUE_APP_VERSION : 'unknown'
     }
   },
   methods: {
@@ -334,6 +335,11 @@ export default {
       'setLoading',
       'setOfferThreshold',
     ]),
+    ...mapActions(
+        [
+          'setAsInitialized'
+        ]
+    ),
     initDarkMode() {
       const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
@@ -353,6 +359,19 @@ export default {
       localStorage.removeItem('league')
       window.location.reload()
     },
+    async initLoading() {
+      this.setLoading(true)
+      await api.loadClubs()
+      await api.loadPersonalData()
+      await api.loadLeagues()
+      await api.checkBonusState()
+      await api.loadUsers()
+      await api.loadUsersStats()
+      await api.loadMatches()
+      await api.loadNextTwoMatchDays()
+      this.setLoading(false)
+      this.setAsInitialized()
+    }
   },
 };
 </script>

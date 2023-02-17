@@ -8,6 +8,18 @@ function setUsers(state, users) {
   state.users = users
 }
 
+function setTeams(state, teams) {
+  state.teams = teams
+}
+
+function setMatches(state, matches) {
+  state.matches = matches
+}
+
+function setNextMatchDay(state, nextMatchDay) {
+  state.nextMatchDay = nextMatchDay
+}
+
 function setLiveData(state, liveData) {
   state.liveData = liveData
 }
@@ -20,20 +32,26 @@ function addPlayer(state, player) {
   }
 }
 
-function addPlayersStatsFetched(state, payload) {
-  if (payload.playerId) {
-    const playersStatsFetched = Object.assign({}, state.playersStatsFetched)
-    playersStatsFetched[payload.playerId] = payload.value
-    state.playersStatsFetched = playersStatsFetched
-  }
-}
-
 function addUsersPlayer(state, payload) {
   if (payload.user && payload.players) {
     const users = Object.assign({}, state.users)
     const user = Object.assign({}, users[payload.user])
 
     user.players = payload.players
+
+    users[payload.user] = user
+    state.users = users
+    if (payload.user.id * 1 === state.self) {
+      state.players = payload.players
+    }
+  }
+}
+function addUsersLineup(state, payload) {
+  if (payload.user && payload.data) {
+    const users = Object.assign({}, state.users)
+    const user = Object.assign({}, users[payload.user])
+
+    user.lineup = payload.data
 
     users[payload.user] = user
     state.users = users
@@ -65,6 +83,7 @@ function addTransfersToUser(state, payload) {
 function addUser(state, user) {
   if (user.id) {
     const users = Object.assign({}, state.users)
+    user.ts = Date.now()
     users[user.id] = user
     state.users = users
   }
@@ -140,10 +159,6 @@ function addErrorLoadingMessage(state, message) {
   })
 }
 
-function setSelfPlayersStatsFetched(state, selfPlayersStatsFetched) {
-  state.selfPlayersStatsFetched = selfPlayersStatsFetched
-}
-
 function setOfferThreshold(state, offerThreshold) {
   localStorage.setItem(Constants.LOCALSTORAGE.OFFER_THRESHOLD, offerThreshold)
   state.offerThreshold = offerThreshold
@@ -152,6 +167,11 @@ function setOfferThreshold(state, offerThreshold) {
 function setOfferShowTooLowOffersOnly(state, offerShowTooLowOffersOnly) {
   localStorage.setItem(Constants.LOCALSTORAGE.OFFER_SHOW_TOO_LOW_OFFERS_ONLY, offerShowTooLowOffersOnly)
   state.offerShowTooLowOffersOnly = offerShowTooLowOffersOnly
+}
+
+function setGeneralPlayerCardShowAlwaysAllDetails(state, generalPlayerCardShowAlwaysAllDetails) {
+  localStorage.setItem(Constants.LOCALSTORAGE.GENERAL_PLAYER_CARD_SHOW_ALWAYS_ALL_DETAILS, generalPlayerCardShowAlwaysAllDetails)
+  state.generalPlayerCardShowAlwaysAllDetails = generalPlayerCardShowAlwaysAllDetails
 }
 
 function setOfferOpenPlayerNotOnMarketPanel(state, offerOpenPlayerNotOnMarketPanel) {
@@ -164,6 +184,16 @@ function setOfferOpenPlayerWithoutAnyOfferPanel(state, offerOpenPlayerWithoutAny
   state.offerOpenPlayerWithoutAnyOfferPanel = offerOpenPlayerWithoutAnyOfferPanel
 }
 
+function setTransfermarketExpiryDateFadeEffect(state, transfermarketExpiryDateFadeEffect) {
+  localStorage.setItem(Constants.LOCALSTORAGE.TRANSFER_MARKET_EXPIRY_DATE_FADE_EFFECT, transfermarketExpiryDateFadeEffect)
+  state.transfermarketExpiryDateFadeEffect = transfermarketExpiryDateFadeEffect
+}
+
+function setTransfermarketExpiryDisplayType(state, transfermarketExpiryDisplayType) {
+  localStorage.setItem(Constants.LOCALSTORAGE.TRANSFER_MARKET_EXPIRY_DISPLAY_TYPE, transfermarketExpiryDisplayType)
+  state.transfermarketExpiryDisplayType = transfermarketExpiryDisplayType
+}
+
 function setOfferOrder(state, payload) {
   if (payload.isTemporary === true) {
     state.offerOrder.temporary = payload.order
@@ -173,16 +203,34 @@ function setOfferOrder(state, payload) {
   }
 }
 
+function setMarketValueComparison(state, marketValueComparisonPlayer) {
+  state.marketValueComparisonPlayer = marketValueComparisonPlayer
+}
+
+function setInitialized(state, initialized) {
+  state.initialized = initialized
+}
+
+function setNextThreeMatchDays(state, nextThreeMatchDays) {
+  state.nextThreeMatchDays = nextThreeMatchDays
+}
+
 export default {
+  setInitialized,
   addPlayer,
   addUsersPlayer,
+  addUsersLineup,
   addTransfersToUser,
   addUser,
   setSelf,
+  setTeams,
+  setMatches,
+  setNextMatchDay,
   setSelfData,
   setLeague,
   setPlayers,
   setUsers,
+  setNextThreeMatchDays,
   setBids,
   setErrorMessage,
   setLoadingMessages,
@@ -197,11 +245,13 @@ export default {
   setGiftBonus,
   setLiveData,
   setLeagues,
-  setSelfPlayersStatsFetched,
-  addPlayersStatsFetched,
   setOfferThreshold,
   setOfferShowTooLowOffersOnly,
   setOfferOpenPlayerNotOnMarketPanel,
   setOfferOpenPlayerWithoutAnyOfferPanel,
+  setGeneralPlayerCardShowAlwaysAllDetails,
+  setTransfermarketExpiryDateFadeEffect,
+  setTransfermarketExpiryDisplayType,
   setOfferOrder,
+  setMarketValueComparison,
 }

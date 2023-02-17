@@ -82,12 +82,12 @@ $defaultBorder: 10px solid #dadada !important;
   }
 
   &-meta {
-    width: 22%;
+    width: 22% !important;
     margin-right: 3%;
     max-width: 300px;
 
     @include breakpoint(xs) {
-      width: 100%;
+      width: 100% !important;
       margin: 0 0 10px 0;
       max-height: 48px;
       align-items: center;
@@ -160,6 +160,13 @@ $defaultBorder: 10px solid #dadada !important;
     }
   }
 
+  &.own-bid {
+    border-color: $kp_pastell_purple !important;
+    .theme--dark & {
+      border-color: $kp_pastell_purple_dark !important;
+    }
+  }
+
   .offer, &.offer {
     border: $defaultBorder;
 
@@ -178,6 +185,15 @@ $defaultBorder: 10px solid #dadada !important;
 
       .theme--dark & {
         border-color: $kp_pastell_red_dark !important;
+      }
+    }
+
+    &--expired {
+      border-radius: 0 !important;
+      border-color: $kp_pastell_purple !important;
+
+      .theme--dark & {
+        border-color: $kp_pastell_purple_dark !important;
       }
     }
   }
@@ -245,6 +261,7 @@ $defaultBorder: 10px solid #dadada !important;
             }
           }
         }
+
         .v-alert__content {
           color: #d16e0b !important;
         }

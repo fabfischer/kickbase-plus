@@ -1,5 +1,5 @@
 <template>
-  <v-alert class="saved-alert" type="success" text transition="fade-transition" :value="value">{{message}}</v-alert>
+  <v-alert class="saved-alert" type="success" :text=isTextStyle transition="fade-transition" :value="value">{{message}}</v-alert>
 </template>
 
 <script>
@@ -16,7 +16,11 @@ export default {
       default: 'saved',
       required: false,
     },
-
+    isTextStyle: {
+      type: Boolean,
+      default: true,
+      required: false,
+    }
   }
 }
 </script>

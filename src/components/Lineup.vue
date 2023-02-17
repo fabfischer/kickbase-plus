@@ -1,10 +1,14 @@
 <template>
-  <div>
+  <div class="lineup-container">
+    <div class="lineup-container__loading-spinner" v-if="loading">
+      <v-progress-circular indeterminate color="green" width="10" size="120"></v-progress-circular>
+    </div>
     <v-container v-if="lineup && lineup.length">
       <div class="d-md-flex flex-wrap flex-md-nowrap align-center justify-space-between mb-5">
         <div class="wid">
           current formation: {{ formation }}
         </div>
+        <saved-alert :is-text-style=false message="line-up changes saved" :value="showSavedMessage"></saved-alert>
         <div>
           <v-select
               :items="possibleFormations"
@@ -23,7 +27,7 @@
               v-for="forward in lineupBlocks.forwards"
               :key="forward.id"
               :item="forward"
-              :matches="matches"
+              :matches="getMatches"
               v-on:openChangeDialog="openChangeDialog"
           ></lineup-item>
         </div>
@@ -32,7 +36,7 @@
               v-for="midfielder in lineupBlocks.midfielders"
               :key="midfielder.id"
               :item="midfielder"
-              :matches="matches"
+              :matches="getMatches"
               v-on:openChangeDialog="openChangeDialog"
           ></lineup-item>
         </div>
@@ -41,7 +45,7 @@
               v-for="defender in lineupBlocks.defenders"
               :key="defender.id"
               :item="defender"
-              :matches="matches"
+              :matches="getMatches"
               v-on:openChangeDialog="openChangeDialog"
           ></lineup-item>
         </div>
@@ -50,7 +54,7 @@
               v-for="goalie in lineupBlocks.goalie"
               :key="goalie.id"
               :item="goalie"
-              :matches="matches"
+              :matches="getMatches"
               v-on:openChangeDialog="openChangeDialog"
           ></lineup-item>
         </div>
@@ -137,24 +141,27 @@
 
 <script>
 import api from '../api/api'
-import moment from 'moment'
-import {mapGetters, mapMutations} from 'vuex'
+import {mapGetters} from 'vuex'
 
 import StatusPill from './StatusPill'
 import Spinner from './Spinner'
 import LineupItem from './LineupItem'
 import LineupTable from './LineupTable'
-import {nextMatch} from '../helper/helper'
+import {getBundesligaClubImageUrlById, nextMatch} from '@/helper/helper'
+import SavedAlert from "@/components/Generic/SavedAlert";
 
 export default {
   name: 'lineup-component',
   components: {
+    SavedAlert,
     LineupTable,
     LineupItem,
     StatusPill,
     Spinner,
   },
   data: () => ({
+    loading: false,
+    showSavedMessage: false,
     formation: null,
     selectedFormation: null,
     possibleFormations: [
@@ -183,7 +190,6 @@ export default {
       midfielders: 0,
       forwards: 0
     },
-    matches: [],
     lineUpDialog: {
       show: false,
       position: '',
@@ -195,6 +201,7 @@ export default {
     ...mapGetters([
       'getLeague',
       'getSelf',
+      'getMatches',
     ]),
     goalies() {
       let goalies = []
@@ -313,30 +320,9 @@ export default {
     this.init()
   },
   methods: {
-    ...mapMutations([
-      'setLoading'
-    ]),
     init: function () {
       if (this.getSelf) {
         this.loadLineup()
-
-        api.loadMatches(null, (data) => {
-          if (data.m && data.m.length) {
-            const lastMatch = data.m[data.m.length - 1]
-            if (moment(lastMatch.d).isSameOrAfter(new Date(), 'day') === true) {
-              this.matches = data.m
-            } else {
-              const nextMatchday = data.cmd + 1
-              if (nextMatchday <= 34) {
-                api.loadMatches(nextMatchday, (data) => {
-                  if (data.m && data.m.length) {
-                    this.matches = data.m
-                  }
-                })
-              }
-            }
-          }
-        })
       } else {
         window.setTimeout(this.init, 1000)
       }
@@ -398,7 +384,7 @@ export default {
     },
     saveLineup(oldPlayer, newPlayer) {
 
-      this.setLoading(true)
+      this.loading = true
       this.lineUpDialog.show = false
 
       const goalieBlock = this.lineupBlocks.goalie.map((obj) => (obj && obj.id) ? obj.id : null)
@@ -412,7 +398,6 @@ export default {
       const forwards = (newPlayer.position === 4) ? this.changeBlockLineup(forwardsBlock, oldPlayer, newPlayer) : forwardsBlock
 
       const newLineup = [...goalie, ...defenders, ...midfielders, ...forwards]
-      console.log(goalie, defenders, midfielders, forwards)
 
       api.saveLineup(
           {
@@ -423,10 +408,14 @@ export default {
           },
           () => {
             this.loadLineup()
-            this.setLoading(false)
+            this.loading = false
+            this.showSavedMessage = true
+            window.setTimeout(() => {
+              this.showSavedMessage = false
+            }, 2000)
           },
           () => {
-            this.setLoading(false)
+            this.loading = false
           }
       )
     },
@@ -486,7 +475,7 @@ export default {
     playerTeamImg(player) {
       let img = null
       if (player) {
-        img = '/assets/teams/' + player.teamId + '.png'
+        img = getBundesligaClubImageUrlById(player.teamId)
       }
       return img
     },
@@ -507,7 +496,7 @@ export default {
       return players
     },
     playerVs(player) {
-      return nextMatch(this.matches, player)
+      return nextMatch(this.getMatches, player)
     }
   }
 };

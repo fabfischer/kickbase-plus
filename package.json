@@ -1,8 +1,9 @@
 {
   "name": "kickbase-plus",
-  "version": "1.5.3",
+  "version": "1.7.0",
   "description": "alternative web client for kickbase",
   "scripts": {
+    "dev": "vue-cli-service serve --port 3200",
     "serve": "vue-cli-service serve --port 3200",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
