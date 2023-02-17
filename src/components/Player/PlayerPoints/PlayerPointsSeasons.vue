@@ -9,13 +9,31 @@
           <div class="player-points__match__day">
             <strong>{{ match.d }}.</strong><br>matchday
           </div>
-          <div class="player-points__match__missed_bar" v-if="match.missed">
-            <v-icon color="white" class="mt-1" size="16">fa-ban</v-icon>
-
-            <span>
+          <template v-if="match.missed">
+            <div class="player-points__match__missed_bar ">
+              <v-icon color="red" class="mt-1" size="16">fa-ban</v-icon>
+              <span>
                   did not play
                 </span>
-          </div>
+            </div>
+            <template v-if="match.details && match.details.i">
+              <div class="player-points__match__points">
+                0
+              </div>
+              <div class="player-points__match__game-details">
+                <div class="player-points__match__game-details__logos">
+                  <v-img :src="getTeamImageById(match.details.t1.i)" max-width="24" max-height="24"></v-img>
+                  <v-img :src="getTeamImageById(match.details.t2.i)" max-width="24" max-height="24"></v-img>
+                </div>
+                <div class="player-points__match__game-details__result">
+                  {{ match.details.t1.g }}:{{ match.details.t2.g }}
+                </div>
+                <div class="player-points__match__minutes">
+                  0'
+                </div>
+              </div>
+            </template>
+          </template>
           <template v-else>
             <div
                 class="player-points__match__bar"
