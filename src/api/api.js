@@ -580,7 +580,6 @@ const api = {
     async loadUsersPlayers(userId, loadPlayerStates = true) {
         const user = userId
         store.commit('addLoadingMessage', 'loading players and lineup of user #' + user)
-        await api.loadUsersLineup(user)
         await axios({
             'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/users/' + user + '/players',
             "method": "GET",
@@ -595,6 +594,7 @@ const api = {
                     for (let i = 0; i < response.data.players.length; i++) {
                         playerIds.push(response.data.players[i].id)
                     }
+                    await api.loadUsersLineup(user)
                     await smartPlayerStatsLoading(playerIds)
                 }
             }
