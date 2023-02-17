@@ -31,6 +31,20 @@ const api = {
         }
         return false
     },
+    async loadMatchDay(matchDay) {
+        await axios({
+            'url': 'https://api.kickbase.com/v2/competitions/1/matches?matchDay=' + matchDay,
+            "method": 'GET',
+            'data': {},
+        }).then((gameMatchResponse) => {
+            if (gameMatchResponse.data && gameMatchResponse.data.day) {
+                store.commit('addMatchDay', {
+                    day: gameMatchResponse.data.day,
+                    data: gameMatchResponse.data
+                })
+            }
+        })
+    },
     async loadClubs() {
         await axios({
             'url': 'https://api.kickbase.com/v2/competitions/1/overview',
@@ -194,7 +208,7 @@ const api = {
                 store.commit('setErrorMessage', 'login issues')
             })
     },
-    loadRanking(cb) {
+    async loadRanking(cb) {
         axios({
             'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/stats',
             "method": "GET",
