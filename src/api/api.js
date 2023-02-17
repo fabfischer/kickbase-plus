@@ -562,9 +562,25 @@ const api = {
             .finally(function () {
             });
     },
+
+    async loadUsersLineup(userId) {
+        const user = userId
+        await axios({
+            'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/users/' + user + '/lineup',
+            "method": "GET",
+        }).then(async (response) => {
+            if (response.status === 200) {
+                store.commit('addUsersLineup', {
+                    user,
+                    data: response.data
+                })
+            }
+        })
+    },
     async loadUsersPlayers(userId, loadPlayerStates = true) {
         const user = userId
-        store.commit('addLoadingMessage', 'loading players of user #' + user)
+        store.commit('addLoadingMessage', 'loading players and lineup of user #' + user)
+        await api.loadUsersLineup(user)
         await axios({
             'url': 'https://api.kickbase.com/leagues/' + store.getters.getLeague + '/users/' + user + '/players',
             "method": "GET",

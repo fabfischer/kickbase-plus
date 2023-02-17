@@ -10,6 +10,7 @@
     <div class="player-card-content-wrapper">
       <div class="player-card-meta" v-if="hideMeta===false" :style="{width: playerMetaWidth}">
         <div class="player-card-meta__content">
+          <slot name="pre-meta"></slot>
           <div class="player-card__image">
             <v-img :src="teamImage" aspect-ratio="1" class="player-card__team-image">
             </v-img>

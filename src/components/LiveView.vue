@@ -6,7 +6,7 @@
       <reload-button :loading="loading" v-on:click.native="reload"></reload-button>
     </div>
 
-    <v-expansion-panels accordion class="elevation-1 player-card-accordion" v-if="getUsers && getUsers.length">
+    <v-expansion-panels multiple accordion class="elevation-1 player-card-accordion" v-if="getUsers && getUsers.length">
       <v-expansion-panel
           v-for="(user, idx) in getUsers" :key="user.id"
       >

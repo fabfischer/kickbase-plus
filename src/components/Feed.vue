@@ -1,6 +1,11 @@
 <template>
-  <div>
+  <div class="full-width-container">
+    <div class="d-flex flex-wrap flex-sm-nowrap justify-space-between align-center">
+      <h2 class="text-h4 text-sm-h3 mb-5">News Feed</h2>
+      <reload-button :loading="loading" v-on:click.native="loadFeed"></reload-button>
+    </div>
     <v-container v-if="items && items.length">
+      
       <v-card style="margin-bottom: 20px;" v-for="item in items" :key="item.id">
         <div class="d-flex flex-no-wrap justify-space-between">
         <v-avatar
@@ -70,12 +75,14 @@ numeral.locale('deff')
 import moment from 'moment'
 
 import Spinner from './Spinner'
+import ReloadButton from "./Generic/ReloadButton";
 import {smartPlayerStatsLoading} from "@/helper/helper";
 
 export default {
   name: 'feed-view',
   components: {
-    Spinner
+    Spinner,
+    ReloadButton
   },
   filters: {
     age: (age) => {
@@ -85,6 +92,7 @@ export default {
   },
   data: () => ({
     items: [],
+    loading: false,
   }),
   computed: {
     ...mapGetters(['getBearerToken', 'getSelf', 'getPlayersOfUser', 'getLeague', 'getPlayers']),
@@ -93,12 +101,17 @@ export default {
     },
   },
   mounted() {
-    window.setTimeout(() => {
-      api.loadFeed(this.setFeed)
-    }, 2000)
+    this.loadFeed()
   },
   methods: {
     ...mapMutations(['addLoadingMessage', 'setLoading', 'resetLoading']),
+    loadFeed() {
+      this.loading = true
+      this.items = []
+      window.setTimeout(() => {
+        api.loadFeed(this.setFeed)
+      }, 2000)
+    },
     async setFeed(data) {
       if (data.items) {
         this.items = data.items.sort((itemA, itemB) => {
@@ -116,6 +129,7 @@ export default {
           }
         })
         await smartPlayerStatsLoading(playerIds)
+        this.loading = false
       }
     },
     getPlayerImage(item) {
