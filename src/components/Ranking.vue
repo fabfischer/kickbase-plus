@@ -1,6 +1,6 @@
 <template>
   <div class="full-width-container">
-    <div v-if="getRanking && getSelf">
+    <div v-if="getRanking && ranks && ranks.length && getSelf">
       <v-tabs
           v-model="tabMain"
           background-color="blue-grey darken-2"
@@ -29,7 +29,10 @@
               <v-expansion-panel-header>
                 <template>
                   <div class="d-flex text-h5 text-lg-h4" style="align-items: center">
-                    <strong class="">{{ item.points }}</strong>
+                    <div>
+                      <strong class="">{{ item.points }}</strong><br/>
+                      <small class="d-block text-center text--disabled text-caption">Points</small>
+                    </div>
                     <v-avatar v-if="item.user.profile" class="my-2 ma-3">
                       <img
                           :src="item.user.profile"
@@ -42,7 +45,7 @@
               </v-expansion-panel-header>
               <v-expansion-panel-content>
 
-                <v-expansion-panels multiple accordion class="elevation-2" v-if="item.user.model">
+                <v-expansion-panels multiple accordion class="elevation-2" v-if="item.user.model && item.user.model.lineup">
                   <v-expansion-panel>
                     <v-expansion-panel-header>
                       Lineup ({{ item.user.model.lineup.type }})
@@ -198,7 +201,7 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+import {mapGetters, mapMutations} from 'vuex'
 import api from '../api/api'
 import Spinner from './Spinner'
 import RankingLineChart from './RankingLineChart'
@@ -317,15 +320,17 @@ export default {
     this.init()
   },
   methods: {
-    init: function () {
+    ...mapMutations(['setRanking']),
+    init: async function () {
+      this.setRanking(null)
       if (this.getSelf) {
-        Object.keys(this.getUsers).forEach(async (user) => {
+        const users = Object.keys(this.getUsers)
+        for (let i = 0; i < users.length; i++) {
+          const user = users[i]
           await api.loadUsersLineup(user)
           await api.loadUsersPlayers(user, false)
-        })
-        api.loadRanking(() => {
-
-        })
+        }
+        await api.loadRanking()
       } else {
         window.setTimeout(this.init, 1000)
       }

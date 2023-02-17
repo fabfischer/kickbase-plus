@@ -84,6 +84,7 @@ export default {
     ...mapGetters([
       'getPlayers',
       'getMatches',
+      'getMatchDays',
       'getNextThreeMatchDays',
     ]),
     pastMatchDays() {
@@ -120,6 +121,8 @@ export default {
           let matches = 0
           let startingFormation = 0
           const playedSeasonGameDays = []
+
+          season.isCurrent = (sLength - 1 === index)
           if (season.m && season.m.length) {
             season.m.forEach((match) => {
               playedSeasonGameDays.push(match.d)
@@ -149,7 +152,16 @@ export default {
             }
 
             missingGameDays.forEach((matchday) => {
-              season.m.push({d: matchday, missed: true})
+              let details = {}
+              if (season.isCurrent && this.getMatchDays[matchday] && this.getMatchDays[matchday].e && this.getMatchDays[matchday].e.length) {
+                this.getMatchDays[matchday].e.forEach(game => {
+                  if (game.t1.i === this.player.teamId || game.t2.i === this.player.teamId) {
+                    details = game
+                  }
+                })
+                // details = this.getMatchDays[matchday].e
+              }
+              season.m.push({d: matchday, missed: true, details})
             })
 
             season.m.sort((a, b) => {

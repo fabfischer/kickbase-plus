@@ -368,6 +368,12 @@ export default {
       await api.loadUsers()
       await api.loadUsersStats()
       await api.loadMatches()
+      if (this.getLeagues.length) {
+        for (let i = 1; i <= this.getLeagues[0].pl; i++) {
+          await api.loadMatchDay(i)
+        }
+      }
+
       await api.loadNextTwoMatchDays()
       this.setLoading(false)
       this.setAsInitialized()
