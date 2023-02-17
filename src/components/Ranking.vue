@@ -1,6 +1,6 @@
 <template>
   <div class="full-width-container">
-    <div v-if="getRanking">
+    <div v-if="getRanking && getSelf">
       <v-tabs
           v-model="tabMain"
           background-color="blue-grey darken-2"
@@ -49,16 +49,16 @@
                     </v-expansion-panel-header>
                     <v-expansion-panel-content>
                       {{ item.user.model.lineup.type }}: <br>
-                      {{ getComputedLineupForUser(item.user.model) }}
+                      {{ item.user.computedLineup }}
                     </v-expansion-panel-content>
                   </v-expansion-panel>
                   <v-expansion-panel>
                     <v-expansion-panel-header>
-                      Players ({{ getComputedPlayerListForUser(item.user.model).length }})
+                      Players ({{ item.user.playerList.length }})
                     </v-expansion-panel-header>
                     <v-expansion-panel-content>
                       <ol>
-                        <li v-for="player in getComputedPlayerListForUser(item.user.model)" :key="player.name">
+                        <li v-for="player in item.user.playerList" :key="player.name">
                           {{ player.name }}
                         </li>
                       </ol>
@@ -70,7 +70,7 @@
                     </v-expansion-panel-header>
                     <v-expansion-panel-content>
                       <table class="kp-table">
-                        <tr v-for="(team, n) in getComputedPlayerPerTeamListForUser(item.user.model)"
+                        <tr v-for="(team, n) in item.user.playerPerTeamList"
                             :key="team.teamId">
                           <th style="width: 20px">
                             {{ n + 1 }}.
@@ -273,6 +273,9 @@ export default {
 
             const cUser = {...user[0]}
             cUser.model = this.getUsers[element.userId]
+            cUser.computedLineup = this.getComputedLineupForUser(cUser.model)
+            cUser.playerList = this.getComputedPlayerListForUser(cUser.model)
+            cUser.playerPerTeamList = this.getComputedPlayerPerTeamListForUser(cUser.model)
 
             let advantage = 0
             let r1Advantage = 0
@@ -316,6 +319,10 @@ export default {
   methods: {
     init: function () {
       if (this.getSelf) {
+        Object.keys(this.getUsers).forEach(async (user) => {
+          await api.loadUsersLineup(user)
+          await api.loadUsersPlayers(user, false)
+        })
         api.loadRanking(() => {
 
         })
