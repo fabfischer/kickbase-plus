@@ -20,9 +20,9 @@ it offers some additional features compared to the official mobile ~~and web app
 - automatic fetching of daily bonus
 - transfer market:
 	- market price trends of the last few days are directly visible
-	- see if other users bid on a player
 	- dedicated buttons which let you send an offer with one click
 	- indication of how many more players you can buy (if your league has a player limit for teams)
+	- ~~see if other users bid on a player~~ (unfortunately no longer possible due to API changes)
 - offers by Kickbase:
 	- accept or reject offers from Kickbase with just one click
 - line-up:

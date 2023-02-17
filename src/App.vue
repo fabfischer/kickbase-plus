@@ -65,7 +65,7 @@
               <v-icon>fa-trophy</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title>League Table</v-list-item-title>
+              <v-list-item-title>League</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 

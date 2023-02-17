@@ -5,7 +5,7 @@
       :player="player"
       :show-purchase-statistic=false
   >
-    <template v-slot:pre-head>
+    <template v-slot:pre-meta>
       <v-alert
           text
           :color="(isDarkTheme) ? 'deep-purple lighten-3': 'deep-purple darken-4'"
@@ -23,39 +23,6 @@
 
         <div class="expiry-info__shadow-info" v-if="expiryAsDateTime === false">{{ expiryDate }}</div>
         <div class="expiry-info__shadow-info" v-if="expiryAsDateTime === true">{{ expiryDateAsDateTime }}</div>
-      </v-alert>
-
-      <v-alert v-if="player.hasNoBid"
-               text
-               :color="(isDarkTheme) ? 'lime darken-3': 'orange darken-3'"
-               icon="fa-exclamation-circle"
-      >
-        NO BID
-      </v-alert>
-
-      <v-alert v-if="player.hasOnlySelfBid" text dark class="text--white" color="pink accent-4" icon="fa-bomb">
-        YOUR BID ONLY
-      </v-alert>
-
-      <v-alert v-else-if="player.hasOwnBid" text dark class="text--white"
-               :color="(isDarkTheme) ? 'purple darken-1': 'purple accent-4'" icon="fa-clipboard-check">
-        YOU BID
-      </v-alert>
-
-      <template v-if="foreignOffers.length">
-        <v-alert v-for="bid in foreignOffers"
-                 :key="bid.id"
-                 text
-                 :color="(isDarkTheme) ? 'green lighten-4': 'green darken-4'"
-                 icon="fa-money-bill-wave"
-        >
-          <span class="text-caption">{{ bid.userName }}</span>
-          <small>&nbsp;{{ getDate(bid.date) }}</small>
-        </v-alert>
-      </template>
-
-      <v-alert v-if="player.userId" text :color="(isDarkTheme) ? 'brown lighten-3': 'brown darken-3'" icon="fa-user">
-        Player: {{ player.username }}
       </v-alert>
     </template>
 

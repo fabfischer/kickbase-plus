@@ -160,6 +160,13 @@ $defaultBorder: 10px solid #dadada !important;
     }
   }
 
+  &.own-bid {
+    border-color: $kp_pastell_purple !important;
+    .theme--dark & {
+      border-color: $kp_pastell_purple_dark !important;
+    }
+  }
+
   .offer, &.offer {
     border: $defaultBorder;
 
