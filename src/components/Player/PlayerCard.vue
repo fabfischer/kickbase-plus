@@ -49,6 +49,19 @@
               ⌀ {{ player.averagePoints }} / {{ player.totalPoints }}
             </v-alert>
           </div>
+          <div
+             class="player-card-meta__item player-card-meta__item--sm-fifth"
+             v-if="hidePlayerPoints === false"
+           >
+             <v-alert
+               :color="getPricePerPointColor"
+               dense
+               text
+               icon="fa-bullseye"
+             >
+               {{ getComputedPricePerPoint }} KpP
+             </v-alert>
+           </div>
           <div class="player-card-meta__item player-card-meta__item--sm-fifth" v-if="nextMatchComputed && nextMatchComputed.img">
             <v-alert :color="nextGameColor" dense text icon="fa-beer">
               <div class="d-flex align-center text-left ">
@@ -226,6 +239,23 @@ export default {
       }
       return icon
     },
+    getPricePerPoint() {
+       return (this.player.marketValue / 1000 / this.player.averagePoints) | 0;
+     },
+     getComputedPricePerPoint() {
+       return numeral(this.getPricePerPoint).format("0,0");
+     },
+     getPricePerPointColor() {
+       let positive = "#2a5b2a";
+       let negative = "#682828";
+       if (this.$vuetify.theme.dark) {
+         positive = "#afd3af";
+         negative = "#e6b6b6";
+       }
+       return this.getPricePerPoint < 200 && this.getPricePerPoint > 0
+         ? positive
+         : negative;
+     },
     getPlayerStatistics() {
       return {
         headers: [
